@@ -16,7 +16,7 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'http://localhost:8080/';
+    public string $baseURL = '';
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
@@ -153,9 +153,10 @@ class App extends BaseConfig
      * --------------------------------------------------------------------------
      *
      * Configuration for communicating with the ci4-website-builder-domain API
+     * Configured via environment variables: WEB_API_BASE_URL and WEB_API_KEY
      */
-    public string $webApiBaseUrl = 'http://localhost:8190';
-    public string $webApiKey = 'web_api_test_key';
+    public string $webApiBaseUrl = '';
+    public string $webApiKey = '';
 
     /**
      * --------------------------------------------------------------------------
@@ -209,4 +210,39 @@ class App extends BaseConfig
      * @see http://www.w3.org/TR/CSP/
      */
     public bool $CSPEnabled = false;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Validate baseURL is configured
+        if ($this->baseURL === '') {
+            throw new \LogicException(
+                'Missing app.baseURL in .env. '
+                . 'Set app.baseURL to your website URL. '
+                . 'Example: app.baseURL=http://localhost:8086/'
+            );
+        }
+
+        // Load Website Builder API configuration from .env
+        $webApiBaseUrl = env('WEB_API_BASE_URL');
+        if (! is_string($webApiBaseUrl) || trim($webApiBaseUrl) === '') {
+            throw new \LogicException(
+                'Missing WEB_API_BASE_URL in .env. '
+                . 'Set WEB_API_BASE_URL to your domain API server URL. '
+                . 'Example: WEB_API_BASE_URL=http://localhost:8190'
+            );
+        }
+        $this->webApiBaseUrl = $webApiBaseUrl;
+
+        $webApiKey = env('WEB_API_KEY');
+        if (! is_string($webApiKey) || trim($webApiKey) === '') {
+            throw new \LogicException(
+                'Missing WEB_API_KEY in .env. '
+                . 'This is the API key registered in your domain API. '
+                . 'Contact your administrator for the key.'
+            );
+        }
+        $this->webApiKey = $webApiKey;
+    }
 }

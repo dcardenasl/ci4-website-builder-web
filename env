@@ -17,12 +17,16 @@
 # CI_ENVIRONMENT = production
 
 #--------------------------------------------------------------------
-# APP
+# APP — REQUIRED
 #--------------------------------------------------------------------
+# Base URL of this website. Used for generating canonical links and URLs
+# in email notifications.
+#
+# REQUIRED: Set this to your website URL
+app.baseURL = http://localhost:8086/
 
-# app.baseURL = ''
 # If you have trouble with `.`, you could also use `_`.
-# app_baseURL = ''
+# app_baseURL = http://localhost:8086/
 # app.forceGlobalSecureRequests = false
 # app.CSPEnabled = false
 
@@ -67,3 +71,18 @@
 #--------------------------------------------------------------------
 
 # logger.threshold = 4
+
+#--------------------------------------------------------------------
+# DOMAIN API CLIENT — REQUIRED
+#--------------------------------------------------------------------
+# Base URL to the domain API (ci4-domain-starter). This website fetches all
+# content (pages, collections, entries, blocks, menus, settings) from the API.
+#
+# REQUIRED: Set this to your domain API URL
+WEB_API_BASE_URL = http://localhost:8190
+
+# API Key for domain API calls. This identifies the website as a trusted client
+# to the API (X-App-Key header). Create this via the domain admin panel.
+#
+# REQUIRED: Set this to a registered API key in your domain
+WEB_API_KEY = web_api_test_key

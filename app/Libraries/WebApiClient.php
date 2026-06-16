@@ -24,8 +24,28 @@ class WebApiClient
         string $apiKey = '',
         int $timeout = 10
     ) {
-        $this->baseUrl = rtrim($baseUrl ?: (string) env('WEB_API_BASE_URL', 'http://localhost:8080'), '/');
-        $this->apiKey  = $apiKey ?: (string) env('WEB_API_KEY', '');
+        if (! $baseUrl) {
+            $baseUrl = (string) env('WEB_API_BASE_URL', '');
+        }
+        if (! is_string($baseUrl) || trim($baseUrl) === '') {
+            throw new \LogicException(
+                'Missing WEB_API_BASE_URL. Pass it to constructor or set in .env. '
+                . 'Example: WEB_API_BASE_URL=http://localhost:8190'
+            );
+        }
+
+        if (! $apiKey) {
+            $apiKey = (string) env('WEB_API_KEY', '');
+        }
+        if (! is_string($apiKey) || trim($apiKey) === '') {
+            throw new \LogicException(
+                'Missing WEB_API_KEY. Pass it to constructor or set in .env. '
+                . 'This should be a registered API key from your domain API.'
+            );
+        }
+
+        $this->baseUrl = rtrim($baseUrl, '/');
+        $this->apiKey  = $apiKey;
         $this->timeout = $timeout;
     }
 
