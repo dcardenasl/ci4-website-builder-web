@@ -82,9 +82,12 @@ php_errors.log
 /phpunit
 
 #-------------------------
-# Composer
+# Composer & NPM
 #-------------------------
 vendor/
+node_modules/
+pnpm-lock.yaml
+package-lock.json
 
 #-------------------------
 # IDE / Development Files
