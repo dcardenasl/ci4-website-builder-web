@@ -1,0 +1,14 @@
+{
+  "name": "ci4-website-builder-web",
+  "version": "1.0.0",
+  "description": "Generic CI4 website powered by ci4-website-builder-domain",
+  "scripts": {
+    "build:css": "tailwindcss -i ./public/assets/css/app.css -o ./public/assets/css/compiled.css --minify",
+    "dev:css": "tailwindcss -i ./public/assets/css/app.css -o ./public/assets/css/compiled.css --watch"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.1"
+  }
+}
