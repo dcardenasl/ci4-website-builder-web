@@ -210,6 +210,3 @@ class App extends BaseConfig
      */
     public bool $CSPEnabled = false;
 }
-
-    public string $webApiBaseUrl = 'http://localhost:8190';
-    public string $webApiKey = 'web_api_test_key';
