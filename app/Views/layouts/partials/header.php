@@ -1,21 +1,21 @@
-<header class="bg-white shadow">
-    <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <a href="<?= base_url() ?>" class="text-2xl font-bold text-blue-600">
+<header class="bg-white border-b border-gray-200">
+    <nav class="container-base py-4 flex justify-between items-center">
+        <a href="<?= base_url() ?>" class="text-2xl font-bold text-primary hover:text-primary-light transition-colors">
             <?= esc($settings['site_title'] ?? 'Website') ?>
         </a>
 
-        <ul class="flex gap-6">
+        <ul class="flex gap-8">
             <?php foreach (($menu['items'] ?? []) as $item): ?>
-                <li>
-                    <a href="<?= esc($item['custom_url'] ?? '#') ?>" class="text-gray-700 hover:text-blue-600 transition">
+                <li class="relative group">
+                    <a href="<?= esc($item['custom_url'] ?? '#') ?>" class="text-text-secondary hover:text-primary font-medium transition-colors py-2">
                         <?= esc($item['label'] ?? '') ?>
                     </a>
 
                     <?php if (!empty($item['children'])): ?>
-                        <ul class="hidden absolute top-full left-0 bg-white shadow-lg rounded-lg py-2 min-w-48">
+                        <ul class="absolute left-0 mt-0 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 top-full">
                             <?php foreach ($item['children'] as $subitem): ?>
                                 <li>
-                                    <a href="<?= esc($subitem['custom_url'] ?? '#') ?>" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <a href="<?= esc($subitem['custom_url'] ?? '#') ?>" class="block px-4 py-2 text-text-secondary hover:bg-background hover:text-primary transition-colors">
                                         <?= esc($subitem['label'] ?? '') ?>
                                     </a>
                                 </li>

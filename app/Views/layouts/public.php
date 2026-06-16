@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="<?= esc(service('request')->getLocale()) ?>">
 <head>
-    <?= view('layouts/partials/head', $data) ?>
+    <?= view('layouts/partials/head', $data ?? []) ?>
 </head>
 <body>
     <?= view('layouts/partials/header', ['menu' => $mainMenu ?? []]) ?>
 
     <main>
-        <?= view($view, $data) ?>
+        <?= view($view, $data ?? []) ?>
     </main>
 
     <?= view('layouts/partials/footer', ['menu' => $footerMenu ?? [], 'settings' => $settings ?? []]) ?>

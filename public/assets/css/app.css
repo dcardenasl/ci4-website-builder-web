@@ -1,3 +1,272 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.875rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+a {
+  color: #0369a1;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #06b6d4;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.btn:focus {
+  outline: 2px solid #0369a1;
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background-color: #0369a1;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #164e63;
+}
+
+.btn-secondary {
+  background-color: #64748b;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #475569;
+}
+
+.btn-outline {
+  border: 2px solid #0369a1;
+  color: #0369a1;
+}
+
+.btn-outline:hover {
+  background-color: #0369a1;
+  color: white;
+}
+
+.btn-ghost {
+  color: #0369a1;
+}
+
+.btn-ghost:hover {
+  background-color: #f0f9ff;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+}
+
+/* Cards */
+.card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.card-compact {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+}
+
+/* Containers */
+.container-base {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.container-narrow {
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.container-wide {
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Sections */
+.section {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.section-sm {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.section-lg {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+/* Text utilities */
+.text-muted {
+  color: #94a3b8;
+}
+
+.text-subtle {
+  color: #475569;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background-color: #dbeafe;
+  color: #0369a1;
+}
+
+.badge-secondary {
+  background-color: #e2e8f0;
+  color: #64748b;
+}
+
+/* Links */
+.link {
+  color: #0369a1;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.link:hover {
+  color: #06b6d4;
+}
+
+.link-plain {
+  color: #0369a1;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.link-plain:hover {
+  color: #06b6d4;
+}
+
+/* Divider */
+.divider {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Forms */
+.form-input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.1);
+  border-color: #0369a1;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+/* Grid */
+.grid-cols-blog {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .grid-cols-blog {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-blog {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-in;
+}
