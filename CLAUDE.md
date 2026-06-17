@@ -7,8 +7,8 @@ Generic CI4 4.7 website powered by `ci4-website-builder-domain` API.
 ```bash
 cd /Users/davidcardenas/Developer/PHP/ci4-website-starter/ci4-website-builder-web
 
-# Development server (port 8086)
-php spark serve --port 8086
+# Development server (port 8186)
+php spark serve --port 8186
 
 # Tailwind CSS dev watch
 npm run dev:css
@@ -41,7 +41,7 @@ npm run build:css
 
 `.env` variables:
 - `CI_ENVIRONMENT` = `development`
-- `app.baseURL` = `http://localhost:8086/`
+- `app.baseURL` = `http://localhost:8186/`
 - `app.defaultLocale` = `es` (default language)
 - `WEB_API_BASE_URL` = `http://localhost:8190` (domain API URL)
 - `WEB_API_KEY` = `web_api_test_key` (API key registered in domain)
@@ -94,19 +94,19 @@ Start both servers:
 # Terminal 1: Domain API (port 8190)
 cd ci4-website-builder-domain && php spark serve --port 8190
 
-# Terminal 2: Website (port 8086)
-cd ci4-website-builder-web && php spark serve --port 8086
+# Terminal 2: Website (port 8186)
+cd ci4-website-builder-web && php spark serve --port 8186
 
 # Terminal 3: Tailwind CSS watch
 cd ci4-website-builder-web && npm run dev:css
 ```
 
 Visit:
-- Homepage: `http://localhost:8086/`
-- Sitemap: `http://localhost:8086/sitemap.xml`
-- Page (example): `http://localhost:8086/about` (if page with slug "about" exists in domain)
-- Collection (example): `http://localhost:8086/blog` (if collection with url_prefix="/blog" exists)
-- Entry (example): `http://localhost:8086/blog/first-post` (if entry exists in domain)
+- Homepage: `http://localhost:8186/`
+- Sitemap: `http://localhost:8186/sitemap.xml`
+- Page (example): `http://localhost:8186/about` (if page with slug "about" exists in domain)
+- Collection (example): `http://localhost:8186/blog` (if collection with url_prefix="/blog" exists)
+- Entry (example): `http://localhost:8186/blog/first-post` (if entry exists in domain)
 
 ## Troubleshooting
 

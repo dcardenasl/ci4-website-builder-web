@@ -63,15 +63,11 @@ class BlockRenderer
  */
 function view_exists(string $view): bool
 {
-    $locator = \Config\Services::locator(false);
-    $paths = $locator->listNamespaces();
-
-    foreach ($paths as $namespace => $path) {
-        $file = $path . 'Views/' . str_replace('.', '/', $view) . '.php';
-        if (is_file($file)) {
-            return true;
-        }
+    $file = APPPATH . 'Views/' . str_replace('.', '/', $view) . '.php';
+    if (is_file($file)) {
+        return true;
     }
 
-    return false;
+    $locator = \Config\Services::locator();
+    return $locator->locateFile($view, 'Views') !== false;
 }

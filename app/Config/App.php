@@ -220,7 +220,7 @@ class App extends BaseConfig
             throw new \LogicException(
                 'Missing app.baseURL in .env. '
                 . 'Set app.baseURL to your website URL. '
-                . 'Example: app.baseURL=http://localhost:8086/'
+                . 'Example: app.baseURL=http://localhost:8186/'
             );
         }
 

@@ -34,4 +34,4 @@
     </script>
 <?php endif; ?>
 
-<link rel="stylesheet" href="<?= base_url('assets/css/compiled.css') ?>">
+<link rel="stylesheet" href="<?= base_url('assets/css/compiled.css?v=' . time()) ?>">

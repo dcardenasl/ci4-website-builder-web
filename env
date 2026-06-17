@@ -23,10 +23,10 @@
 # in email notifications.
 #
 # REQUIRED: Set this to your website URL
-app.baseURL = http://localhost:8086/
+app.baseURL = http://localhost:8186/
 
 # If you have trouble with `.`, you could also use `_`.
-# app_baseURL = http://localhost:8086/
+# app_baseURL = http://localhost:8186/
 # app.forceGlobalSecureRequests = false
 # app.CSPEnabled = false
 

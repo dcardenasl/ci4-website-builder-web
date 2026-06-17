@@ -175,6 +175,10 @@ class PageController extends BasePublicWebController
      */
     private function getPageTranslation(array $page, string $lang): array
     {
+        if (isset($page['title'])) {
+            return $page;
+        }
+
         $translations = $page['translations'] ?? [];
 
         foreach ($translations as $trans) {
@@ -195,6 +199,10 @@ class PageController extends BasePublicWebController
      */
     private function getEntryTranslation(array $entry, string $lang): array
     {
+        if (isset($entry['title'])) {
+            return $entry;
+        }
+
         $translations = $entry['translations'] ?? [];
 
         foreach ($translations as $trans) {

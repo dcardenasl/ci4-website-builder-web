@@ -20,7 +20,7 @@ abstract class BasePublicWebController extends BaseController
         // Pre-load global layout data: menus and settings
         if (! isset($data['mainMenu'])) {
             try {
-                $data['mainMenu'] = \Config\Services::siteMenuService()->getMenu('main-nav');
+                $data['mainMenu'] = \Config\Services::siteMenuService()->getMenu('main');
             } catch (\Throwable) {
                 $data['mainMenu'] = ['items' => []];
             }

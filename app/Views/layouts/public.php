@@ -12,7 +12,5 @@
 
     <?= view('layouts/partials/footer', ['menu' => $footerMenu ?? [], 'settings' => $settings ?? []]) ?>
     <?= view('layouts/partials/flash_messages') ?>
-
-    <script src="<?= base_url('assets/css/compiled.css') ?>"></script>
 </body>
 </html>
