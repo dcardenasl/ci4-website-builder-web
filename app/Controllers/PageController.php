@@ -10,10 +10,36 @@ use Config\Services;
 class PageController extends BasePublicWebController
 {
     /**
+     * Enforce locale prefix in the URL.
+     * Returns a redirect response if redirection is needed, or null otherwise.
+     */
+    protected function enforceLocale(): ?ResponseInterface
+    {
+        $request = service('request');
+        $uri = $request->getUri();
+        $firstSegment = $uri->getSegment(1);
+        $supportedLocales = config('App')->supportedLocales;
+
+        if (!in_array($firstSegment, $supportedLocales, true)) {
+            $locale = $request->getLocale();
+            $path = ltrim($uri->getPath(), '/');
+            $query = $uri->getQuery();
+            $target = '/' . $locale . ($path !== '' ? '/' . $path : '') . ($query !== '' ? '?' . $query : '');
+            return redirect()->to($target)->setStatusCode(302);
+        }
+
+        return null;
+    }
+
+    /**
      * Render the homepage.
      */
     public function home(): ResponseInterface
     {
+        if ($redirect = $this->enforceLocale()) {
+            return $redirect;
+        }
+
         $lang = service('request')->getLocale();
 
         // For now, try to fetch a page by slug 'home'
@@ -32,6 +58,10 @@ class PageController extends BasePublicWebController
      */
     public function resolve(string $path = ''): ResponseInterface
     {
+        if ($redirect = $this->enforceLocale()) {
+            return $redirect;
+        }
+
         $lang = service('request')->getLocale();
         $path = trim($path, '/');
 
@@ -97,17 +127,27 @@ class PageController extends BasePublicWebController
 
         // Get the translation for the current language
         $translation = $this->getPageTranslation($page, $lang);
+        $blocks = $page['blocks'] ?? [];
+        $hasHeroHeading = false;
+        foreach ($blocks as $block) {
+            $blockKey = $block['block_key'] ?? '';
+            if (in_array($blockKey, ['hero_slider', 'hero_banner', 'page_header'], true)) {
+                $hasHeroHeading = true;
+                break;
+            }
+        }
 
         $data = [
             'title'              => $translation['title'] ?? '',
             'excerpt'            => $translation['excerpt'] ?? '',
+            'showPageHeading'    => ! $hasHeroHeading,
             'pageTitle'          => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'    => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
             'canonicalUrl'       => $translation['canonical_url'] ?? site_url($translation['slug'] ?? ''),
             'ogImage'            => $translation['og_image_file_id'] ?? '',
             'metaRobots'         => $translation['robots'] ?? 'index, follow',
             'schemaData'         => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
-            'renderedBlocks'     => $blockRenderer->render($page['blocks'] ?? [], $lang),
+            'renderedBlocks'     => $blockRenderer->render($blocks, $lang),
         ];
 
         return $this->render('page', $data);
