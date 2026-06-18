@@ -31,7 +31,7 @@
                     <?php endif; ?>
 
                     <a href="<?= base_url($collection['url_prefix'] . '/' . ($entry['slug'] ?? '')) ?>" class="text-blue-600 hover:text-blue-800 font-semibold">
-                        Leer más →
+                        <?= lang('Site.read_more') ?>
                     </a>
                 </div>
             </article>

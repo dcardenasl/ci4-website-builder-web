@@ -34,4 +34,9 @@
     </script>
 <?php endif; ?>
 
-<link rel="stylesheet" href="<?= base_url('assets/css/compiled.css?v=' . time()) ?>">
+<?php
+$compiledCssPath = FCPATH . 'assets/css/compiled.css';
+$compiledCssVersion = is_file($compiledCssPath) ? (string) filemtime($compiledCssPath) : (string) time();
+?>
+
+<link rel="stylesheet" href="<?= base_url('assets/css/compiled.css?v=' . $compiledCssVersion) ?>">

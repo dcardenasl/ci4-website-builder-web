@@ -1,7 +1,7 @@
 <figure class="<?= $config['css_class'] ?? '' ?>">
     <img
-        src="<?= esc($data['url'] ?? '') ?>"
-        alt="<?= esc($data['alt'] ?? '') ?>"
+        src="<?= esc($data['image_url'] ?? '') ?>"
+        alt="<?= esc($data['image_alt_text'] ?? $data['alt'] ?? '') ?>"
         class="w-full h-auto"
     />
     <?php if (!empty($data['caption'])): ?>

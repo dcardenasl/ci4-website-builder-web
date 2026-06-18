@@ -3,22 +3,31 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <!-- Site Info -->
             <div class="space-y-3">
-                <h3 class="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-primary"></span>
-                    <?= esc($settings['site_title'] ?? 'Website') ?>
-                </h3>
-                <p class="text-sm text-slate-500 leading-relaxed max-w-sm">
-                    <?= esc($settings['site_tagline'] ?? 'Sitio web autogestionado.') ?>
+                <div class="flex items-center gap-2">
+                    <?php if (!empty($settings['site_footer_logo_url'])): ?>
+                        <img src="<?= esc($settings['site_footer_logo_url']) ?>"
+                             alt="<?= esc($settings['site_name'] ?? 'Logo') ?>"
+                             class="h-10 w-auto" />
+                    <?php elseif (!empty($settings['site_logo_url'])): ?>
+                        <img src="<?= esc($settings['site_logo_url']) ?>"
+                             alt="<?= esc($settings['site_name'] ?? 'Logo') ?>"
+                             class="h-10 w-auto" />
+                    <?php else: ?>
+                        <span class="text-lg font-bold text-primary"><?= esc($settings['site_name'] ?? 'Site') ?></span>
+                    <?php endif; ?>
+                </div>
+                <p class="section-copy text-sm max-w-sm">
+                    <?= esc($settings['site_tagline'] ?? 'Website powered by CI4.') ?>
                 </p>
             </div>
 
             <!-- Navigation Menu Links -->
             <div class="space-y-4">
-                <h4 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Menú</h4>
+                <h4 class="section-eyebrow"><?= lang('Site.footer_menu_label') ?></h4>
                 <ul class="space-y-2.5">
                     <?php foreach (($menu['items'] ?? []) as $item): ?>
                         <li>
-                            <a href="<?= esc($item['custom_url'] ?? '#') ?>" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors duration-150">
+                            <a href="<?= esc(lang_url($item['custom_url'] ?? '#')) ?>" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors duration-150">
                                 <?= esc($item['label'] ?? '') ?>
                             </a>
                         </li>
@@ -28,7 +37,7 @@
 
             <!-- Social Links -->
             <div class="space-y-4">
-                <h4 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Redes Sociales</h4>
+                <h4 class="section-eyebrow"><?= lang('Site.footer_social_label') ?></h4>
                 <div class="flex flex-col gap-2.5">
                     <?php if (!empty($settings['social_facebook'])): ?>
                         <a href="<?= esc($settings['social_facebook']) ?>" target="_blank" rel="noopener" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors duration-150 flex items-center gap-2">
@@ -57,3 +66,8 @@
         </div>
     </div>
 </footer>
+<?php
+$siteJsPath = FCPATH . 'assets/js/site.js';
+$siteJsVersion = is_file($siteJsPath) ? (string) filemtime($siteJsPath) : (string) time();
+?>
+<script src="<?= base_url('assets/js/site.js?v=' . $siteJsVersion) ?>" defer></script>

@@ -1,10 +1,12 @@
-<article class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold mb-4"><?= esc($title ?? '') ?></h1>
+<article class="container mx-auto px-4 py-0 sm:py-8">
+    <?php if (($showPageHeading ?? true) === true): ?>
+        <h1 class="text-4xl font-bold mb-4"><?= esc($title ?? '') ?></h1>
 
-    <?php if (!empty($excerpt)): ?>
-        <p class="text-lg text-gray-600 mb-8">
-            <?= esc($excerpt) ?>
-        </p>
+        <?php if (!empty($excerpt)): ?>
+            <p class="text-lg text-gray-600 mb-8">
+                <?= esc($excerpt) ?>
+            </p>
+        <?php endif; ?>
     <?php endif; ?>
 
     <div class="prose max-w-none">
