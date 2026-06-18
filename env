@@ -86,3 +86,12 @@ WEB_API_BASE_URL = http://localhost:8190
 #
 # REQUIRED: Set this to a registered API key in your domain
 WEB_API_KEY = web_api_test_key
+
+#--------------------------------------------------------------------
+# SITE CONFIGURATION — OPTIONAL
+#--------------------------------------------------------------------
+# Logo URL displayed in the header. Falls back to site name if not set.
+# site_logo_url = https://example.com/logo.png
+
+# Logo URL displayed in the footer. Falls back to site_logo_url if not set.
+# site_footer_logo_url = https://example.com/footer-logo.png
