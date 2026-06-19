@@ -65,6 +65,15 @@ class Services extends BaseService
         return new \App\Services\SiteEntryService(static::webApiClient());
     }
 
+    public static function siteCategoryService(bool $getShared = true): \App\Services\SiteCategoryService
+    {
+        if ($getShared) {
+            return static::getSharedInstance('siteCategoryService');
+        }
+
+        return new \App\Services\SiteCategoryService(static::webApiClient());
+    }
+
     public static function siteRedirectService(bool $getShared = true): \App\Services\SiteRedirectService
     {
         if ($getShared) {

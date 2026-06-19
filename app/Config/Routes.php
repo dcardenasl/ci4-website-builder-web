@@ -10,7 +10,7 @@ $routes->useSupportedLocalesOnly(true);
 // Localized routes
 $routes->get('{locale}', 'PageController::home', ['as' => 'home_localized']);
 $routes->get('{locale}/sitemap.xml', 'SitemapController::index', ['as' => 'sitemap_localized']);
-$routes->get('{locale}/(:any)', 'PageController::resolve/$2');
+$routes->get('{locale}/(:any)', 'PageController::resolve/$1');
 
 // Fallback non-localized routes (redirected/resolved dynamically)
 $routes->get('/', 'PageController::home', ['as' => 'home']);

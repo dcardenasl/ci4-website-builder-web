@@ -46,7 +46,7 @@ class SitemapController extends BasePublicWebController
 
         // Add homepage
         $urls[] = [
-            'loc'        => base_url('/'),
+            'loc'        => base_url('/' . $lang . '/'),
             'lastmod'    => date('c'),
             'changefreq' => 'weekly',
             'priority'   => '1.0',
@@ -60,7 +60,7 @@ class SitemapController extends BasePublicWebController
             }
 
             $urls[] = [
-                'loc'        => base_url($page['slug']),
+                'loc'        => base_url('/' . $lang . '/' . ltrim($page['slug'], '/')),
                 'lastmod'    => $page['updated_at'] ?? date('c'),
                 'changefreq' => $page['sitemap_changefreq'] ?? 'monthly',
                 'priority'   => $page['sitemap_priority'] ?? '0.8',
@@ -71,11 +71,11 @@ class SitemapController extends BasePublicWebController
         $collections = $collectionService->getAll($lang);
         foreach ($collections as $collection) {
             $collectionKey = $collection['collection_key'] ?? '';
-            $urlPrefix = $collection['url_prefix'] ?? '';
+            $urlPrefix     = '/' . trim($collection['url_prefix'] ?? '', '/');
 
             // Add collection index
             $urls[] = [
-                'loc'        => base_url(trim($urlPrefix, '/')),
+                'loc'        => base_url('/' . $lang . $urlPrefix),
                 'lastmod'    => $collection['updated_at'] ?? date('c'),
                 'changefreq' => $collection['default_changefreq'] ?? 'weekly',
                 'priority'   => $collection['default_sitemap_priority'] ?? '0.6',
@@ -89,7 +89,7 @@ class SitemapController extends BasePublicWebController
                 }
 
                 $urls[] = [
-                    'loc'        => base_url(trim($urlPrefix, '/') . '/' . $entry['slug']),
+                    'loc'        => base_url('/' . $lang . $urlPrefix . '/' . $entry['slug']),
                     'lastmod'    => $entry['updated_at'] ?? date('c'),
                     'changefreq' => 'weekly',
                     'priority'   => '0.7',
@@ -114,8 +114,13 @@ class SitemapController extends BasePublicWebController
             $xml .= '  <url>' . PHP_EOL;
             $xml .= '    <loc>' . esc($url['loc']) . '</loc>' . PHP_EOL;
 
-            if (!empty($url['lastmod'])) {
-                $xml .= '    <lastmod>' . esc($url['lastmod']) . '</lastmod>' . PHP_EOL;
+            $lastmod = $url['lastmod'] ?? '';
+            if (is_array($lastmod)) {
+                $lastmod = $lastmod['date'] ?? '';
+            }
+            if (!empty($lastmod)) {
+                $ts = strtotime((string) $lastmod);
+                $xml .= '    <lastmod>' . esc(date('c', $ts !== false ? $ts : time())) . '</lastmod>' . PHP_EOL;
             }
 
             if (!empty($url['changefreq'])) {

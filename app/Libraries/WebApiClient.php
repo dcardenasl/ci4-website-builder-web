@@ -58,7 +58,7 @@ class WebApiClient
     public function get(string $path, array $query = [], int $cacheTtl = 300): array
     {
         $url      = $this->buildUrl($path, $query);
-        $cacheKey = 'web_api_' . md5($url);
+        $cacheKey = 'web_api_' . md5($url . '|' . $this->currentLocale());
         $cache    = \Config\Services::cache();
 
         $cached = $cache->get($cacheKey);

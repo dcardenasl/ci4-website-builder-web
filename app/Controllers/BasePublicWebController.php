@@ -13,7 +13,7 @@ abstract class BasePublicWebController extends BaseController
     {
         $data['view'] = $view;
 
-        if (! isset($data['canonicalUrl'])) {
+        if (empty($data['canonicalUrl'])) {
             $data['canonicalUrl'] = site_url($this->request->getPath());
         }
 

@@ -33,7 +33,10 @@ class SiteEntryService
             return ['data' => [], 'meta' => ['pagination' => []]];
         }
 
-        return $response['data'] ?? ['data' => [], 'meta' => ['pagination' => []]];
+        return [
+            'data' => is_array($response['data']) ? $response['data'] : [],
+            'meta' => ['pagination' => $response['meta'] ?? []],
+        ];
     }
 
     /**

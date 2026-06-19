@@ -45,7 +45,7 @@ if ($entries === [] && $sectionTitle === '') {
                     <?php endif; ?>
                 </div>
                 <?php if ($viewAllLabel && $viewAllUrl): ?>
-                    <a href="<?= esc($viewAllUrl) ?>"
+                    <a href="<?= esc(lang_url($viewAllUrl)) ?>"
                        class="text-sm font-medium text-slate-600 transition-colors hover:text-primary">
                         <?= esc($viewAllLabel) ?> &rarr;
                     </a>
@@ -56,20 +56,20 @@ if ($entries === [] && $sectionTitle === '') {
         <?php if ($entries !== []): ?>
             <div class="grid gap-6 md:grid-cols-3">
                 <?php foreach ($entries as $entry):
-                    $entryData    = $entry['data'][$lang] ?? $entry['data']['es'] ?? [];
-                    $entryTitle   = $entryData['title'] ?? $entryData['name'] ?? '';
-                    $entryExcerpt = $entryData['excerpt'] ?? $entryData['subtitle'] ?? '';
+                    $entryTitle   = $entry['title'] ?? '';
+                    $entryExcerpt = $entry['excerpt'] ?? '';
                     $entryDate    = $entry['published_at'] ?? $entry['created_at'] ?? '';
                     $entrySlug    = $entry['slug'] ?? '';
-                    $entryImage   = $entryData['image_url'] ?? $entryData['cover_url'] ?? '';
-                    $entryUrl     = $viewAllUrl ? rtrim($viewAllUrl, '/') . '/' . $entrySlug : '#';
+                    $entryImage   = $entry['featured_image_url'] ?? '';
+                    $entryUrl     = $viewAllUrl ? lang_url(rtrim($viewAllUrl, '/') . '/' . $entrySlug) : '#';
                 ?>
-                    <article class="surface-card overflow-hidden transition-colors hover:border-slate-300">
+                    <article class="surface-card overflow-hidden transition-colors hover:border-slate-300 group">
                         <?php if ($entryImage): ?>
-                            <a href="<?= esc($entryUrl) ?>">
+                            <a href="<?= esc($entryUrl) ?>" class="block overflow-hidden aspect-video" tabindex="-1">
                                 <img src="<?= esc($entryImage) ?>"
                                      alt="<?= esc($entryTitle) ?>"
-                                     class="h-52 w-full object-cover" />
+                                     class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                     loading="lazy" />
                             </a>
                         <?php endif; ?>
                         <div class="p-5">
@@ -79,12 +79,12 @@ if ($entries === [] && $sectionTitle === '') {
                                 </p>
                             <?php endif; ?>
                             <h3 class="mt-2 text-lg font-semibold leading-tight text-slate-900">
-                                <a href="<?= esc($entryUrl) ?>" class="transition-colors hover:text-slate-950">
+                                <a href="<?= esc($entryUrl) ?>" class="transition-colors hover:text-primary">
                                     <?= esc($entryTitle) ?>
                                 </a>
                             </h3>
                             <?php if ($entryExcerpt): ?>
-                                <p class="section-copy mt-2 text-sm"><?= esc($entryExcerpt) ?></p>
+                                <p class="section-copy mt-2 text-sm line-clamp-2"><?= esc($entryExcerpt) ?></p>
                             <?php endif; ?>
                         </div>
                     </article>

@@ -22,7 +22,9 @@ class PageController extends BasePublicWebController
 
         if (!in_array($firstSegment, $supportedLocales, true)) {
             $locale = $request->getLocale();
-            $path = ltrim($uri->getPath(), '/');
+            // Use getSegments() — CI4 already strips index.php from segments
+            $segments = $uri->getSegments();
+            $path = implode('/', $segments);
             $query = $uri->getQuery();
             $target = '/' . $locale . ($path !== '' ? '/' . $path : '') . ($query !== '' ? '?' . $query : '');
             return redirect()->to($target)->setStatusCode(302);
@@ -56,14 +58,14 @@ class PageController extends BasePublicWebController
     /**
      * Dynamic page resolver - implements the 5-step resolution algorithm.
      */
-    public function resolve(string $path = ''): ResponseInterface
+    public function resolve(string ...$segments): ResponseInterface
     {
         if ($redirect = $this->enforceLocale()) {
             return $redirect;
         }
 
         $lang = service('request')->getLocale();
-        $path = trim($path, '/');
+        $path = trim(implode('/', $segments), '/');
 
         if (empty($path)) {
             return $this->home();
@@ -143,7 +145,7 @@ class PageController extends BasePublicWebController
             'showPageHeading'    => ! $hasHeroHeading,
             'pageTitle'          => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'    => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
-            'canonicalUrl'       => $translation['canonical_url'] ?? site_url($translation['slug'] ?? ''),
+            'canonicalUrl'       => $translation['canonical_url'] ?: site_url('/' . $lang . '/' . ltrim($translation['slug'] ?? '', '/')),
             'ogImage'            => $translation['og_image_file_id'] ?? '',
             'metaRobots'         => $translation['robots'] ?? 'index, follow',
             'schemaData'         => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
@@ -158,21 +160,34 @@ class PageController extends BasePublicWebController
      */
     private function renderCollectionIndex(array $collection, string $lang): ResponseInterface
     {
-        $entryService = Services::siteEntryService();
-        $page = (int) $this->request->getGet('page') ?? 1;
-        $limit = 12;
+        $entryService    = Services::siteEntryService();
+        $categoryService = Services::siteCategoryService();
 
-        $result = $entryService->list($lang, $collection['collection_key'], [
-            'page'  => $page,
-            'limit' => $limit,
-        ]);
+        $currentPage     = max(1, (int) ($this->request->getGet('page') ?? 1));
+        $currentCategory = (string) ($this->request->getGet('category') ?? '');
+
+        $query = [
+            'page'     => $currentPage,
+            'per_page' => 12,
+        ];
+        if ($currentCategory !== '') {
+            $query['category'] = $currentCategory;
+        }
+
+        $result     = $entryService->list($lang, $collection['collection_key'], $query);
+        $categories = $categoryService->list($lang, $collection['collection_key']);
 
         $data = [
-            'collection'             => $collection,
-            'data'                   => $result['data'] ?? [],
-            'meta'                   => $result['meta'] ?? [],
-            'pageTitle'              => $collection['listing_title'] ?? $collection['name'] ?? '',
-            'metaDescription'        => $collection['default_meta_description'] ?? '',
+            'collection'      => $collection,
+            'data'            => $result['data'] ?? [],
+            'meta'            => $result['meta'] ?? [],
+            'categories'      => $categories,
+            'currentCategory' => $currentCategory,
+            'currentPage'     => $currentPage,
+            'pagination'      => $result['meta']['pagination'] ?? [],
+            'pageTitle'       => $collection['listing_title'] ?? $collection['name'] ?? '',
+            'metaDescription' => $collection['default_meta_description'] ?? '',
+            'lang'            => $lang,
         ];
 
         return $this->render('collection/index', $data);
@@ -184,24 +199,42 @@ class PageController extends BasePublicWebController
     private function renderEntry(array $entry, array $collection, string $lang): ResponseInterface
     {
         $blockRenderer = Services::blockRenderer();
+        $entryService  = Services::siteEntryService();
 
         // Get the translation for the current language
         $translation = $this->getEntryTranslation($entry, $lang);
 
+        // Fetch recent posts from the same collection (exclude current entry)
+        $recentResult = $entryService->list($lang, $collection['collection_key'], [
+            'per_page' => 4,
+            'page'     => 1,
+        ]);
+        $currentSlug  = $translation['slug'] ?? '';
+        $recentPosts  = array_values(array_filter(
+            $recentResult['data'] ?? [],
+            static fn (array $e): bool => ($e['slug'] ?? '') !== $currentSlug
+        ));
+        $recentPosts  = array_slice($recentPosts, 0, 3);
+
         $data = [
-            'title'                  => $translation['title'] ?? '',
-            'excerpt'                => $translation['excerpt'] ?? '',
-            'published_at'           => $entry['published_at'] ?? '',
-            'categories'             => $entry['categories'] ?? [],
-            'tags'                   => $entry['tags'] ?? [],
-            'collectionUrlPrefix'    => $collection['url_prefix'] ?? '',
-            'pageTitle'              => $translation['meta_title'] ?? $translation['title'] ?? '',
-            'metaDescription'        => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
-            'canonicalUrl'           => $translation['canonical_url'] ?? site_url($collection['url_prefix'] . '/' . $translation['slug'] ?? ''),
-            'ogImage'                => $translation['og_image_file_id'] ?? '',
-            'metaRobots'             => $translation['robots'] ?? 'index, follow',
-            'schemaData'             => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
-            'renderedBlocks'         => $blockRenderer->render($entry['blocks'] ?? [], $lang),
+            'title'               => $translation['title'] ?? '',
+            'excerpt'             => $translation['excerpt'] ?? '',
+            'published_at'        => $entry['published_at'] ?? '',
+            'featured_image_url'  => $entry['featured_image_url'] ?? '',
+            'author_id'           => $entry['author_id'] ?? null,
+            'categories'          => $entry['categories'] ?? [],
+            'tags'                => $entry['tags'] ?? [],
+            'collectionUrlPrefix' => $collection['url_prefix'] ?? '',
+            'collectionName'      => $collection['listing_title'] ?? $collection['name'] ?? '',
+            'recentPosts'         => $recentPosts,
+            'lang'                => $lang,
+            'pageTitle'           => $translation['meta_title'] ?? $translation['title'] ?? '',
+            'metaDescription'     => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
+            'canonicalUrl'        => $translation['canonical_url'] ?: site_url('/' . $lang . $collection['url_prefix'] . '/' . ltrim($translation['slug'] ?? '', '/')),
+            'ogImage'             => $translation['og_image_file_id'] ?? '',
+            'metaRobots'          => $translation['robots'] ?? 'index, follow',
+            'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
+            'renderedBlocks'      => $blockRenderer->render($entry['blocks'] ?? [], $lang),
         ];
 
         return $this->render('collection/show', $data);
