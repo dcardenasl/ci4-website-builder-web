@@ -4,6 +4,9 @@ use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
 
+// Health check endpoint (no locale prefix, excluded from localized routing)
+$routes->get('health', 'HealthController::index', ['as' => 'health']);
+
 // Restrict routes with {locale} to Config\App::$supportedLocales
 $routes->useSupportedLocalesOnly(true);
 
