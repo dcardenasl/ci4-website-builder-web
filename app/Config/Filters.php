@@ -25,15 +25,16 @@ class Filters extends BaseFilters
      * or [filter_name => [classname1, classname2, ...]]
      */
     public array $aliases = [
-        'csrf'          => CSRF::class,
-        'toolbar'       => DebugToolbar::class,
-        'honeypot'      => Honeypot::class,
-        'invalidchars'  => InvalidChars::class,
-        'secureheaders' => SecureHeaders::class,
-        'cors'          => Cors::class,
-        'forcehttps'    => ForceHTTPS::class,
-        'pagecache'     => PageCache::class,
-        'performance'   => PerformanceMetrics::class,
+        'csrf'           => CSRF::class,
+        'toolbar'        => DebugToolbar::class,
+        'honeypot'       => Honeypot::class,
+        'invalidchars'   => InvalidChars::class,
+        'secureheaders'  => SecureHeaders::class,
+        'securityheaders' => \App\Filters\SecurityHeadersFilter::class,
+        'cors'           => Cors::class,
+        'forcehttps'     => ForceHTTPS::class,
+        'pagecache'      => PageCache::class,
+        'performance'    => PerformanceMetrics::class,
     ];
 
     /**
@@ -72,13 +73,11 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            // 'honeypot',
-            // 'csrf',
-            // 'invalidchars',
+            'invalidchars', // Filter invalid/malicious characters from requests
         ],
         'after' => [
-            // 'honeypot',
-            // 'secureheaders',
+            'secureheaders',   // CI4 native: emits headers from Config\Security::$secureHeaders
+            'securityheaders', // App-defined: X-Frame-Options, X-CTO, Referrer-Policy, Permissions-Policy, HSTS in prod
         ],
     ];
 

@@ -1,4 +1,4 @@
-<section class="relative h-96 flex items-center justify-center overflow-hidden <?= $config['css_class'] ?? '' ?>">
+<section class="relative h-96 flex items-center justify-center overflow-hidden <?= esc($config['css_class'] ?? '') ?>">
     <?php if (!empty($data['image_url'])): ?>
         <img
             src="<?= esc($data['image_url']) ?>"

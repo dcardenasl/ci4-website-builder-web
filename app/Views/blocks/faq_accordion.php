@@ -40,7 +40,7 @@ $cssClass = trim((string) ($config['css_class'] ?? ''));
                 </summary>
                 <div class="px-5 pb-5 pt-1 text-slate-600 leading-relaxed border-t border-slate-100/60 bg-slate-50/50">
                     <div class="prose prose-slate max-w-none prose-sm md:prose-base">
-                        <?= $item['answer'] // Content is already sanitized/formatted HTML from rich text editor ?>
+                        <?= $item['answer'] // Intentional raw HTML — sanitized at write time by HtmlSanitizer in BlockInstanceService ?>
                     </div>
                 </div>
             </details>
