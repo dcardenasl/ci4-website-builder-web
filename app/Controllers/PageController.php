@@ -139,6 +139,18 @@ class PageController extends BasePublicWebController
             }
         }
 
+        $localizedUrls = [];
+        foreach (($page['localized_slugs'] ?? []) as $loc => $slug) {
+            if ($slug !== null) {
+                $slugPath = trim($slug, '/');
+                if ($slugPath === 'home' || $slugPath === '') {
+                    $localizedUrls[$loc] = site_url('/' . $loc);
+                } else {
+                    $localizedUrls[$loc] = site_url('/' . $loc . '/' . ltrim($slugPath, '/'));
+                }
+            }
+        }
+
         $data = [
             'title'              => $translation['title'] ?? '',
             'excerpt'            => $translation['excerpt'] ?? '',
@@ -150,6 +162,7 @@ class PageController extends BasePublicWebController
             'metaRobots'         => $translation['robots'] ?? 'index, follow',
             'schemaData'         => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'     => $blockRenderer->render($blocks, $lang),
+            'localized_urls'     => $localizedUrls,
         ];
 
         return $this->render('page', $data);
@@ -216,6 +229,14 @@ class PageController extends BasePublicWebController
         ));
         $recentPosts  = array_slice($recentPosts, 0, 3);
 
+        $localizedUrls = [];
+        $urlPrefix = '/' . trim($collection['url_prefix'] ?? '', '/');
+        foreach (($entry['localized_slugs'] ?? []) as $loc => $slug) {
+            if ($slug !== null) {
+                $localizedUrls[$loc] = site_url('/' . $loc . $urlPrefix . '/' . ltrim($slug, '/'));
+            }
+        }
+
         $data = [
             'title'               => $translation['title'] ?? '',
             'excerpt'             => $translation['excerpt'] ?? '',
@@ -235,6 +256,7 @@ class PageController extends BasePublicWebController
             'metaRobots'          => $translation['robots'] ?? 'index, follow',
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'      => $blockRenderer->render($entry['blocks'] ?? [], $lang),
+            'localized_urls'      => $localizedUrls,
         ];
 
         return $this->render('collection/show', $data);

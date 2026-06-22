@@ -47,6 +47,19 @@ if (! function_exists('current_lang_url')) {
      */
     function current_lang_url(string $locale): string
     {
+        // If a controller has registered specific localized URLs (e.g. for pages/entries with translated slugs)
+        try {
+            $renderer = service('renderer');
+            $localizedUrls = $renderer->getData()['localized_urls'] ?? null;
+            if (is_array($localizedUrls) && isset($localizedUrls[$locale])) {
+                $uri = service('request')->getUri();
+                $query = $uri->getQuery();
+                return $localizedUrls[$locale] . ($query !== '' ? '?' . $query : '');
+            }
+        } catch (\Throwable) {
+            // Fall back if renderer is not loaded or throws
+        }
+
         $uri = service('request')->getUri();
         $segments = $uri->getSegments();
         $supportedLocales = config('App')->supportedLocales;
