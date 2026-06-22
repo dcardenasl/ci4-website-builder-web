@@ -42,9 +42,14 @@ abstract class BasePublicWebController extends BaseController
             }
         }
 
-        return $this->response->setBody(
-            view('layouts/public', $data)
-        );
+        $body = view('layouts/public', $data);
+        $etag = '"' . sha1($body) . '"';
+
+        return $this->response
+            ->setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60')
+            ->setHeader('ETag', $etag)
+            ->setHeader('Vary', 'Accept-Language')
+            ->setBody($body);
     }
 
     protected function notFound(string $message = 'Página no encontrada'): ResponseInterface

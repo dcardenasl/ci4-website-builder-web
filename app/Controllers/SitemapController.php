@@ -30,6 +30,10 @@ class SitemapController extends BasePublicWebController
 
         return $this->response
             ->setContentType('application/xml')
+            ->removeHeader('Cache-Control')
+            ->setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=300')
+            ->setHeader('ETag', '"' . sha1($xml) . '"')
+            ->setHeader('Vary', 'Accept-Language')
             ->setBody($xml);
     }
 
