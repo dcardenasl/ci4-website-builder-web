@@ -75,11 +75,11 @@ class SitemapController extends BasePublicWebController
         $collections = $collectionService->getAll($lang);
         foreach ($collections as $collection) {
             $collectionKey = $collection['collection_key'] ?? '';
-            $urlPrefix     = collection_url_prefix($collection);
+            $urlPath       = collection_url_path($collection);
 
             // Add collection index
             $urls[] = [
-                'loc'        => base_url('/' . $lang . $urlPrefix),
+                'loc'        => base_url('/' . $lang . $urlPath),
                 'lastmod'    => $collection['updated_at'] ?? date('c'),
                 'changefreq' => $collection['default_changefreq'] ?? 'weekly',
                 'priority'   => $collection['default_sitemap_priority'] ?? '0.6',
@@ -93,7 +93,7 @@ class SitemapController extends BasePublicWebController
                 }
 
                 $urls[] = [
-                    'loc'        => base_url('/' . $lang . $urlPrefix . '/' . $entry['slug']),
+                    'loc'        => base_url('/' . $lang . $urlPath . '/' . $entry['slug']),
                     'lastmod'    => $entry['updated_at'] ?? date('c'),
                     'changefreq' => 'weekly',
                     'priority'   => '0.7',

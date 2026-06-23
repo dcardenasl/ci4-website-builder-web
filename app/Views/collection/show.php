@@ -8,7 +8,7 @@
  * @var string $featured_image_url
  * @var array<int, array<string, mixed>> $categories
  * @var array<int, array<string, mixed>> $tags
- * @var string $collectionUrlPrefix
+ * @var string $collectionUrlPath
  * @var string $collectionName
  * @var array<int, array<string, mixed>> $recentPosts
  * @var string $renderedBlocks
@@ -28,7 +28,7 @@ $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
                 <?= ($lang === 'en') ? 'Home' : 'Inicio' ?>
             </a>
             <span aria-hidden="true">/</span>
-            <a href="<?= lang_url($collectionUrlPrefix ?? '/') ?>"
+            <a href="<?= lang_url($collectionUrlPath ?? '/') ?>"
                class="hover:text-primary transition-colors">
                 <?= esc($collectionName ?? (($lang === 'en') ? 'News' : 'Noticias')) ?>
             </a>
@@ -95,7 +95,7 @@ $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
 
         <!-- Back link -->
         <div class="divider mb-8"></div>
-        <a href="<?= lang_url($collectionUrlPrefix ?? '/') ?>"
+        <a href="<?= lang_url($collectionUrlPath ?? '/') ?>"
            class="link inline-flex items-center gap-1 font-medium">
             &larr; <?= esc($backLabel) ?>
         </a>
@@ -112,7 +112,7 @@ $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
                 <?php foreach ($recentPosts as $post): ?>
                     <?= view('collection/partials/entry_card', [
                         'entry'               => $post,
-                        'collectionUrlPrefix' => $collectionUrlPrefix ?? '',
+                        'collectionUrlPath' => $collectionUrlPath ?? '',
                         'lang'                => $lang,
                     ]) ?>
                 <?php endforeach; ?>

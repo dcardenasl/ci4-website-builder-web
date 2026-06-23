@@ -3,7 +3,7 @@
  * Reusable entry card for blog/news listings.
  *
  * @var array<string, mixed> $entry
- * @var string $collectionUrlPrefix
+ * @var string $collectionUrlPath
  * @var string $lang
  */
 $slug       = $entry['slug'] ?? '';
@@ -12,7 +12,7 @@ $excerpt    = $entry['excerpt'] ?? '';
 $date       = $entry['published_at'] ?? $entry['created_at'] ?? '';
 $imageUrl   = $entry['featured_image_url'] ?? '';
 $categories = array_slice($entry['categories'] ?? [], 0, 2);
-$entryUrl   = lang_url($collectionUrlPrefix . '/' . $slug);
+$entryUrl   = lang_url($collectionUrlPath . '/' . $slug);
 $readMore   = ($lang === 'en') ? 'Read more' : 'Leer más';
 ?>
 <article class="surface-card overflow-hidden flex flex-col group transition-shadow hover:shadow-md">

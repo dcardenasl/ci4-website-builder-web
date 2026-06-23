@@ -55,7 +55,7 @@ File: `app/Services/SitePageService.php`
 ### SiteCollectionService
 File: `app/Services/SiteCollectionService.php`
 - Fetches all collections: GET /api/v1/public/{lang}/collections
-- Matches by URL prefix for routing
+- Matches by translated collection slug for routing
 - Cache TTL: 600 seconds
 
 ### SiteEntryService
@@ -149,9 +149,9 @@ Implements 5-step page resolution algorithm:
 1. **CMS Page Resolution**: Try to fetch page by slug
    - GET /api/v1/public/{lang}/pages/{slug}
 
-2. **Exact Collection Match**: Match collection by url_prefix
+2. **Exact Collection Match**: Match collection by translated slug
    - GET /api/v1/public/{lang}/collections
-   - Match url_prefix exactly
+   - Match the translated collection slug exactly
 
 3. **Collection Entry Resolution**: Try to fetch entry from collection
    - Split path: [prefix, slug]

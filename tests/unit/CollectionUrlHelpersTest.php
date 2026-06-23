@@ -11,13 +11,13 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class CollectionUrlHelpersTest extends CIUnitTestCase
 {
-    public function testCanonicalPrefixIsNormalized(): void
+    public function testCanonicalPathIsNormalized(): void
     {
         $collection = [
             'slug' => '/news',
         ];
 
-        $this->assertSame('/news', collection_url_prefix($collection));
+        $this->assertSame('/news', collection_url_path($collection));
     }
 
     public function testCanonicalPathMatchesAndReportsPrefix(): void
@@ -39,7 +39,7 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
             'collection_key' => 'noticias',
         ];
 
-        $this->assertSame('', collection_url_prefix($collection));
+        $this->assertSame('', collection_url_path($collection));
         $this->assertNull(collection_url_path_info($collection, 'noticias/bienvenidos-a-nuestras-noticias'));
     }
 }

@@ -77,17 +77,17 @@ if (! function_exists('current_lang_url')) {
     }
 }
 
-if (! function_exists('collection_url_prefix')) {
+if (! function_exists('collection_url_path')) {
     /**
-     * Resolve the canonical public prefix for a collection payload.
+     * Resolve the canonical public path for a collection payload.
      *
      * @param array<string, mixed> $collection
      */
-function collection_url_prefix(array $collection): string
+    function collection_url_path(array $collection): string
     {
-        $canonicalPrefix = trim((string) ($collection['slug'] ?? ''), '/');
+        $canonicalPath = trim((string) ($collection['slug'] ?? ''), '/');
 
-        return $canonicalPrefix !== '' ? '/' . $canonicalPrefix : '';
+        return $canonicalPath !== '' ? '/' . $canonicalPath : '';
     }
 }
 
@@ -101,7 +101,7 @@ if (! function_exists('collection_url_path_info')) {
     function collection_url_path_info(array $collection, string $path): ?array
     {
         $normalizedPath = trim($path, '/');
-        $prefix = trim(collection_url_prefix($collection), '/');
+        $prefix = trim(collection_url_path($collection), '/');
         if ($prefix === '') {
             return null;
         }

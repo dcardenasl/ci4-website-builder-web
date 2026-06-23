@@ -180,7 +180,7 @@ class PageController extends BasePublicWebController
     {
         $entryService    = Services::siteEntryService();
         $categoryService = Services::siteCategoryService();
-        $collectionUrlPrefix = collection_url_prefix($collection);
+        $collectionUrlPath = collection_url_path($collection);
 
         $currentPage     = max(1, (int) ($this->request->getGet('page') ?? 1));
         $currentCategory = (string) ($this->request->getGet('category') ?? '');
@@ -207,7 +207,7 @@ class PageController extends BasePublicWebController
             'pageTitle'       => $collection['listing_title'] ?? $collection['name'] ?? '',
             'metaDescription' => $collection['default_meta_description'] ?? '',
             'lang'            => $lang,
-            'collectionUrlPrefix' => $collectionUrlPrefix,
+            'collectionUrlPath'   => $collectionUrlPath,
         ];
 
         return $this->render('collection/index', $data);
@@ -237,10 +237,10 @@ class PageController extends BasePublicWebController
         $recentPosts  = array_slice($recentPosts, 0, 3);
 
         $localizedUrls = [];
-        $collectionUrlPrefix = collection_url_prefix($collection);
+        $collectionUrlPath = collection_url_path($collection);
         foreach (($entry['localized_slugs'] ?? []) as $loc => $slug) {
             if ($slug !== null) {
-                $localizedUrls[$loc] = site_url('/' . $loc . $collectionUrlPrefix . '/' . ltrim($slug, '/'));
+                $localizedUrls[$loc] = site_url('/' . $loc . $collectionUrlPath . '/' . ltrim($slug, '/'));
             }
         }
 
@@ -253,12 +253,12 @@ class PageController extends BasePublicWebController
             'categories'          => $entry['categories'] ?? [],
             'tags'                => $entry['tags'] ?? [],
             'collectionName'      => $collection['listing_title'] ?? $collection['name'] ?? '',
-            'collectionUrlPrefix' => $collectionUrlPrefix,
+            'collectionUrlPath'   => $collectionUrlPath,
             'recentPosts'         => $recentPosts,
             'lang'                => $lang,
             'pageTitle'           => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'     => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
-            'canonicalUrl'        => $translation['canonical_url'] ?: site_url('/' . $lang . $collectionUrlPrefix . '/' . ltrim($translation['slug'] ?? '', '/')),
+            'canonicalUrl'        => $translation['canonical_url'] ?: site_url('/' . $lang . $collectionUrlPath . '/' . ltrim($translation['slug'] ?? '', '/')),
             'ogImage'             => $translation['og_image_file_id'] ?? '',
             'metaRobots'          => $translation['robots'] ?? 'index, follow',
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,

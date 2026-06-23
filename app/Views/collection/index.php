@@ -11,7 +11,7 @@
  * @var array<string, mixed> $pagination
  * @var string $lang
  */
-$urlPrefix       = $collectionUrlPrefix ?? collection_url_prefix($collection);
+$urlPath         = $collectionUrlPath ?? collection_url_path($collection);
 $listingTitle    = $collection['listing_title'] ?? $collection['name'] ?? '';
 $listingIntro    = $collection['listing_intro'] ?? '';
 $pagination      = $pagination ?? $meta['pagination'] ?? [];
@@ -38,9 +38,9 @@ if ($currentPage === 1 && $currentCategory === '' && !empty($data)) {
 }
 
 // Build query string helper
-$buildUrl = static function (array $params) use ($urlPrefix): string {
+$buildUrl = static function (array $params) use ($urlPath): string {
     $qs = http_build_query(array_filter($params, static fn ($v) => $v !== '' && $v !== null && $v !== 0 && $v !== 1 || $v === 1));
-    return lang_url($urlPrefix) . ($qs !== '' ? '?' . $qs : '');
+    return lang_url($urlPath) . ($qs !== '' ? '?' . $qs : '');
 };
 ?>
 
@@ -92,7 +92,7 @@ $buildUrl = static function (array $params) use ($urlPrefix): string {
             $fDate    = $featuredEntry['published_at'] ?? '';
             $fImage   = $featuredEntry['featured_image_url'] ?? '';
             $fCats    = array_slice($featuredEntry['categories'] ?? [], 0, 2);
-            $fUrl     = lang_url($urlPrefix . '/' . $fSlug);
+            $fUrl     = lang_url($urlPath . '/' . $fSlug);
         ?>
             <article class="surface-card overflow-hidden mb-12 md:flex group hover:shadow-md transition-shadow">
 
@@ -151,7 +151,7 @@ $buildUrl = static function (array $params) use ($urlPrefix): string {
                 <?php foreach ($regularData as $entry): ?>
                     <?= view('collection/partials/entry_card', [
                         'entry'               => $entry,
-                        'collectionUrlPrefix' => $urlPrefix,
+                        'collectionUrlPath' => $urlPath,
                         'lang'                => $lang,
                     ]) ?>
                 <?php endforeach; ?>

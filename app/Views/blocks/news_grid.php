@@ -21,7 +21,7 @@ try {
     $collectionSvc = service('siteCollectionService');
     foreach ($collectionSvc->getAll($lang) as $collection) {
         if (($collection['collection_key'] ?? '') === $collectionKey) {
-            $canonicalViewAllUrl = collection_url_prefix($collection);
+            $canonicalViewAllUrl = collection_url_path($collection);
             break;
         }
     }
