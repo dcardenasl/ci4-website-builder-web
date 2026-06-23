@@ -14,7 +14,7 @@ $siteLogoUrl  = is_array($settings['site_logo']  ?? null) ? (string) ($settings[
 $faviconUrl   = is_array($settings['favicon']     ?? null) ? (string) ($settings['favicon']['url']    ?? '') : '';
 $resolvedOgImage = $ogImage ?? ($siteLogoUrl !== '' ? $siteLogoUrl : null);
 
-$resolvedSchemaData = $schemaData;
+$resolvedSchemaData = $schemaData ?? null;
 if (! is_array($resolvedSchemaData) || $resolvedSchemaData === []) {
     $resolvedSchemaData = [
         '@context' => 'https://schema.org',

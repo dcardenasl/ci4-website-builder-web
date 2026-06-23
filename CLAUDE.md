@@ -52,7 +52,7 @@ npm run build:css
 PageController::resolve() implements a 5-step fallback:
 
 1. Try CMS page by slug → `SitePageService::getBySlug(lang, slug)`
-2. Try exact collection url_prefix match → `SiteCollectionService::matchByPrefix(lang, '/' . path)`
+2. Try collection prefix resolved from the public API payload → `collection_url_path_info($collection, $path)`
 3. Try collection/entry combo → `SiteEntryService::getBySlug(lang, collectionKey, slug)`
 4. Try redirect → `SiteRedirectService::resolve(path)`
 5. Return 404
@@ -63,7 +63,7 @@ All services in `app/Services/`:
 - **SiteSettingsService**: Fetch public settings (cache 3600s)
 - **SiteMenuService**: Fetch menu trees (cache 600s)
 - **SitePageService**: Fetch pages by slug, list all pages (cache 300-600s)
-- **SiteCollectionService**: Fetch collections, match by url_prefix (cache 600s)
+- **SiteCollectionService**: Fetch collections from the domain API (cache 600s)
 - **SiteEntryService**: List entries, fetch by slug (cache 180-300s)
 - **SiteRedirectService**: Resolve redirects (cache 3600s)
 
@@ -105,13 +105,13 @@ Visit:
 - Homepage: `http://localhost:8186/`
 - Sitemap: `http://localhost:8186/sitemap.xml`
 - Page (example): `http://localhost:8186/about` (if page with slug "about" exists in domain)
-- Collection (example): `http://localhost:8186/blog` (if collection with url_prefix="/blog" exists)
-- Entry (example): `http://localhost:8186/blog/first-post` (if entry exists in domain)
+- Collection (example): `http://localhost:8186/news` (if the collection slug for the active language is `/news`)
+- Entry (example): `http://localhost:8186/news/first-post` (if entry exists in domain)
 
 ## Troubleshooting
 
 - **401 on every request**: Check `WEB_API_KEY` matches domain app configuration
-- **Collections not rendering**: Verify `url_prefix` in domain matches expected path
+- **Collections not rendering**: Verify the translated collection slug exists in the domain response
 - **CSS not compiled**: Run `npm run build:css` or start `npm run dev:css` watcher
 - **Cache issues**: Clear with `php spark cache:clear`
 

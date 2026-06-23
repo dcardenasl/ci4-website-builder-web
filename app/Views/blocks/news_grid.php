@@ -15,6 +15,22 @@ $emptyMessage    = $data['empty_message'] ?? '';
 $collectionKey = $config['collection_key'] ?? 'noticias';
 $itemsLimit    = max(1, (int) ($config['items_limit'] ?? 3));
 $cssClass      = $config['css_class'] ?? '';
+$canonicalViewAllUrl = '';
+try {
+    /** @var \App\Services\SiteCollectionService $collectionSvc */
+    $collectionSvc = service('siteCollectionService');
+    foreach ($collectionSvc->getAll($lang) as $collection) {
+        if (($collection['collection_key'] ?? '') === $collectionKey) {
+            $canonicalViewAllUrl = collection_url_prefix($collection);
+            break;
+        }
+    }
+} catch (\Throwable) {
+    $canonicalViewAllUrl = '';
+}
+if ($canonicalViewAllUrl === '' && $viewAllUrl !== '') {
+    $canonicalViewAllUrl = $viewAllUrl;
+}
 
 $entries = [];
 try {
@@ -44,8 +60,8 @@ if ($entries === [] && $sectionTitle === '') {
                         <p class="section-copy mt-2"><?= esc($sectionSubtitle) ?></p>
                     <?php endif; ?>
                 </div>
-                <?php if ($viewAllLabel && $viewAllUrl): ?>
-                    <a href="<?= esc(lang_url($viewAllUrl)) ?>"
+                <?php if ($viewAllLabel && ($canonicalViewAllUrl !== '' || $viewAllUrl !== '')): ?>
+                    <a href="<?= esc(lang_url($canonicalViewAllUrl !== '' ? $canonicalViewAllUrl : $viewAllUrl)) ?>"
                        class="text-sm font-medium text-slate-600 transition-colors hover:text-primary">
                         <?= esc($viewAllLabel) ?> &rarr;
                     </a>
@@ -61,7 +77,9 @@ if ($entries === [] && $sectionTitle === '') {
                     $entryDate    = $entry['published_at'] ?? $entry['created_at'] ?? '';
                     $entrySlug    = $entry['slug'] ?? '';
                     $entryImage   = $entry['featured_image_url'] ?? '';
-                    $entryUrl     = $viewAllUrl ? lang_url(rtrim($viewAllUrl, '/') . '/' . $entrySlug) : '#';
+                    $entryUrl     = $canonicalViewAllUrl !== ''
+                        ? lang_url(rtrim($canonicalViewAllUrl, '/') . '/' . $entrySlug)
+                        : ($viewAllUrl ? lang_url(rtrim($viewAllUrl, '/') . '/' . $entrySlug) : '#');
                 ?>
                     <article class="surface-card overflow-hidden transition-colors hover:border-slate-300 group">
                         <?php if ($entryImage): ?>

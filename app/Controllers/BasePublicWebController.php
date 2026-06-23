@@ -42,6 +42,10 @@ abstract class BasePublicWebController extends BaseController
             }
         }
 
+        if (! array_key_exists('schemaData', $data)) {
+            $data['schemaData'] = null;
+        }
+
         $body = view('layouts/public', $data);
         $etag = '"' . sha1($body) . '"';
 

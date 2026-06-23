@@ -79,26 +79,31 @@ class PageController extends BasePublicWebController
             return $this->renderPage($page, $lang);
         }
 
-        // Step 2: Try exact collection url_prefix match
+        // Step 2: Try collection prefix match
         $collectionService = Services::siteCollectionService();
-        $collection = $collectionService->matchByPrefix($lang, '/' . $path);
+        $entryService = Services::siteEntryService();
+        $collections = $collectionService->getAll($lang);
 
-        if ($collection && ($collection['url_prefix'] ?? '') === '/' . $path) {
-            return $this->renderCollectionIndex($collection, $lang);
-        }
+        foreach ($collections as $collection) {
+            if (! is_array($collection)) {
+                continue;
+            }
 
-        // Step 3: Try collection/entry slug combination
-        if (strpos($path, '/') !== false) {
-            [$prefix, $slug] = explode('/', $path, 2);
-            $collection = $collectionService->matchByPrefix($lang, '/' . $prefix);
+            $pathInfo = collection_url_path_info($collection, $path);
+            if ($pathInfo === null) {
+                continue;
+            }
 
-            if ($collection) {
-                $entryService = Services::siteEntryService();
-                $entry = $entryService->getBySlug($lang, $collection['collection_key'], $slug);
+            $remainder = $pathInfo['remainder'];
 
-                if ($entry) {
-                    return $this->renderEntry($entry, $collection, $lang);
-                }
+            if ($remainder === '') {
+                return $this->renderCollectionIndex($collection, $lang);
+            }
+
+            $entry = $entryService->getBySlug($lang, $collection['collection_key'], $remainder);
+
+            if ($entry) {
+                return $this->renderEntry($entry, $collection, $lang);
             }
         }
 
@@ -175,6 +180,7 @@ class PageController extends BasePublicWebController
     {
         $entryService    = Services::siteEntryService();
         $categoryService = Services::siteCategoryService();
+        $collectionUrlPrefix = collection_url_prefix($collection);
 
         $currentPage     = max(1, (int) ($this->request->getGet('page') ?? 1));
         $currentCategory = (string) ($this->request->getGet('category') ?? '');
@@ -201,6 +207,7 @@ class PageController extends BasePublicWebController
             'pageTitle'       => $collection['listing_title'] ?? $collection['name'] ?? '',
             'metaDescription' => $collection['default_meta_description'] ?? '',
             'lang'            => $lang,
+            'collectionUrlPrefix' => $collectionUrlPrefix,
         ];
 
         return $this->render('collection/index', $data);
@@ -230,10 +237,10 @@ class PageController extends BasePublicWebController
         $recentPosts  = array_slice($recentPosts, 0, 3);
 
         $localizedUrls = [];
-        $urlPrefix = '/' . trim($collection['url_prefix'] ?? '', '/');
+        $collectionUrlPrefix = collection_url_prefix($collection);
         foreach (($entry['localized_slugs'] ?? []) as $loc => $slug) {
             if ($slug !== null) {
-                $localizedUrls[$loc] = site_url('/' . $loc . $urlPrefix . '/' . ltrim($slug, '/'));
+                $localizedUrls[$loc] = site_url('/' . $loc . $collectionUrlPrefix . '/' . ltrim($slug, '/'));
             }
         }
 
@@ -245,13 +252,13 @@ class PageController extends BasePublicWebController
             'author_id'           => $entry['author_id'] ?? null,
             'categories'          => $entry['categories'] ?? [],
             'tags'                => $entry['tags'] ?? [],
-            'collectionUrlPrefix' => $collection['url_prefix'] ?? '',
             'collectionName'      => $collection['listing_title'] ?? $collection['name'] ?? '',
+            'collectionUrlPrefix' => $collectionUrlPrefix,
             'recentPosts'         => $recentPosts,
             'lang'                => $lang,
             'pageTitle'           => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'     => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
-            'canonicalUrl'        => $translation['canonical_url'] ?: site_url('/' . $lang . $collection['url_prefix'] . '/' . ltrim($translation['slug'] ?? '', '/')),
+            'canonicalUrl'        => $translation['canonical_url'] ?: site_url('/' . $lang . $collectionUrlPrefix . '/' . ltrim($translation['slug'] ?? '', '/')),
             'ogImage'             => $translation['og_image_file_id'] ?? '',
             'metaRobots'          => $translation['robots'] ?? 'index, follow',
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,

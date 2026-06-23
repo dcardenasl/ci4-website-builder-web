@@ -32,23 +32,4 @@ class SiteCollectionService
 
         return $response['data'] ?? [];
     }
-
-    /**
-     * Match a collection by its url_prefix.
-     * Useful for routing: e.g., match "/blog" → collection with url_prefix="/blog".
-     *
-     * @return array<string, mixed>|null
-     */
-    public function matchByPrefix(string $lang, string $urlPrefix): ?array
-    {
-        $collections = $this->getAll($lang);
-
-        foreach ($collections as $collection) {
-            if (($collection['url_prefix'] ?? null) === $urlPrefix) {
-                return $collection;
-            }
-        }
-
-        return null;
-    }
 }

@@ -75,7 +75,7 @@ class SitemapController extends BasePublicWebController
         $collections = $collectionService->getAll($lang);
         foreach ($collections as $collection) {
             $collectionKey = $collection['collection_key'] ?? '';
-            $urlPrefix     = '/' . trim($collection['url_prefix'] ?? '', '/');
+            $urlPrefix     = collection_url_prefix($collection);
 
             // Add collection index
             $urls[] = [

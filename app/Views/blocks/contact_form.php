@@ -77,8 +77,11 @@ $error = session()->getFlashdata('contact_error');
             </div>
 
             <div class="surface-default pt-6 lg:pl-10 lg:pt-0">
-                <form method="post" action="/contacto/enviar" class="space-y-5">
+                <form method="post" action="<?= lang_url('/contacto/enviar') ?>" class="space-y-5" id="contact-form">
                     <?= csrf_field() ?>
+                    <?php if ((string) env('RECAPTCHA_SITE_KEY', '') !== ''): ?>
+                        <input type="hidden" name="g_recaptcha_response" id="g_recaptcha_response" />
+                    <?php endif; ?>
 
                     <?php if ($showCompany): ?>
                         <div>
