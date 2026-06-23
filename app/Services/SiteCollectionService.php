@@ -24,7 +24,7 @@ class SiteCollectionService
      */
     public function getAll(string $lang): array
     {
-        $response = $this->apiClient->get("public/{$lang}/collections", [], self::CACHE_TTL);
+        $response = $this->apiClient->get("public/{$lang}/collections", [], self::CACHE_TTL, 'collections');
 
         if (!$response['ok'] ?? false) {
             return [];

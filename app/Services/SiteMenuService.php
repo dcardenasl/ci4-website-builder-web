@@ -21,7 +21,7 @@ class SiteMenuService
      */
     public function getMenu(string $menuKey): array
     {
-        $response = $this->apiClient->get("public/menus/{$menuKey}", [], self::CACHE_TTL);
+        $response = $this->apiClient->get("public/menus/{$menuKey}", [], self::CACHE_TTL, 'menus');
 
         if (!$response['ok'] ?? false) {
             return ['items' => []];

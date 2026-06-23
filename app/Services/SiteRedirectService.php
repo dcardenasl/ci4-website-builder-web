@@ -21,7 +21,7 @@ class SiteRedirectService
      */
     public function resolve(string $path): ?array
     {
-        $response = $this->apiClient->get("public/redirects/{$path}", [], self::CACHE_TTL);
+        $response = $this->apiClient->get("public/redirects/{$path}", [], self::CACHE_TTL, 'redirects');
 
         if (!$response['ok'] ?? false) {
             return null;

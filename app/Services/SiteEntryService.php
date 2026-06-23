@@ -26,7 +26,8 @@ class SiteEntryService
         $response = $this->apiClient->get(
             "public/{$lang}/entries/{$collectionKey}",
             $query,
-            self::CACHE_TTL_LIST
+            self::CACHE_TTL_LIST,
+            'entries'
         );
 
         if (!$response['ok'] ?? false) {
@@ -49,7 +50,8 @@ class SiteEntryService
         $response = $this->apiClient->get(
             "public/{$lang}/entries/{$collectionKey}/{$slug}",
             [],
-            self::CACHE_TTL_DETAIL
+            self::CACHE_TTL_DETAIL,
+            'entries'
         );
 
         if (!$response['ok'] ?? false) {

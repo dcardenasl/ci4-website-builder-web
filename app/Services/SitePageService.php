@@ -22,7 +22,7 @@ class SitePageService
      */
     public function getBySlug(string $lang, string $slug): ?array
     {
-        $response = $this->apiClient->get("public/{$lang}/pages/{$slug}", [], self::CACHE_TTL_DETAIL);
+        $response = $this->apiClient->get("public/{$lang}/pages/{$slug}", [], self::CACHE_TTL_DETAIL, 'pages');
 
         if (!$response['ok'] ?? false) {
             return null;
@@ -38,7 +38,7 @@ class SitePageService
      */
     public function listAll(string $lang): array
     {
-        $response = $this->apiClient->get("public/{$lang}/pages", [], self::CACHE_TTL_LIST);
+        $response = $this->apiClient->get("public/{$lang}/pages", [], self::CACHE_TTL_LIST, 'pages');
 
         if (!$response['ok'] ?? false) {
             return [];

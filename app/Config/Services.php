@@ -91,4 +91,13 @@ class Services extends BaseService
 
         return new \App\Libraries\BlockRenderer();
     }
+
+    public static function cacheInvalidator(bool $getShared = true): \App\Libraries\CacheInvalidator
+    {
+        if ($getShared) {
+            return static::getSharedInstance('cacheInvalidator');
+        }
+
+        return new \App\Libraries\CacheInvalidator();
+    }
 }

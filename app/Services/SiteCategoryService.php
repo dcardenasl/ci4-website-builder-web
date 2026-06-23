@@ -24,7 +24,8 @@ class SiteCategoryService
         $response = $this->apiClient->get(
             "public/{$lang}/categories/{$collectionKey}",
             [],
-            self::CACHE_TTL
+            self::CACHE_TTL,
+            'taxonomies'
         );
 
         if (!($response['ok'] ?? false)) {

@@ -55,10 +55,10 @@ class WebApiClient
      * @param array<string,mixed> $query
      * @return array{ok:bool,status:int,data:mixed,meta:array<string,mixed>,messages:list<string>}
      */
-    public function get(string $path, array $query = [], int $cacheTtl = 300): array
+    public function get(string $path, array $query = [], int $cacheTtl = 300, string $scope = 'general'): array
     {
         $url      = $this->buildUrl($path, $query);
-        $cacheKey = 'web_api_' . md5($url . '|' . $this->currentLocale());
+        $cacheKey = 'web_api_' . $scope . '_' . md5($url . '|' . $this->currentLocale());
         $cache    = \Config\Services::cache();
 
         $cached = $cache->get($cacheKey);

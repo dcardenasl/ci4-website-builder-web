@@ -21,7 +21,7 @@ class SiteSettingsService
      */
     public function getAll(): array
     {
-        $response = $this->apiClient->get('public/settings', [], self::CACHE_TTL);
+        $response = $this->apiClient->get('public/settings', [], self::CACHE_TTL, 'settings');
 
         if (!$response['ok'] ?? false) {
             return [];
