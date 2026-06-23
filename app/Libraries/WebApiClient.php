@@ -15,6 +15,8 @@ namespace App\Libraries;
  */
 class WebApiClient
 {
+    private const CACHE_SCHEMA_VERSION = 2;
+
     private string $baseUrl;
     private string $apiKey;
     private int $timeout;
@@ -58,7 +60,7 @@ class WebApiClient
     public function get(string $path, array $query = [], int $cacheTtl = 300, string $scope = 'general'): array
     {
         $url      = $this->buildUrl($path, $query);
-        $cacheKey = 'web_api_' . $scope . '_' . md5($url . '|' . $this->currentLocale());
+        $cacheKey = 'web_api_v' . self::CACHE_SCHEMA_VERSION . '_' . $scope . '_' . md5($url . '|' . $this->currentLocale());
         $cache    = \Config\Services::cache();
 
         $cached = $cache->get($cacheKey);

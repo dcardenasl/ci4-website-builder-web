@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use CodeIgniter\HTTP\RedirectResponse;
-use CodeIgniter\HTTP\ResponseInterface;
 use Config\Services;
 
 /**
@@ -74,8 +73,9 @@ class ContactController extends BasePublicWebController
         }
 
         // ── 5. Send emails ────────────────────────────────────────────────
-        $this->sendAdminNotification($formData);
-        $this->sendUserAutoReply($formData);
+        $contactConfig = $this->resolveContactConfig();
+        $this->sendAdminNotification($formData, $contactConfig);
+        $this->sendUserAutoReply($formData, $contactConfig);
 
         // ── 6. Redirect with success ──────────────────────────────────────
         return redirect()->back()->with('contact_sent', true);
@@ -85,21 +85,27 @@ class ContactController extends BasePublicWebController
 
     /**
      * @param array<string, mixed> $formData
+     * @param array{
+     *     adminEmail: string,
+     *     fromEmail: string,
+     *     siteName: string,
+     *     autoReplyMessage: string
+     * } $contactConfig
      */
-    private function sendAdminNotification(array $formData): void
+    private function sendAdminNotification(array $formData, array $contactConfig): void
     {
-        $adminEmail = (string) env('CONTACT_ADMIN_EMAIL', '');
+        $adminEmail = $contactConfig['adminEmail'] ?? '';
         if ($adminEmail === '') {
             log_message('warning', '[ContactController] CONTACT_ADMIN_EMAIL not set — admin notification skipped.');
             return;
         }
 
-        $siteName = (string) env('CONTACT_SITE_NAME', 'Sitio Web');
+        $siteName = $contactConfig['siteName'] ?? 'Sitio Web';
 
         try {
             $email = \Config\Services::email();
             $email->setFrom(
-                (string) env('CONTACT_FROM_EMAIL', 'no-reply@localhost'),
+                $contactConfig['fromEmail'] ?? 'no-reply@localhost',
                 $siteName
             );
             $email->setTo($adminEmail);
@@ -114,21 +120,27 @@ class ContactController extends BasePublicWebController
 
     /**
      * @param array<string, mixed> $formData
+     * @param array{
+     *     adminEmail: string,
+     *     fromEmail: string,
+     *     siteName: string,
+     *     autoReplyMessage: string
+     * } $contactConfig
      */
-    private function sendUserAutoReply(array $formData): void
+    private function sendUserAutoReply(array $formData, array $contactConfig): void
     {
         $userEmail = (string) ($formData['email'] ?? '');
         if ($userEmail === '' || ! filter_var($userEmail, FILTER_VALIDATE_EMAIL)) {
             return;
         }
 
-        $siteName       = (string) env('CONTACT_SITE_NAME', 'Sitio Web');
-        $autoReplyMsg   = (string) env('CONTACT_AUTOREPLY_MESSAGE', 'Hemos recibido tu mensaje. Nos pondremos en contacto a la brevedad.');
+        $siteName = $contactConfig['siteName'] ?? 'Sitio Web';
+        $autoReplyMsg = $contactConfig['autoReplyMessage'] ?? 'Hemos recibido tu mensaje. Nos pondremos en contacto a la brevedad.';
 
         try {
             $email = \Config\Services::email();
             $email->setFrom(
-                (string) env('CONTACT_FROM_EMAIL', 'no-reply@localhost'),
+                $contactConfig['fromEmail'] ?? 'no-reply@localhost',
                 $siteName
             );
             $email->setTo($userEmail);
@@ -139,6 +151,36 @@ class ContactController extends BasePublicWebController
         } catch (\Throwable $e) {
             log_message('error', '[ContactController] Auto-reply email failed: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Resolve contact defaults from CMS settings, allowing environment variables
+     * to override specific values when they are explicitly configured.
+     *
+     * @return array{
+     *     adminEmail: string,
+     *     fromEmail: string,
+     *     siteName: string,
+     *     autoReplyMessage: string
+     * }
+     */
+    private function resolveContactConfig(): array
+    {
+        /** @var \App\Services\SiteSettingsService $settingsService */
+        $settingsService = Services::siteSettingsService();
+        $defaults = $settingsService->getContactDefaults();
+
+        $adminEmail = (string) env('CONTACT_ADMIN_EMAIL', '');
+        $fromEmail = (string) env('CONTACT_FROM_EMAIL', '');
+        $siteName = (string) env('CONTACT_SITE_NAME', '');
+        $autoReplyMessage = (string) env('CONTACT_AUTOREPLY_MESSAGE', '');
+
+        return [
+            'adminEmail' => $adminEmail !== '' ? $adminEmail : $defaults['contact_admin_email'],
+            'fromEmail' => $fromEmail !== '' ? $fromEmail : ($defaults['contact_from_email'] !== '' ? $defaults['contact_from_email'] : 'no-reply@localhost'),
+            'siteName' => $siteName !== '' ? $siteName : ($defaults['contact_site_name'] !== '' ? $defaults['contact_site_name'] : 'Sitio Web'),
+            'autoReplyMessage' => $autoReplyMessage !== '' ? $autoReplyMessage : ($defaults['contact_autoreply_message'] !== '' ? $defaults['contact_autoreply_message'] : 'Hemos recibido tu mensaje. Nos pondremos en contacto a la brevedad.'),
+        ];
     }
 
     // ── reCAPTCHA ─────────────────────────────────────────────────────────

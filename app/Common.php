@@ -123,3 +123,72 @@ if (! function_exists('collection_url_path_info')) {
         return null;
     }
 }
+
+if (! function_exists('localized_collection_url_path')) {
+    /**
+     * Resolve the canonical public path for a collection in a given locale.
+     *
+     * Falls back to the collection's current slug when the locale-specific
+     * translation is not available in the payload.
+     *
+     * @param array<string, mixed> $collection
+     */
+    function localized_collection_url_path(array $collection, string $locale): string
+    {
+        $localizedSlugs = $collection['localized_slugs'] ?? [];
+        if (is_array($localizedSlugs) && isset($localizedSlugs[$locale])) {
+            $slug = trim((string) $localizedSlugs[$locale], '/');
+            if ($slug !== '') {
+                return '/' . $slug;
+            }
+        }
+
+        return collection_url_path($collection);
+    }
+}
+
+if (! function_exists('localized_collection_urls')) {
+    /**
+     * Build language-specific URLs for a collection index page.
+     *
+     * @param array<string, mixed> $collection
+     * @return array<string, string>
+     */
+    function localized_collection_urls(array $collection): array
+    {
+        $urls = [];
+        foreach (config('App')->supportedLocales as $locale) {
+            $path = localized_collection_url_path($collection, $locale);
+            if ($path !== '') {
+                $urls[$locale] = site_url('/' . $locale . $path);
+            }
+        }
+
+        return $urls;
+    }
+}
+
+if (! function_exists('localized_entry_urls')) {
+    /**
+     * Build language-specific URLs for an entry detail page.
+     *
+     * @param array<string, mixed> $collection
+     * @param array<string, mixed> $entry
+     * @return array<string, string>
+     */
+    function localized_entry_urls(array $collection, array $entry): array
+    {
+        $urls = [];
+        $localizedSlugs = is_array($entry['localized_slugs'] ?? null) ? $entry['localized_slugs'] : [];
+
+        foreach (config('App')->supportedLocales as $locale) {
+            $collectionPath = localized_collection_url_path($collection, $locale);
+            $slug = isset($localizedSlugs[$locale]) ? trim((string) $localizedSlugs[$locale], '/') : '';
+            if ($collectionPath !== '' && $slug !== '') {
+                $urls[$locale] = site_url('/' . $locale . $collectionPath . '/' . $slug);
+            }
+        }
+
+        return $urls;
+    }
+}

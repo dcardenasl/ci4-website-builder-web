@@ -39,4 +39,26 @@ class SiteSettingsService
 
         return $all[$key] ?? $default;
     }
+
+    /**
+     * Get contact form defaults from public settings.
+     *
+     * @return array{
+     *     contact_admin_email: string,
+     *     contact_from_email: string,
+     *     contact_site_name: string,
+     *     contact_autoreply_message: string
+     * }
+     */
+    public function getContactDefaults(): array
+    {
+        $all = $this->getAll();
+
+        return [
+            'contact_admin_email' => (string) ($all['contact_admin_email'] ?? ''),
+            'contact_from_email' => (string) ($all['contact_from_email'] ?? ''),
+            'contact_site_name' => (string) ($all['contact_site_name'] ?? ''),
+            'contact_autoreply_message' => (string) ($all['contact_autoreply_message'] ?? ''),
+        ];
+    }
 }

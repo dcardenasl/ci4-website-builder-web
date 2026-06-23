@@ -13,6 +13,8 @@ final class HeroSliderViewTest extends CIUnitTestCase
 {
     public function testHeroSliderViewExposesLayoutPositions(): void
     {
+        service('request')->setLocale('es');
+
         $html = view('blocks/hero_slider', [
             'block' => [
                 'children' => [
@@ -39,5 +41,7 @@ final class HeroSliderViewTest extends CIUnitTestCase
         $this->assertStringContainsString('data-controls-position="overlay_bottom"', $html);
         $this->assertStringContainsString('data-hero-caption-title', $html);
         $this->assertStringContainsString('Hero title', $html);
+        $this->assertStringContainsString('href="', $html);
+        $this->assertStringContainsString('/es/contacto', $html);
     }
 }

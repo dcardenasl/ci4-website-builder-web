@@ -24,7 +24,7 @@ foreach ($block['children'] ?? [] as $index => $child) {
         'heading'        => $heading,
         'subtitle'       => (string) ($childData['subtitle'] ?? ''),
         'cta_label'      => (string) ($childData['cta_label'] ?? ''),
-        'cta_url'        => (string) ($childData['cta_url'] ?? '#'),
+        'cta_url'        => lang_url((string) ($childData['cta_url'] ?? '#')),
     ];
 }
 
@@ -131,7 +131,7 @@ $controlsIsOverlay = $controlsPosition === 'overlay_bottom';
             <?php endif; ?>
 
             <a
-                href="<?= esc($slides[0]['cta_url'] ?? '#') ?>"
+                href="<?= esc(lang_url($slides[0]['cta_url'] ?? '#')) ?>"
                 data-hero-link
                 class="absolute inset-0 z-10 block"
                 aria-label="<?= esc($slides[0]['heading'] ?? '') ?>"

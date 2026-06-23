@@ -208,6 +208,7 @@ class PageController extends BasePublicWebController
             'metaDescription' => $collection['default_meta_description'] ?? '',
             'lang'            => $lang,
             'collectionUrlPath'   => $collectionUrlPath,
+            'localized_urls'      => localized_collection_urls($collection),
         ];
 
         return $this->render('collection/index', $data);
@@ -236,13 +237,7 @@ class PageController extends BasePublicWebController
         ));
         $recentPosts  = array_slice($recentPosts, 0, 3);
 
-        $localizedUrls = [];
         $collectionUrlPath = collection_url_path($collection);
-        foreach (($entry['localized_slugs'] ?? []) as $loc => $slug) {
-            if ($slug !== null) {
-                $localizedUrls[$loc] = site_url('/' . $loc . $collectionUrlPath . '/' . ltrim($slug, '/'));
-            }
-        }
 
         $data = [
             'title'               => $translation['title'] ?? '',
@@ -263,7 +258,7 @@ class PageController extends BasePublicWebController
             'metaRobots'          => $translation['robots'] ?? 'index, follow',
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'      => $blockRenderer->render($entry['blocks'] ?? [], $lang),
-            'localized_urls'      => $localizedUrls,
+            'localized_urls'      => localized_entry_urls($collection, $entry),
         ];
 
         return $this->render('collection/show', $data);
