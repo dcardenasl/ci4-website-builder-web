@@ -14,8 +14,7 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
     public function testCanonicalPrefixIsNormalized(): void
     {
         $collection = [
-            'collection_key' => 'noticias',
-            'url_prefix' => '/news',
+            'slug' => '/news',
         ];
 
         $this->assertSame('/news', collection_url_prefix($collection));
@@ -24,8 +23,7 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
     public function testCanonicalPathMatchesAndReportsPrefix(): void
     {
         $collection = [
-            'collection_key' => 'noticias',
-            'url_prefix' => '/news',
+            'slug' => 'news',
         ];
 
         $info = collection_url_path_info($collection, 'news/welcome-to-our-news');
@@ -33,5 +31,15 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
         $this->assertNotNull($info);
         $this->assertSame('/news', $info['prefix']);
         $this->assertSame('welcome-to-our-news', $info['remainder']);
+    }
+
+    public function testCanonicalPathReturnsNullWithoutSlug(): void
+    {
+        $collection = [
+            'collection_key' => 'noticias',
+        ];
+
+        $this->assertSame('', collection_url_prefix($collection));
+        $this->assertNull(collection_url_path_info($collection, 'noticias/bienvenidos-a-nuestras-noticias'));
     }
 }

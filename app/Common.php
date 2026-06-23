@@ -83,9 +83,10 @@ if (! function_exists('collection_url_prefix')) {
      *
      * @param array<string, mixed> $collection
      */
-    function collection_url_prefix(array $collection): string
+function collection_url_prefix(array $collection): string
     {
-        $canonicalPrefix = trim((string) ($collection['url_prefix'] ?? ''), '/');
+        $canonicalPrefix = trim((string) ($collection['slug'] ?? ''), '/');
+
         return $canonicalPrefix !== '' ? '/' . $canonicalPrefix : '';
     }
 }

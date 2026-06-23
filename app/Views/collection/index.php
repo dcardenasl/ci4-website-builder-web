@@ -11,7 +11,7 @@
  * @var array<string, mixed> $pagination
  * @var string $lang
  */
-$urlPrefix       = $collectionUrlPrefix ?? ($collection['url_prefix'] ?? '');
+$urlPrefix       = $collectionUrlPrefix ?? collection_url_prefix($collection);
 $listingTitle    = $collection['listing_title'] ?? $collection['name'] ?? '';
 $listingIntro    = $collection['listing_intro'] ?? '';
 $pagination      = $pagination ?? $meta['pagination'] ?? [];
