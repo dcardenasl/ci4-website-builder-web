@@ -31,6 +31,7 @@ class Filters extends BaseFilters
         'invalidchars'   => InvalidChars::class,
         'secureheaders'  => SecureHeaders::class,
         'securityheaders' => \App\Filters\SecurityHeadersFilter::class,
+        'tracking'        => \App\Filters\TrackingFilter::class,
         'cors'           => Cors::class,
         'forcehttps'     => ForceHTTPS::class,
         'pagecache'      => PageCache::class,
@@ -78,6 +79,7 @@ class Filters extends BaseFilters
         'after' => [
             'secureheaders',   // CI4 native: emits headers from Config\Security::$secureHeaders
             'securityheaders', // App-defined: X-Frame-Options, X-CTO, Referrer-Policy, Permissions-Policy, HSTS in prod
+            'tracking',        // First-party page-view tracking (fire-and-forget to Domain CMS)
         ],
     ];
 
