@@ -6,6 +6,9 @@ namespace App\Libraries;
 
 class BlockRenderer
 {
+    /** @var array<string, array<string, mixed>|null> form definitions pre-loaded per render pass */
+    private array $formDefinitions = [];
+
     /**
      * Render an array of blocks to HTML.
      *
@@ -14,8 +17,9 @@ class BlockRenderer
      */
     public function render(array $blocks, string $lang = 'es'): string
     {
-        $html = '';
+        $this->preloadFormDefinitions($blocks, $lang);
 
+        $html = '';
         foreach ($blocks as $block) {
             $html .= $this->renderBlock($block, $lang);
         }
@@ -29,32 +33,60 @@ class BlockRenderer
     private function renderBlock(array $block, string $lang): string
     {
         $blockKey = $block['block_key'] ?? 'unknown';
-        $config = $block['block_config'] ?? [];
-        $data = $block['block_data'] ?? [];
+        $config   = $block['block_config'] ?? [];
+        $data     = $block['block_data'] ?? [];
         $children = $block['children'] ?? [];
 
-        // Recursively render children
         $renderedChildren = '';
         foreach ($children as $child) {
             $renderedChildren .= $this->renderBlock($child, $lang);
         }
 
-        // Determine view to use
-        $blockViewName = "blocks/{$blockKey}";
+        $formDefinition = null;
+        if ($blockKey === 'contact_form') {
+            $formKey = (string) ($config['form_key'] ?? 'contact');
+            $formDefinition = $this->formDefinitions[$formKey] ?? null;
+        }
 
-        // Check if view exists; fall back to 'unknown'
-        if (!view_exists($blockViewName)) {
+        $blockViewName = "blocks/{$blockKey}";
+        if (! view_exists($blockViewName)) {
             $blockViewName = 'blocks/unknown';
         }
 
-        // Render view with block context
         return view($blockViewName, [
-            'block'             => $block,
-            'config'            => $config,
-            'data'              => $data,
-            'renderedChildren'  => $renderedChildren,
-            'lang'              => $lang,
+            'block'            => $block,
+            'config'           => $config,
+            'data'             => $data,
+            'renderedChildren' => $renderedChildren,
+            'lang'             => $lang,
+            'formDefinition'   => $formDefinition,
         ]);
+    }
+
+    /**
+     * Pre-load form definitions for all contact_form blocks found in the block tree.
+     *
+     * @param array<array<string, mixed>> $blocks
+     */
+    private function preloadFormDefinitions(array $blocks, string $lang): void
+    {
+        foreach ($blocks as $block) {
+            if (($block['block_key'] ?? '') === 'contact_form') {
+                $formKey = (string) (($block['block_config'] ?? [])['form_key'] ?? 'contact');
+                if (! array_key_exists($formKey, $this->formDefinitions)) {
+                    try {
+                        $this->formDefinitions[$formKey] = \Config\Services::siteFormService()
+                            ->getDefinition($lang, $formKey);
+                    } catch (\Throwable) {
+                        $this->formDefinitions[$formKey] = null;
+                    }
+                }
+            }
+            $children = $block['children'] ?? [];
+            if ($children !== []) {
+                $this->preloadFormDefinitions($children, $lang);
+            }
+        }
     }
 }
 

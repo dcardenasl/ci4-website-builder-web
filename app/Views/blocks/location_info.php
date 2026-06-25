@@ -60,9 +60,7 @@ if ($sectionTitle === '' && $address === '' && $phone === '' && $hours === '' &&
                             <p class="section-eyebrow">
                                 <?= esc($hoursLabel) ?>
                             </p>
-                            <p class="section-copy mt-2 whitespace-pre-line text-sm">
-                                <?= esc($hours) ?>
-                            </p>
+                            <p class="section-copy mt-2 whitespace-pre-line text-sm"><?= esc($hours) ?></p>
                         </div>
                     <?php endif; ?>
                 </div>

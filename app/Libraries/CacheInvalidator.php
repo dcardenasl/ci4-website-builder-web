@@ -15,6 +15,7 @@ class CacheInvalidator
         'entries',
         'taxonomies',
         'redirects',
+        'forms',
     ];
 
     /**
