@@ -1,0 +1,18 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- **Forms module** — new public-facing forms feature to display and submit CMS forms with field validation and submission handling (CMS-012)
+- **Analytics tracking** — automatic page view tracking to the domain CMS analytics API with user agent and referrer data
+
+### Changed
+- **Contact form migration** — replace legacy `ContactController` with new `FormController` powered by CMS forms system
+
+### Removed
+- **Legacy contact module** — removed `SiteContactService` and `ContactController` in favor of domain-driven forms system
