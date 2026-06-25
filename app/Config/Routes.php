@@ -11,14 +11,14 @@ $routes->get('sitemap.xml', 'SitemapController::index', ['as' => 'sitemap']);
 // Internal cache invalidation — no locale prefix, secured by X-Invalidate-Key header
 $routes->post('cache/invalidate', 'CacheController::invalidate', ['as' => 'cache_invalidate']);
 
-// Contact form submission — works with or without locale prefix
-$routes->post('contacto/enviar', 'ContactController::store', ['as' => 'contact_store']);
+// Dynamic form submissions
+$routes->post('forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit']);
 
 // Restrict routes with {locale} to Config\App::$supportedLocales
 $routes->useSupportedLocalesOnly(true);
 
-// Contact form submission (localized)
-$routes->post('{locale}/contacto/enviar', 'ContactController::store', ['as' => 'contact_store_localized']);
+// Dynamic form submissions (localized)
+$routes->post('{locale}/forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit_localized']);
 
 // Localized routes
 $routes->get('{locale}', 'PageController::home', ['as' => 'home_localized']);

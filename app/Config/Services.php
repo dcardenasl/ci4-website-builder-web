@@ -101,12 +101,12 @@ class Services extends BaseService
         return new \App\Libraries\CacheInvalidator();
     }
 
-    public static function siteContactService(bool $getShared = true): \App\Services\SiteContactService
+    public static function siteFormService(bool $getShared = true): \App\Services\SiteFormService
     {
         if ($getShared) {
-            return static::getSharedInstance('siteContactService');
+            return static::getSharedInstance('siteFormService');
         }
 
-        return new \App\Services\SiteContactService(static::webApiClient());
+        return new \App\Services\SiteFormService(static::webApiClient());
     }
 }
