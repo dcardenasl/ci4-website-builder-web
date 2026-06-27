@@ -163,7 +163,7 @@ class PageController extends BasePublicWebController
             'pageTitle'          => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'    => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
             'canonicalUrl'       => $translation['canonical_url'] ?: site_url('/' . $lang . '/' . ltrim($translation['slug'] ?? '', '/')),
-            'ogImage'            => $translation['og_image_file_id'] ?? '',
+            'ogImage'            => $translation['og_image_url'] ?? '',
             'metaRobots'         => $translation['robots'] ?? 'index, follow',
             'schemaData'         => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'     => $blockRenderer->render($blocks, $lang),
@@ -254,7 +254,7 @@ class PageController extends BasePublicWebController
             'pageTitle'           => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'     => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
             'canonicalUrl'        => $translation['canonical_url'] ?: site_url('/' . $lang . $collectionUrlPath . '/' . ltrim($translation['slug'] ?? '', '/')),
-            'ogImage'             => $translation['og_image_file_id'] ?? '',
+            'ogImage'             => $translation['og_image_url'] ?? ($entry['featured_image_url'] ?? ''),
             'metaRobots'          => $translation['robots'] ?? 'index, follow',
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'      => $blockRenderer->render($entry['blocks'] ?? [], $lang),
@@ -273,7 +273,17 @@ class PageController extends BasePublicWebController
     private function getPageTranslation(array $page, string $lang): array
     {
         if (isset($page['title'])) {
-            return $page;
+            $translation = $page;
+            if (! isset($translation['og_image_url']) && isset($page['translations']) && is_array($page['translations'])) {
+                foreach ($page['translations'] as $trans) {
+                    if (($trans['language_id'] ?? null) === $lang || ($trans['language_code'] ?? null) === $lang) {
+                        $translation = array_merge($translation, $trans);
+                        break;
+                    }
+                }
+            }
+
+            return $translation;
         }
 
         $translations = $page['translations'] ?? [];
@@ -297,7 +307,17 @@ class PageController extends BasePublicWebController
     private function getEntryTranslation(array $entry, string $lang): array
     {
         if (isset($entry['title'])) {
-            return $entry;
+            $translation = $entry;
+            if ((! isset($translation['og_image_url']) || ! isset($translation['featured_image_url'])) && isset($entry['translations']) && is_array($entry['translations'])) {
+                foreach ($entry['translations'] as $trans) {
+                    if (($trans['language_id'] ?? null) === $lang || ($trans['language_code'] ?? null) === $lang) {
+                        $translation = array_merge($translation, $trans);
+                        break;
+                    }
+                }
+            }
+
+            return $translation;
         }
 
         $translations = $entry['translations'] ?? [];
