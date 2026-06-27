@@ -27,6 +27,15 @@ final class HeroSliderViewTest extends CIUnitTestCase
                             'cta_url' => '/contacto',
                         ],
                     ],
+                    [
+                        'block_data' => [
+                            'image_url' => 'data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221200%22%20height%3D%22500%22%2F%3E',
+                            'heading' => 'Second slide',
+                            'subtitle' => 'Second subtitle',
+                            'cta_label' => 'Learn more',
+                            'cta_url' => '/servicios',
+                        ],
+                    ],
                 ],
             ],
             'config' => [
@@ -43,5 +52,6 @@ final class HeroSliderViewTest extends CIUnitTestCase
         $this->assertStringContainsString('Hero title', $html);
         $this->assertStringContainsString('href="', $html);
         $this->assertStringContainsString('/es/contacto', $html);
+        $this->assertStringNotContainsString('scale-x-0', $html);
     }
 }
