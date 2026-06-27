@@ -39,7 +39,7 @@ class CacheInvalidator
                 continue;
             }
 
-            $deleted      = $cache->deleteMatching('web_api_' . $scope . '_*');
+            $deleted      = $cache->deleteMatching('web_api_*_' . $scope . '_*');
             $totalDeleted += $deleted;
             $invalidated[] = $scope;
 
