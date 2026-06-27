@@ -183,9 +183,15 @@ if (! function_exists('localized_entry_urls')) {
 
         foreach (config('App')->supportedLocales as $locale) {
             $collectionPath = localized_collection_url_path($collection, $locale);
+            if ($collectionPath === '') {
+                continue;
+            }
             $slug = isset($localizedSlugs[$locale]) ? trim((string) $localizedSlugs[$locale], '/') : '';
-            if ($collectionPath !== '' && $slug !== '') {
+            if ($slug !== '') {
                 $urls[$locale] = site_url('/' . $locale . $collectionPath . '/' . $slug);
+            } else {
+                // No translation for this locale — fall back to the collection index
+                $urls[$locale] = site_url('/' . $locale . $collectionPath);
             }
         }
 
