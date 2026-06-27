@@ -153,7 +153,7 @@ $controlsIsOverlay = $controlsPosition === 'overlay_bottom';
                                     class="flex h-2 w-2 items-stretch overflow-hidden rounded-full border border-slate-300 <?= $index === 0 ? 'bg-slate-100' : 'bg-slate-200' ?>"
                                     aria-label="Ir a la diapositiva <?= $index + 1 ?>"
                                 >
-                                    <span data-hero-dot-fill class="block h-full w-full bg-slate-900 <?= $index === 0 ? '' : 'scale-x-0' ?>" style="transform-origin:left center;"></span>
+                                    <span data-hero-dot-fill class="block h-full w-full bg-slate-900" style="transform-origin:left center;"></span>
                                 </button>
                             <?php endforeach; ?>
                         </div>
@@ -204,7 +204,7 @@ $controlsIsOverlay = $controlsPosition === 'overlay_bottom';
                                             class="flex h-2 w-2 items-stretch overflow-hidden rounded-full border border-slate-300 <?= $index === 0 ? 'bg-slate-100' : 'bg-slate-200' ?>"
                                             aria-label="Ir a la diapositiva <?= $index + 1 ?>"
                                         >
-                                            <span data-hero-dot-fill class="block h-full w-full bg-slate-900 <?= $index === 0 ? '' : 'scale-x-0' ?>" style="transform-origin:left center;"></span>
+                                            <span data-hero-dot-fill class="block h-full w-full bg-slate-900" style="transform-origin:left center;"></span>
                                         </button>
                                     <?php endforeach; ?>
                                 </div>

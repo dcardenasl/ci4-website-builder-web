@@ -38,6 +38,8 @@
         "sort-packages": true
     },
     "scripts": {
-        "test": "phpunit"
+        "test": "phpunit",
+        "test:seo": "phpunit tests/feature/LighthouseSeoTest.php",
+        "quality": "phpunit && composer test:seo"
     }
 }
