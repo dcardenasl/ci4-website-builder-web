@@ -14,5 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Contact form migration** — replace legacy `ContactController` with new `FormController` powered by CMS forms system
 
+### Fixed
+- **`CacheInvalidator` cache pattern** — correct wildcard pattern to match actual cache key structure (`web_api_*_scope_*` instead of `web_api_scope_*`)
+
 ### Removed
 - **Legacy contact module** — removed `SiteContactService` and `ContactController` in favor of domain-driven forms system
