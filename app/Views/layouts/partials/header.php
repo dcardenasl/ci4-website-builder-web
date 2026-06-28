@@ -1,11 +1,20 @@
 <header class="site-header sticky top-0 z-50 bg-white/95 backdrop-blur-md transition-all duration-200">
+    <?php
+    $siteLogoUrl = is_array($settings['site_logo'] ?? null)
+        ? (string) ($settings['site_logo']['url'] ?? '')
+        : '';
+    if ($siteLogoUrl === '') {
+        $siteLogoUrl = (string) ($settings['site_logo_url'] ?? '');
+    }
+    ?>
     <nav class="container-base flex items-center justify-between py-2.5 sm:py-4">
         <!-- Logo / Site Title -->
         <a href="<?= esc(lang_url('/')) ?>" class="flex items-center gap-3 text-slate-900 transition-colors hover:text-primary">
-            <?php if (!empty($settings['site_logo_url'])): ?>
-                <img src="<?= esc($settings['site_logo_url']) ?>"
+            <?php if ($siteLogoUrl !== ''): ?>
+                <img src="<?= esc($siteLogoUrl) ?>"
                      alt="<?= esc($settings['site_name'] ?? 'Logo') ?>"
                      class="h-8 w-auto sm:h-10" />
+                <span class="text-xl font-bold text-primary"><?= esc($settings['site_name'] ?? 'Site') ?></span>
             <?php else: ?>
                 <span class="text-xl font-bold text-primary"><?= esc($settings['site_name'] ?? 'Site') ?></span>
             <?php endif; ?>

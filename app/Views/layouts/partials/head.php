@@ -11,7 +11,13 @@ if ($resolvedDescription === '') {
 }
 
 $siteLogoUrl  = is_array($settings['site_logo']  ?? null) ? (string) ($settings['site_logo']['url']  ?? '') : '';
+if ($siteLogoUrl === '') {
+    $siteLogoUrl = (string) ($settings['site_logo_url'] ?? '');
+}
 $faviconUrl   = is_array($settings['favicon']     ?? null) ? (string) ($settings['favicon']['url']    ?? '') : '';
+if ($faviconUrl === '') {
+    $faviconUrl = (string) ($settings['favicon_url'] ?? '');
+}
 $resolvedOgImage = $ogImage ?? ($siteLogoUrl !== '' ? $siteLogoUrl : null);
 
 $resolvedSchemaData = $schemaData ?? null;

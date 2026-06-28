@@ -1,15 +1,24 @@
 <footer class="bg-slate-50 border-t border-slate-100 py-16 mt-20">
+    <?php
+    $siteFooterLogoUrl = is_array($settings['site_footer_logo'] ?? null)
+        ? (string) ($settings['site_footer_logo']['url'] ?? '')
+        : '';
+    if ($siteFooterLogoUrl === '') {
+        $siteFooterLogoUrl = is_array($settings['site_logo'] ?? null)
+            ? (string) ($settings['site_logo']['url'] ?? '')
+            : '';
+    }
+    if ($siteFooterLogoUrl === '') {
+        $siteFooterLogoUrl = (string) ($settings['site_footer_logo_url'] ?? ($settings['site_logo_url'] ?? ''));
+    }
+    ?>
     <div class="container-base">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
             <!-- Site Info -->
             <div class="space-y-3">
                 <div class="flex items-center gap-2">
-                    <?php if (!empty($settings['site_footer_logo_url'])): ?>
-                        <img src="<?= esc($settings['site_footer_logo_url']) ?>"
-                             alt="<?= esc($settings['site_name'] ?? 'Logo') ?>"
-                             class="h-10 w-auto" />
-                    <?php elseif (!empty($settings['site_logo_url'])): ?>
-                        <img src="<?= esc($settings['site_logo_url']) ?>"
+                    <?php if ($siteFooterLogoUrl !== ''): ?>
+                        <img src="<?= esc($siteFooterLogoUrl) ?>"
                              alt="<?= esc($settings['site_name'] ?? 'Logo') ?>"
                              class="h-10 w-auto" />
                     <?php else: ?>

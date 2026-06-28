@@ -4,7 +4,7 @@
     <?= view('layouts/partials/head', $data ?? []) ?>
 </head>
 <body>
-    <?= view('layouts/partials/header', ['menu' => $mainMenu ?? []]) ?>
+    <?= view('layouts/partials/header', ['menu' => $mainMenu ?? [], 'settings' => $settings ?? []]) ?>
 
     <main>
         <?= view($view, $data ?? []) ?>
