@@ -1,4 +1,4 @@
-<article class="container mx-auto px-4 py-0 sm:py-8">
+<article class="container mx-auto px-4 py-0">
     <?php if (($showPageHeading ?? true) === true): ?>
         <h1 class="text-4xl font-bold mb-4"><?= esc($title ?? '') ?></h1>
 
