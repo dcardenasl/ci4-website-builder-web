@@ -10,13 +10,13 @@
  * @var array<int, array<string, mixed>> $tags
  * @var string $collectionUrlPath
  * @var string $collectionName
- * @var array<int, array<string, mixed>> $recentPosts
  * @var string $renderedBlocks
- * @var string $lang
  */
-$backLabel    = ($lang === 'en') ? 'Back to News' : 'Volver a Noticias';
+$isPortfolio  = ($collection['collection_key'] ?? '') === 'portafolio';
+$backLabel    = $isPortfolio
+    ? (($lang === 'en') ? 'Back to Portfolio' : 'Volver a Portafolio')
+    : (($lang === 'en') ? 'Back to News' : 'Volver a Noticias');
 $tagsLabel    = ($lang === 'en') ? 'Tags' : 'Etiquetas';
-$recentLabel  = ($lang === 'en') ? 'More news' : 'Más noticias';
 $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
 ?>
 
@@ -59,7 +59,7 @@ $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
             </h1>
 
             <div class="flex items-center gap-4 text-sm text-text-muted">
-                <?php if (!empty($published_at)): ?>
+                <?php if (!empty($published_at) && !$isPortfolio): ?>
                     <time datetime="<?= esc($published_at) ?>">
                         <span class="sr-only"><?= esc($publishedLabel) ?>: </span>
                         <?= esc(date('d M Y', strtotime($published_at))) ?>
@@ -102,21 +102,3 @@ $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
 
     </div>
 </article>
-
-<!-- ── Recent Posts ───────────────────────────────────────────────── -->
-<?php if (!empty($recentPosts)): ?>
-    <section class="section-sm bg-white border-t border-slate-100">
-        <div class="container-base">
-            <h2 class="section-title text-2xl mb-8"><?= esc($recentLabel) ?></h2>
-            <div class="grid-cols-blog grid gap-6">
-                <?php foreach ($recentPosts as $post): ?>
-                    <?= view('collection/partials/entry_card', [
-                        'entry'               => $post,
-                        'collectionUrlPath' => $collectionUrlPath ?? '',
-                        'lang'                => $lang,
-                    ]) ?>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </section>
-<?php endif; ?>

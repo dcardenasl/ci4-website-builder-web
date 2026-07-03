@@ -15,7 +15,9 @@ namespace App\Libraries;
  */
 class WebApiClient
 {
-    private const CACHE_SCHEMA_VERSION = 2;
+    // Bump when the public API payload shape or seeded content changes in a way
+    // that should invalidate every cached web page response.
+    private const CACHE_SCHEMA_VERSION = 3;
 
     private string $baseUrl;
     private string $apiKey;

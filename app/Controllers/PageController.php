@@ -71,15 +71,10 @@ class PageController extends BasePublicWebController
             return $this->home();
         }
 
-        // Step 1: Try CMS page by slug
-        $pageService = Services::sitePageService();
-        $page = $pageService->getBySlug($lang, $path);
-
-        if ($page) {
-            return $this->renderPage($page, $lang);
-        }
-
-        // Step 2: Try collection prefix match
+        // Step 1: Try collection prefix match first.
+        // This prevents a CMS page with the same slug as a collection root
+        // from stealing the index URL and showing editorial blocks instead of
+        // the dynamic listing.
         $collectionService = Services::siteCollectionService();
         $entryService = Services::siteEntryService();
         $collections = $collectionService->getAll($lang);
@@ -107,7 +102,15 @@ class PageController extends BasePublicWebController
             }
         }
 
-        // Step 4: Try redirect
+        // Step 2: Try CMS page by slug only when the path is not a collection route.
+        $pageService = Services::sitePageService();
+        $page = $pageService->getBySlug($lang, $path);
+
+        if ($page) {
+            return $this->renderPage($page, $lang);
+        }
+
+        // Step 3: Try redirect
         $redirectService = Services::siteRedirectService();
         $redirect = $redirectService->resolve($path);
 
@@ -121,7 +124,7 @@ class PageController extends BasePublicWebController
             return redirect($redirect['new_url'])->setStatusCode($statusCode);
         }
 
-        // Step 5: 404
+        // Step 4: 404
         return $this->notFound("No se encontró la página: {$path}");
     }
 
@@ -220,22 +223,9 @@ class PageController extends BasePublicWebController
     private function renderEntry(array $entry, array $collection, string $lang): ResponseInterface
     {
         $blockRenderer = Services::blockRenderer();
-        $entryService  = Services::siteEntryService();
 
         // Get the translation for the current language
         $translation = $this->getEntryTranslation($entry, $lang);
-
-        // Fetch recent posts from the same collection (exclude current entry)
-        $recentResult = $entryService->list($lang, $collection['collection_key'], [
-            'per_page' => 4,
-            'page'     => 1,
-        ]);
-        $currentSlug  = $translation['slug'] ?? '';
-        $recentPosts  = array_values(array_filter(
-            $recentResult['data'] ?? [],
-            static fn (array $e): bool => ($e['slug'] ?? '') !== $currentSlug
-        ));
-        $recentPosts  = array_slice($recentPosts, 0, 3);
 
         $collectionUrlPath = collection_url_path($collection);
 
@@ -249,7 +239,6 @@ class PageController extends BasePublicWebController
             'tags'                => $entry['tags'] ?? [],
             'collectionName'      => $collection['listing_title'] ?? $collection['name'] ?? '',
             'collectionUrlPath'   => $collectionUrlPath,
-            'recentPosts'         => $recentPosts,
             'lang'                => $lang,
             'pageTitle'           => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'     => $translation['meta_description'] ?? $translation['excerpt'] ?? '',

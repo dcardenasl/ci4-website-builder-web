@@ -22,21 +22,6 @@ $nextLabel       = ($lang === 'en') ? 'Next →' : 'Siguiente →';
 $emptyMsg        = ($lang === 'en') ? 'No news available yet.' : 'No hay noticias disponibles aún.';
 $moreNewsLabel   = ($lang === 'en') ? 'More news' : 'Más noticias';
 
-// Separate featured entry from the rest (only on first page with no category filter)
-$featuredEntry = null;
-$regularData   = $data;
-
-if ($currentPage === 1 && $currentCategory === '' && !empty($data)) {
-    foreach ($data as $i => $entry) {
-        if (!empty($entry['is_featured'])) {
-            $featuredEntry = $entry;
-            unset($regularData[$i]);
-            $regularData = array_values($regularData);
-            break;
-        }
-    }
-}
-
 // Build query string helper
 $buildUrl = static function (array $params) use ($urlPath): string {
     $qs = http_build_query(array_filter($params, static fn ($v) => $v !== '' && $v !== null && $v !== 0 && $v !== 1 || $v === 1));
@@ -84,71 +69,10 @@ $buildUrl = static function (array $params) use ($urlPath): string {
 <div class="section bg-background">
     <div class="container-base">
 
-        <!-- ── Featured Post ──────────────────────────────────────────── -->
-        <?php if ($featuredEntry !== null):
-            $fSlug    = $featuredEntry['slug'] ?? '';
-            $fTitle   = $featuredEntry['title'] ?? '';
-            $fExcerpt = $featuredEntry['excerpt'] ?? '';
-            $fDate    = $featuredEntry['published_at'] ?? '';
-            $fImage   = $featuredEntry['featured_image_url'] ?? '';
-            $fCats    = array_slice($featuredEntry['categories'] ?? [], 0, 2);
-            $fUrl     = lang_url($urlPath . '/' . $fSlug);
-        ?>
-            <article class="surface-card overflow-hidden mb-12 md:flex group hover:shadow-md transition-shadow">
-
-                <?php if ($fImage): ?>
-                    <a href="<?= esc($fUrl) ?>" class="block md:w-3/5 overflow-hidden aspect-video md:aspect-auto" tabindex="-1">
-                        <img src="<?= esc($fImage) ?>"
-                             alt="<?= esc($fTitle) ?>"
-                             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                    </a>
-                <?php else: ?>
-                    <div class="md:w-3/5 aspect-video md:aspect-auto bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
-                        </svg>
-                    </div>
-                <?php endif; ?>
-
-                <div class="p-6 md:p-8 md:w-2/5 flex flex-col justify-center">
-                    <?php if (!empty($fCats)): ?>
-                        <div class="flex flex-wrap gap-1.5 mb-3">
-                            <?php foreach ($fCats as $cat): ?>
-                                <span class="badge badge-secondary text-xs"><?= esc($cat['name'] ?? '') ?></span>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if ($fDate): ?>
-                        <p class="text-xs text-text-muted uppercase tracking-widest mb-3">
-                            <?= esc(date('d M Y', strtotime($fDate))) ?>
-                        </p>
-                    <?php endif; ?>
-
-                    <h2 class="text-2xl font-bold text-text-primary leading-tight mb-3">
-                        <a href="<?= esc($fUrl) ?>" class="hover:text-primary transition-colors">
-                            <?= esc($fTitle) ?>
-                        </a>
-                    </h2>
-
-                    <?php if ($fExcerpt): ?>
-                        <p class="text-text-secondary mb-5 line-clamp-3">
-                            <?= esc($fExcerpt) ?>
-                        </p>
-                    <?php endif; ?>
-
-                    <a href="<?= esc($fUrl) ?>"
-                       class="link font-semibold inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-                        <?= ($lang === 'en') ? 'Read more' : 'Leer más' ?> &rarr;
-                    </a>
-                </div>
-            </article>
-        <?php endif; ?>
-
         <!-- ── Entries Grid ───────────────────────────────────────────── -->
-        <?php if (!empty($regularData)): ?>
+        <?php if (!empty($data)): ?>
             <div class="grid-cols-blog grid gap-6 mb-10">
-                <?php foreach ($regularData as $entry): ?>
+                <?php foreach ($data as $entry): ?>
                     <?= view('collection/partials/entry_card', [
                         'entry'               => $entry,
                         'collectionUrlPath' => $urlPath,
@@ -156,7 +80,7 @@ $buildUrl = static function (array $params) use ($urlPath): string {
                     ]) ?>
                 <?php endforeach; ?>
             </div>
-        <?php elseif ($featuredEntry === null): ?>
+        <?php else: ?>
             <div class="surface-default border-dashed text-center py-16 text-text-muted">
                 <svg class="mx-auto mb-4 h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
