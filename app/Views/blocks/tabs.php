@@ -15,7 +15,7 @@ foreach ($block['children'] ?? [] as $index => $child) {
     $tabs[] = [
         'index' => $index,
         'title' => (string) ($childData['title'] ?? 'Tab ' . ($index + 1)),
-        'content' => (string) ($childData['content'] ?? ''),
+        'content' => block_text_content($childData, ''),
     ];
 }
 
@@ -53,7 +53,7 @@ if ($tabs === []) {
                     class="space-y-4"
                 >
                     <div class="prose prose-slate max-w-none text-slate-600 leading-relaxed">
-                        <?= $tab['content'] // HTML content sanitized by editor ?>
+                        <?= $tab['content'] ?>
                     </div>
                 </div>
             <?php endforeach; ?>

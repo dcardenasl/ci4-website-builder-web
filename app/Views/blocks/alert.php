@@ -63,7 +63,7 @@ $style = $typeStyles[$type] ?? $typeStyles['info'];
             <h4 class="font-bold text-sm leading-tight mb-1"><?= esc($title) ?></h4>
         <?php endif; ?>
         <div class="text-sm leading-relaxed opacity-95">
-            <?= $message // HTML content sanitized by editor ?>
+            <?= block_text_content(['content' => $message], '') ?>
         </div>
     </div>
 

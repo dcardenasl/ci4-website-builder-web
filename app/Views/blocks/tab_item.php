@@ -4,7 +4,7 @@
 
 // When rendered inside the parent 'tabs' block, this view is bypassed to allow Alpine.js header control.
 // This is a fallback wrapper if rendered stand-alone.
-$content = (string) ($data['content'] ?? '');
+$content = block_text_content($data, '');
 if ($content === '') {
     return;
 }

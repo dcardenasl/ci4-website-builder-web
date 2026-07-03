@@ -48,6 +48,22 @@ final class BlockRendererTest extends CIUnitTestCase
         $this->assertStringContainsString('my-container', $html);
     }
 
+    public function testRichTextFallsBackToLegacyBodyField(): void
+    {
+        $html = $this->renderer->render([
+            [
+                'block_key'    => 'rich_text',
+                'block_config' => [],
+                'block_data'   => [
+                    'body' => '<p>Festivales content</p>',
+                ],
+                'children'     => [],
+            ],
+        ]);
+
+        $this->assertStringContainsString('Festivales content', $html);
+    }
+
     public function testRendersNestedChildrenRecursively(): void
     {
         $html = $this->renderer->render([

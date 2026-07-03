@@ -13,7 +13,7 @@ foreach ($block['children'] ?? [] as $child) {
     
     $items[] = [
         'question' => (string) ($childData['question'] ?? ''),
-        'answer'   => (string) ($childData['answer'] ?? ''),
+        'answer'   => block_text_content($childData, ''),
         'is_open'  => filter_var($childConfig['is_open'] ?? false, FILTER_VALIDATE_BOOL),
     ];
 }
@@ -40,7 +40,7 @@ $cssClass = trim((string) ($config['css_class'] ?? ''));
                 </summary>
                 <div class="px-5 pb-5 pt-1 text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/30">
                     <div class="prose prose-slate max-w-none prose-sm md:prose-base">
-                        <?= $item['answer'] // Intentional raw HTML — sanitized at write time by HtmlSanitizer in BlockInstanceService ?>
+                        <?= $item['answer'] ?>
                     </div>
                 </div>
             </details>
