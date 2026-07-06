@@ -11,9 +11,14 @@ foreach ($block['children'] ?? [] as $child) {
     $childData = $child['block_data'] ?? [];
     
     $stats[] = [
-        'number' => (string) ($childData['number'] ?? ''),
-        'label'  => (string) ($childData['label'] ?? ''),
-        'icon'   => (string) ($childData['icon'] ?? ''),
+        'prefix'      => (string) ($childData['prefix'] ?? ''),
+        'number'      => (string) ($childData['number'] ?? ''),
+        'suffix'      => (string) ($childData['suffix'] ?? ''),
+        'label'       => (string) ($childData['label'] ?? ''),
+        'description' => (string) ($childData['description'] ?? ''),
+        'source_label'=> (string) ($childData['source_label'] ?? ''),
+        'source_url'  => (string) ($childData['source_url'] ?? ''),
+        'icon'        => (string) ($childData['icon'] ?? ''),
     ];
 }
 
@@ -22,7 +27,13 @@ if ($stats === []) {
 }
 
 $variant = (string) ($config['variant'] ?? 'light');
+$columns = min(4, max(2, (int) ($config['columns'] ?? count($stats))));
 $cssClass = trim((string) ($config['css_class'] ?? ''));
+$columnsClass = match ($columns) {
+    2 => 'md:grid-cols-2',
+    3 => 'md:grid-cols-3',
+    default => 'md:grid-cols-4',
+};
 
 // Map variants
 $sectionClass = 'rounded-3xl py-10 px-6 md:px-12 ';
@@ -47,17 +58,16 @@ if ($variant === 'dark') {
 
 <section class="py-8 <?= esc($cssClass) ?>">
     <div class="<?= esc($sectionClass) ?>">
-        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-<?= count($stats) === 3 ? '3' : (count($stats) === 2 ? '2' : '4') ?> divide-y sm:divide-y-0 sm:divide-x divide-slate-100/10">
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 <?= esc($columnsClass) ?> divide-y sm:divide-y-0 sm:divide-x divide-slate-100/10">
             <?php foreach ($stats as $stat): ?>
-                <!-- Remove non-numeric characters to get pure target value for counting animation -->
                 <?php 
-                $numOnly = (int) preg_replace('/[^0-9]/', '', $stat['number']); 
-                $suffix = preg_replace('/[0-9]/', '', $stat['number']);
+                $numOnly = (int) preg_replace('/[^0-9]/', '', $stat['number']);
+                $displaySuffix = $stat['suffix'] !== '' ? $stat['suffix'] : (string) preg_replace('/[0-9]/', '', $stat['number']);
+                $displayValue = $stat['prefix'] . $stat['number'] . $stat['suffix'];
                 ?>
                 <div class="flex flex-col items-center text-center p-4 first:pt-0 sm:first:pt-4">
                     <?php if ($stat['icon'] !== ''): ?>
                         <div class="mb-4 h-12 w-12 rounded-2xl flex items-center justify-center <?= esc($iconColorClass) ?>">
-                            <!-- Render generic Lucide SVG or standard placeholder if SVG mapping is not loaded client-side -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
                         </div>
                     <?php endif; ?>
@@ -66,21 +76,37 @@ if ($variant === 'dark') {
                         class="text-4xl md:text-5xl font-black tracking-tight <?= esc($numColorClass) ?> mb-2"
                         data-stat-counter
                         data-target-value="<?= esc((string) $numOnly) ?>"
-                        data-suffix="<?= esc($suffix) ?>"
+                        data-prefix="<?= esc($stat['prefix']) ?>"
+                        data-suffix="<?= esc($displaySuffix) ?>"
                     >
-                        <?= esc($stat['number']) ?>
+                        <?= esc($displayValue) ?>
                     </span>
                     
                     <span class="text-sm md:text-base font-semibold tracking-wide uppercase <?= esc($lblColorClass) ?>">
                         <?= esc($stat['label']) ?>
                     </span>
+                    <?php if ($stat['description'] !== ''): ?>
+                        <span class="mt-2 max-w-xs text-xs leading-relaxed <?= esc($lblColorClass) ?>">
+                            <?= esc($stat['description']) ?>
+                        </span>
+                    <?php endif; ?>
+                    <?php if ($stat['source_label'] !== ''): ?>
+                        <?php if ($stat['source_url'] !== ''): ?>
+                            <a href="<?= esc($stat['source_url']) ?>" class="mt-2 text-[11px] font-medium underline-offset-4 hover:underline <?= esc($lblColorClass) ?>">
+                                <?= esc($stat['source_label']) ?>
+                            </a>
+                        <?php else: ?>
+                            <span class="mt-2 text-[11px] <?= esc($lblColorClass) ?>">
+                                <?= esc($stat['source_label']) ?>
+                            </span>
+                        <?php endif; ?>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
     </div>
 </section>
 
-<!-- Stats Counting Javascript -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const animateCounters = () => {
@@ -91,6 +117,7 @@ if ($variant === 'dark') {
                     if (entry.isIntersecting) {
                         const el = entry.target;
                         const target = parseInt(el.getAttribute('data-target-value') || '0', 10);
+                        const prefix = el.getAttribute('data-prefix') || '';
                         const suffix = el.getAttribute('data-suffix') || '';
                         
                         if (target === 0) return;
@@ -102,10 +129,10 @@ if ($variant === 'dark') {
                         const timer = setInterval(() => {
                             count += Math.ceil(target / 50); // fast increment steps
                             if (count >= target) {
-                                el.textContent = target + suffix;
+                                el.textContent = prefix + target + suffix;
                                 clearInterval(timer);
                             } else {
-                                el.textContent = count + suffix;
+                                el.textContent = prefix + count + suffix;
                             }
                         }, stepTime);
                         

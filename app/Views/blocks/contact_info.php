@@ -7,19 +7,24 @@ $addressLabel       = $data['address_label'] ?? '';
 $address            = $data['address'] ?? '';
 $phoneLabel         = $data['phone_label'] ?? '';
 $phone              = $data['phone'] ?? '';
+$emailLabel         = $data['email_label'] ?? '';
+$email              = $data['email'] ?? '';
 $hoursLabel         = $data['hours_label'] ?? '';
 $hours              = $data['hours'] ?? '';
-$mapEmbedUrl        = $config['map_embed_url'] ?? '';
+$layout             = (string) ($config['layout'] ?? 'stacked');
 $cssClass           = $config['css_class'] ?? '';
 
-if ($sectionTitle === '' && $address === '' && $phone === '' && $hours === '' && $mapEmbedUrl === '') {
+if ($sectionTitle === '' && $address === '' && $phone === '' && $email === '' && $hours === '') {
     return;
 }
+
+$gridClass = $layout === 'two_columns'
+    ? 'grid gap-6 sm:grid-cols-2'
+    : 'space-y-4';
 ?>
 <section class="py-12 sm:py-14 <?= esc($cssClass) ?>">
     <div class="container-base">
-        <div class="grid gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start">
-            <div class="space-y-5">
+        <div class="max-w-4xl space-y-6">
                 <?php if ($sectionTitle): ?>
                     <h2 class="section-title text-2xl sm:text-3xl">
                         <?= esc($sectionTitle) ?>
@@ -31,7 +36,7 @@ if ($sectionTitle === '' && $address === '' && $phone === '' && $hours === '' &&
                     </p>
                 <?php endif; ?>
 
-                <div class="space-y-4">
+                <div class="<?= esc($gridClass) ?>">
                     <?php if ($address): ?>
                         <div class="border-b border-slate-200 pb-4">
                             <p class="section-eyebrow">
@@ -55,6 +60,18 @@ if ($sectionTitle === '' && $address === '' && $phone === '' && $hours === '' &&
                         </div>
                     <?php endif; ?>
 
+                    <?php if ($email): ?>
+                        <div class="border-b border-slate-200 pb-4">
+                            <p class="section-eyebrow">
+                                <?= esc($emailLabel) ?>
+                            </p>
+                            <a href="mailto:<?= esc($email) ?>"
+                               class="section-copy mt-2 inline-flex text-sm transition-colors hover:text-primary">
+                                <?= esc($email) ?>
+                            </a>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if ($hours): ?>
                         <div>
                             <p class="section-eyebrow">
@@ -64,21 +81,6 @@ if ($sectionTitle === '' && $address === '' && $phone === '' && $hours === '' &&
                         </div>
                     <?php endif; ?>
                 </div>
-            </div>
-
-            <?php if ($mapEmbedUrl): ?>
-                <div class="surface-card overflow-hidden">
-                    <iframe src="<?= esc($mapEmbedUrl) ?>"
-                            title="Mapa de ubicación"
-                            width="100%"
-                            height="100%"
-                            class="h-[22rem] w-full md:h-[28rem]"
-                            style="border:0;"
-                            allowfullscreen=""
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade"></iframe>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
 </section>
