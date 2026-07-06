@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Analytics tracking** — automatic page view tracking to the domain CMS analytics API with user agent and referrer data
 
 ### Changed
+- **Generic block naming normalization** — consolidated domain-specific block views (faq_accordion, contact_form, location_info, logo_showcase, etc.) into unified generic names (accordion, form_embed, contact_info, asset_showcase, etc.); updated `BlockRenderer` to reflect new block names; improves consistency across admin/web rendering
 - **Contact form migration** — replace legacy `ContactController` with new `FormController` powered by CMS forms system
 
 ### Fixed
