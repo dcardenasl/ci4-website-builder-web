@@ -6,8 +6,9 @@ parameters:
     paths:
         - app/Controllers
         - app/Libraries
-        - app/Helpers
-        - app/Modules
+        - app/Services
+        - app/Filters
+        - app/Common.php
         - app/Config/Services.php
     excludePaths:
         - app/Views
@@ -18,3 +19,8 @@ parameters:
         - app/Config/App.php
         - app/Config/Services.php
     treatPhpDocTypesAsCertain: false
+
+    # ignoreErrors limited to CI4 framework-dynamic patterns (not real bugs).
+    ignoreErrors:
+        # CI4 framework constants (intentionally undefined in phpstan-bootstrap.php)
+        - '#Constant (APPPATH|FCPATH|ROOTPATH|WRITEPATH|ENVIRONMENT) not found#'
