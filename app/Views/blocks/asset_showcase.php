@@ -5,7 +5,7 @@
 
 $logos = [];
 foreach ($block['children'] ?? [] as $child) {
-    if (($child['block_key'] ?? '') !== 'logo_item') {
+    if (($child['block_key'] ?? '') !== 'asset_item') {
         continue;
     }
     $childData = $child['block_data'] ?? [];
@@ -72,13 +72,17 @@ $logoStyleClass = $grayscale ? 'filter grayscale hover:grayscale-0 opacity-60 ho
                             <a href="<?= esc($logo['link_url']) ?>" target="_blank" rel="noopener noreferrer" class="block">
                         <?php endif; ?>
                         
-                        <img 
-                            src="<?= esc($logo['logo_url']) ?>" 
-                            alt="<?= esc($logo['name']) ?>" 
-                            title="<?= esc($logo['name']) ?>"
-                            class="max-h-full max-w-full object-contain <?= $logoStyleClass ?>"
-                            loading="lazy"
-                        />
+                        <?php if ($logo['logo_url'] !== ''): ?>
+                            <img
+                                src="<?= esc($logo['logo_url']) ?>"
+                                alt="<?= esc($logo['name']) ?>"
+                                title="<?= esc($logo['name']) ?>"
+                                class="max-h-full max-w-full object-contain <?= $logoStyleClass ?>"
+                                loading="lazy"
+                            />
+                        <?php else: ?>
+                            <span class="text-sm font-semibold text-slate-500"><?= esc($logo['name']) ?></span>
+                        <?php endif; ?>
                         
                         <?php if ($logo['link_url'] !== ''): ?>
                             </a>
@@ -97,13 +101,17 @@ $logoStyleClass = $grayscale ? 'filter grayscale hover:grayscale-0 opacity-60 ho
                         <a href="<?= esc($logo['link_url']) ?>" target="_blank" rel="noopener noreferrer" class="block">
                     <?php endif; ?>
                     
-                    <img 
-                        src="<?= esc($logo['logo_url']) ?>" 
-                        alt="<?= esc($logo['name']) ?>" 
-                        title="<?= esc($logo['name']) ?>"
-                        class="max-h-full max-w-full object-contain <?= $logoStyleClass ?>"
-                        loading="lazy"
-                    />
+                    <?php if ($logo['logo_url'] !== ''): ?>
+                        <img
+                            src="<?= esc($logo['logo_url']) ?>"
+                            alt="<?= esc($logo['name']) ?>"
+                            title="<?= esc($logo['name']) ?>"
+                            class="max-h-full max-w-full object-contain <?= $logoStyleClass ?>"
+                            loading="lazy"
+                        />
+                    <?php else: ?>
+                        <span class="text-sm font-semibold text-slate-500"><?= esc($logo['name']) ?></span>
+                    <?php endif; ?>
                     
                     <?php if ($logo['link_url'] !== ''): ?>
                         </a>

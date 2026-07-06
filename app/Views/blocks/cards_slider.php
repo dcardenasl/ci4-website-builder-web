@@ -3,14 +3,14 @@
 /** @var array<string, mixed> $config */
 /** @var array<string, mixed> $data */
 
-$testimonials = [];
+$cards = [];
 foreach ($block['children'] ?? [] as $child) {
-    if (($child['block_key'] ?? '') !== 'testimonial_card') {
+    if (($child['block_key'] ?? '') !== 'slide_card') {
         continue;
     }
     $childData = $child['block_data'] ?? [];
     
-    $testimonials[] = [
+    $cards[] = [
         'quote'     => (string) ($childData['quote'] ?? ''),
         'author'    => (string) ($childData['author'] ?? ''),
         'role'      => (string) ($childData['role'] ?? ''),
@@ -19,7 +19,7 @@ foreach ($block['children'] ?? [] as $child) {
     ];
 }
 
-if ($testimonials === []) {
+if ($cards === []) {
     return;
 }
 
@@ -36,12 +36,12 @@ $isSlider = $layout === 'slider';
         <!-- Slider Layout -->
         <div 
             class="relative max-w-4xl mx-auto overflow-hidden group/slider"
-            data-testimonials-slider
+            data-cards-slider
             data-autoplay="<?= $autoplay ? '1' : '0' ?>"
             data-interval="<?= esc((string) $interval) ?>"
         >
             <div class="slides-container flex transition-transform duration-500 ease-out">
-                <?php foreach ($testimonials as $index => $t): ?>
+                <?php foreach ($cards as $index => $t): ?>
                     <div class="w-full flex-shrink-0 px-4 md:px-12">
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 md:p-10 shadow-sm text-center flex flex-col items-center">
                             <!-- Stars -->
@@ -82,8 +82,8 @@ $isSlider = $layout === 'slider';
                 <?php endforeach; ?>
             </div>
 
-            <!-- Controls (Only if multiple testimonials) -->
-            <?php if (count($testimonials) > 1): ?>
+            <!-- Controls (Only if multiple cards) -->
+            <?php if (count($cards) > 1): ?>
                 <button 
                     data-slider-prev
                     class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-700 w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:scale-105 border border-slate-100 transition-all focus:outline-none opacity-0 group-hover/slider:opacity-100"
@@ -101,7 +101,7 @@ $isSlider = $layout === 'slider';
 
                 <!-- Dots -->
                 <div class="flex justify-center gap-2 mt-6" data-slider-dots>
-                    <?php foreach ($testimonials as $index => $_t): ?>
+                    <?php foreach ($cards as $index => $_t): ?>
                         <button 
                             data-dot="<?= $index ?>"
                             class="w-2.5 h-2.5 rounded-full transition-all duration-300 <?= $index === 0 ? 'bg-violet-600 w-6' : 'bg-slate-300 hover:bg-slate-400' ?>"
@@ -115,7 +115,7 @@ $isSlider = $layout === 'slider';
         <!-- Inline Javascript for slider functionality -->
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('[data-testimonials-slider]').forEach(slider => {
+                document.querySelectorAll('[data-cards-slider]').forEach(slider => {
                     const container = slider.querySelector('.slides-container');
                     const slides = container.children;
                     const totalSlides = slides.length;
@@ -182,7 +182,7 @@ $isSlider = $layout === 'slider';
     <?php else: ?>
         <!-- Grid Layout -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            <?php foreach ($testimonials as $t): ?>
+            <?php foreach ($cards as $t): ?>
                 <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
                     <!-- Stars -->
                     <div class="flex gap-1 mb-4 text-amber-400">

@@ -1,6 +1,6 @@
 <?php
 /**
- * contact_form block — dynamic form renderer driven by Domain CMS form definition.
+ * form_embed block — dynamic form renderer driven by Domain CMS form definition.
  *
  * Variables injected by BlockRenderer:
  * @var array<string, mixed>      $config         Block config (form_key, css_class, show_info_boxes, ...)

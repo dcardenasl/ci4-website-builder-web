@@ -5,7 +5,7 @@
 
 $stats = [];
 foreach ($block['children'] ?? [] as $child) {
-    if (($child['block_key'] ?? '') !== 'stat_item') {
+    if (($child['block_key'] ?? '') !== 'metric_item') {
         continue;
     }
     $childData = $child['block_data'] ?? [];

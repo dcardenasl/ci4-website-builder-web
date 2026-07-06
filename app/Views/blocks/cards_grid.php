@@ -5,7 +5,7 @@
 
 $cards = [];
 foreach ($block['children'] ?? [] as $child) {
-    if (($child['block_key'] ?? '') !== 'feature_card') {
+    if (($child['block_key'] ?? '') !== 'card_item') {
         continue;
     }
     $childData = $child['block_data'] ?? [];
