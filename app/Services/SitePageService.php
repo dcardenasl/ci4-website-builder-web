@@ -24,7 +24,7 @@ class SitePageService
     {
         $response = $this->apiClient->get("public/{$lang}/pages/{$slug}", [], self::CACHE_TTL_DETAIL, 'pages');
 
-        if (!$response['ok'] ?? false) {
+        if (! ($response['ok'] ?? false)) {
             return null;
         }
 
@@ -40,7 +40,7 @@ class SitePageService
     {
         $response = $this->apiClient->get("public/{$lang}/pages", [], self::CACHE_TTL_LIST, 'pages');
 
-        if (!$response['ok'] ?? false) {
+        if (! ($response['ok'] ?? false)) {
             return [];
         }
 

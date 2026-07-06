@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * The goal of this file is to allow developers a location
  * where they can overwrite core procedural functions and
@@ -215,7 +217,10 @@ if (! function_exists('block_text_content')) {
 
             $value = $data[$key];
             if (is_string($value) && trim($value) !== '') {
-                return $value;
+                // Second-layer sanitization (defense-in-depth): the Domain CMS
+                // sanitizes on write, but the public site must never render
+                // unsanitized HTML regardless of the content's provenance.
+                return \App\Libraries\HtmlSanitizer::clean($value);
             }
         }
 

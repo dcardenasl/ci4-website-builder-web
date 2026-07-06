@@ -53,7 +53,9 @@ class TrackingFilter implements FilterInterface
             return $response;
         }
 
-        $userAgent = $request->getUserAgent()->getAgentString();
+        $userAgent = $request instanceof \CodeIgniter\HTTP\IncomingRequest
+            ? $request->getUserAgent()->getAgentString()
+            : '';
 
         // Skip bot traffic
         if ($this->isBot($userAgent)) {
@@ -97,7 +99,7 @@ class TrackingFilter implements FilterInterface
      * Returns a persistent anonymous visitor UUID stored in a cookie.
      * No personal data — just a random identifier for unique-visitor estimation.
      */
-    private function resolveVisitorId(): ?string
+    private function resolveVisitorId(): string
     {
         $cookieName = '_vis';
 

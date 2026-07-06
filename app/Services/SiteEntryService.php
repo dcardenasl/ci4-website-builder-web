@@ -30,7 +30,7 @@ class SiteEntryService
             'entries'
         );
 
-        if (!$response['ok'] ?? false) {
+        if (! ($response['ok'] ?? false)) {
             return ['data' => [], 'meta' => ['pagination' => []]];
         }
 
@@ -54,7 +54,7 @@ class SiteEntryService
             'entries'
         );
 
-        if (!$response['ok'] ?? false) {
+        if (! ($response['ok'] ?? false)) {
             return null;
         }
 

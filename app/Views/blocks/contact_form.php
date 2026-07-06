@@ -107,6 +107,12 @@ $inputClass = 'form-input rounded-xl border-slate-300 bg-white px-4 py-3 text-sm
                               id="form-<?= esc($formKey) ?>">
                             <?= csrf_field() ?>
 
+                            <?php // Honeypot — hidden from real users, tempting to bots. Handled server-side in FormController. ?>
+                            <div class="hidden" aria-hidden="true">
+                                <label for="cf_website_<?= esc($formKey) ?>">Website</label>
+                                <input type="text" name="website" id="cf_website_<?= esc($formKey) ?>" tabindex="-1" autocomplete="off" />
+                            </div>
+
                             <?php if ($hasCaptcha && $recaptchaSiteKey !== ''): ?>
                                 <input type="hidden" name="g_recaptcha_response" id="g_recaptcha_response_<?= esc($formKey) ?>" />
                             <?php endif; ?>

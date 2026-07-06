@@ -10,9 +10,6 @@ class SiteCollectionService
 {
     private const CACHE_TTL = 600; // 10 minutes
 
-    /** @var array<string, array<string, mixed>>|null */
-    private ?array $allCollectionsCache = null;
-
     public function __construct(private WebApiClient $apiClient)
     {
     }
@@ -26,7 +23,7 @@ class SiteCollectionService
     {
         $response = $this->apiClient->get("public/{$lang}/collections", [], self::CACHE_TTL, 'collections');
 
-        if (!$response['ok'] ?? false) {
+        if (! ($response['ok'] ?? false)) {
             return [];
         }
 

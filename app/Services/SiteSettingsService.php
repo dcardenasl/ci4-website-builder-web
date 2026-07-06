@@ -23,7 +23,7 @@ class SiteSettingsService
     {
         $response = $this->apiClient->get('public/settings', [], self::CACHE_TTL, 'settings');
 
-        if (!$response['ok'] ?? false) {
+        if (! ($response['ok'] ?? false)) {
             return [];
         }
 

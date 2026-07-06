@@ -28,6 +28,16 @@ class FormController extends BasePublicWebController
         $lang       = $this->detectLang();
         $definition = $formService->getDefinition($lang, $formKey);
 
+        // ── 0. Honeypot: silently accept-and-drop bot submissions ─────────
+        // Real users never see or fill the "website" field. Bots that fill
+        // every input trip it. Return a success-looking redirect so bots get
+        // no signal that they were filtered.
+        if (trim((string) $this->request->getPost('website')) !== '') {
+            log_message('info', "[FormController] Honeypot triggered for form '{$formKey}' from IP: " . $this->request->getIPAddress());
+
+            return redirect()->back()->with("form_success_{$formKey}", true);
+        }
+
         // ── 1. Validate required fields and types ─────────────────────────
         $fields = $definition['fields'] ?? [];
         $errors = [];

@@ -8,6 +8,10 @@
 # By default, all of the settings are commented out. If you want
 # to override the setting, you must un-comment it by removing the '#'
 # at the beginning of the line.
+#
+# Prefer `.env.example` for a curated quick-start covering only what this
+# project actually needs. This file is CodeIgniter's full framework reference
+# — use it when you need a setting not covered there.
 #--------------------------------------------------------------------
 
 #--------------------------------------------------------------------

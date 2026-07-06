@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Config;
 
 use CodeIgniter\Config\BaseConfig;
@@ -93,7 +95,7 @@ class App extends BaseConfig
      * strings (like currency markers, numbers, etc), that your program
      * should run under for this request.
      */
-        public string $defaultLocale = 'es';
+    public string $defaultLocale = 'es';
 
     /**
      * --------------------------------------------------------------------------
@@ -215,8 +217,11 @@ class App extends BaseConfig
     {
         parent::__construct();
 
-        // Validate baseURL is configured
-        if ($this->baseURL === '') {
+        // Validate baseURL is configured. In production, the hardcoded localhost
+        // default must never be used silently — require an explicit app.baseURL in
+        // .env. In development the localhost fallback is acceptable.
+        $baseUrlFromEnv = (string) (env('app.baseURL') ?? '');
+        if ($this->baseURL === '' || (ENVIRONMENT === 'production' && trim($baseUrlFromEnv) === '')) {
             throw new \LogicException(
                 'Missing app.baseURL in .env. '
                 . 'Set app.baseURL to your website URL. '

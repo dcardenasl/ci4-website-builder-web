@@ -23,7 +23,7 @@ class SiteRedirectService
     {
         $response = $this->apiClient->get("public/redirects/{$path}", [], self::CACHE_TTL, 'redirects');
 
-        if (!$response['ok'] ?? false) {
+        if (! ($response['ok'] ?? false)) {
             return null;
         }
 

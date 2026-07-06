@@ -47,6 +47,17 @@ npm run build:css
 - `WEB_API_KEY` = `web_api_test_key` (API key registered in domain)
 - `cache.handler` = `file`
 
+**`app.defaultLocale` must match a language registered as active in the Domain CMS
+(`cms_languages`), and a `home` page must exist in that language.** This value is read by CI4's
+own routing/locale negotiation before any request reaches a controller, so it can't be resolved
+dynamically from the Domain's language list — it's a static config value, not derived from CMS
+data. If it points at a language that doesn't exist (or whose `home` page was deleted), `/`
+resolves cleanly to a 404 rather than crashing, but the site has no working homepage until either
+the config or the CMS content is fixed. `ci4-website-builder-admin` (`app.defaultLocale`) and
+`ci4-website-builder-domain` (`app.defaultLocale`) each control a different, independent thing —
+admin's own UI language and the API's internal `lang()` fallback, respectively — they are not
+required to match this value or each other.
+
 ## Page Resolution Algorithm
 
 PageController::resolve() implements a 5-step fallback:

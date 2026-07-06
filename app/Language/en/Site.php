@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'footer_menu_label'    => 'Menu',
     'footer_social_label'  => 'Social Media',

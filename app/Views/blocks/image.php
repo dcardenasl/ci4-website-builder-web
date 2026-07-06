@@ -3,6 +3,8 @@
         src="<?= esc($data['image_url'] ?? '') ?>"
         alt="<?= esc($data['image_alt_text'] ?? $data['alt'] ?? '') ?>"
         class="w-full h-auto"
+        loading="lazy"
+        decoding="async"
     />
     <?php $caption = $data['image_caption'] ?? $data['caption'] ?? null; ?>
     <?php if (!empty($caption)): ?>

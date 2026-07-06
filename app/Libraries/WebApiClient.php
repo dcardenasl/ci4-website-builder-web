@@ -31,7 +31,7 @@ class WebApiClient
         if (! $baseUrl) {
             $baseUrl = (string) env('WEB_API_BASE_URL', '');
         }
-        if (! is_string($baseUrl) || trim($baseUrl) === '') {
+        if (trim($baseUrl) === '') {
             throw new \LogicException(
                 'Missing WEB_API_BASE_URL. Pass it to constructor or set in .env. '
                 . 'Example: WEB_API_BASE_URL=http://localhost:8190'
@@ -41,7 +41,7 @@ class WebApiClient
         if (! $apiKey) {
             $apiKey = (string) env('WEB_API_KEY', '');
         }
-        if (! is_string($apiKey) || trim($apiKey) === '') {
+        if (trim($apiKey) === '') {
             throw new \LogicException(
                 'Missing WEB_API_KEY. Pass it to constructor or set in .env. '
                 . 'This should be a registered API key from your domain API.'

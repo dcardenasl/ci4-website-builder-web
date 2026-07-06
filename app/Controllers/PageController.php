@@ -121,7 +121,7 @@ class PageController extends BasePublicWebController
                 default => 301,
             };
 
-            return redirect($redirect['new_url'])->setStatusCode($statusCode);
+            return redirect()->to((string) $redirect['new_url'])->setStatusCode($statusCode);
         }
 
         // Step 4: 404
@@ -130,6 +130,8 @@ class PageController extends BasePublicWebController
 
     /**
      * Render a CMS page.
+     *
+     * @param array<string, mixed> $page
      */
     private function renderPage(array $page, string $lang): ResponseInterface
     {
@@ -178,6 +180,8 @@ class PageController extends BasePublicWebController
 
     /**
      * Render a collection index (listing of entries).
+     *
+     * @param array<string, mixed> $collection
      */
     private function renderCollectionIndex(array $collection, string $lang): ResponseInterface
     {
@@ -219,6 +223,9 @@ class PageController extends BasePublicWebController
 
     /**
      * Render a collection entry (single item).
+     *
+     * @param array<string, mixed> $entry
+     * @param array<string, mixed> $collection
      */
     private function renderEntry(array $entry, array $collection, string $lang): ResponseInterface
     {

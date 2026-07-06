@@ -29,6 +29,8 @@ class BlockRenderer
 
     /**
      * Render a single block and its children recursively.
+     *
+     * @param array<string, mixed> $block
      */
     private function renderBlock(array $block, string $lang): string
     {
