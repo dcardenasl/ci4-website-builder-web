@@ -45,7 +45,7 @@ class BlockRenderer
         }
 
         $formDefinition = null;
-        if ($blockKey === 'contact_form') {
+        if ($blockKey === 'form_embed') {
             $formKey = (string) ($config['form_key'] ?? 'contact');
             $formDefinition = $this->formDefinitions[$formKey] ?? null;
         }
@@ -66,14 +66,14 @@ class BlockRenderer
     }
 
     /**
-     * Pre-load form definitions for all contact_form blocks found in the block tree.
+     * Pre-load form definitions for all form_embed blocks found in the block tree.
      *
      * @param array<array<string, mixed>> $blocks
      */
     private function preloadFormDefinitions(array $blocks, string $lang): void
     {
         foreach ($blocks as $block) {
-            if (($block['block_key'] ?? '') === 'contact_form') {
+            if (($block['block_key'] ?? '') === 'form_embed') {
                 $formKey = (string) (($block['block_config'] ?? [])['form_key'] ?? 'contact');
                 if (! array_key_exists($formKey, $this->formDefinitions)) {
                     try {
