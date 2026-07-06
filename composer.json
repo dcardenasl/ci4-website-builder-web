@@ -11,11 +11,16 @@
     },
     "require": {
         "php": "^8.2",
-        "codeigniter4/framework": "^4.7"
+        "codeigniter4/framework": "^4.7",
+        "ezyang/htmlpurifier": "^4.17"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9",
+        "friendsofphp/php-cs-fixer": "^3.95",
         "mikey179/vfsstream": "^1.6",
+        "phpstan/extension-installer": "^1.3",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
         "phpunit/phpunit": "^10.5.16"
     },
     "autoload": {
@@ -35,11 +40,21 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
     },
     "scripts": {
         "test": "phpunit",
         "test:seo": "phpunit tests/feature/LighthouseSeoTest.php",
-        "quality": "phpunit && composer test:seo"
+        "quality": [
+            "@cs-check",
+            "@phpstan",
+            "@test"
+        ],
+        "phpstan": "phpstan analyse --memory-limit=512M",
+        "cs-fix": "php-cs-fixer fix",
+        "cs-check": "php-cs-fixer fix --dry-run --diff --sequential"
     }
 }
