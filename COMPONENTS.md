@@ -24,7 +24,7 @@
 - [x] alert block (app/Views/blocks/alert.php)
 - [x] tabs & tab_item block (app/Views/blocks/tabs.php, tab_item.php)
 - [x] gallery & gallery_item block (app/Views/blocks/gallery.php, gallery_item.php)
-- [x] portfolio_grid block (app/Views/blocks/portfolio_grid.php)
+- [x] collection_grid block (app/Views/blocks/collection_grid.php)
 - [x] unknown block fallback (app/Views/blocks/unknown.php)
 
 ## Layout & Views
