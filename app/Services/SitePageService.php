@@ -4,16 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Libraries\WebApiClient;
-
-class SitePageService
+class SitePageService extends BaseSiteService
 {
     private const CACHE_TTL_DETAIL = 300; // 5 minutes for single page
     private const CACHE_TTL_LIST = 600;   // 10 minutes for list
-
-    public function __construct(private WebApiClient $apiClient)
-    {
-    }
 
     /**
      * Get a published page by slug.
@@ -22,13 +16,7 @@ class SitePageService
      */
     public function getBySlug(string $lang, string $slug): ?array
     {
-        $response = $this->apiClient->get("public/{$lang}/pages/{$slug}", [], self::CACHE_TTL_DETAIL, 'pages');
-
-        if (! ($response['ok'] ?? false)) {
-            return null;
-        }
-
-        return $response['data'] ?? null;
+        return $this->fetchData("public/{$lang}/pages/{$slug}", [], self::CACHE_TTL_DETAIL, 'pages');
     }
 
     /**
@@ -38,12 +26,6 @@ class SitePageService
      */
     public function listAll(string $lang): array
     {
-        $response = $this->apiClient->get("public/{$lang}/pages", [], self::CACHE_TTL_LIST, 'pages');
-
-        if (! ($response['ok'] ?? false)) {
-            return [];
-        }
-
-        return $response['data'] ?? [];
+        return $this->fetchData("public/{$lang}/pages", [], self::CACHE_TTL_LIST, 'pages') ?? [];
     }
 }

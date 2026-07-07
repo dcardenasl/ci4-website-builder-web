@@ -4,15 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Libraries\WebApiClient;
-
-class SiteCategoryService
+class SiteCategoryService extends BaseSiteService
 {
     private const CACHE_TTL = 600; // 10 minutes — categories change rarely
-
-    public function __construct(private WebApiClient $apiClient)
-    {
-    }
 
     /**
      * List active categories for a collection.
@@ -21,17 +15,22 @@ class SiteCategoryService
      */
     public function list(string $lang, string $collectionKey): array
     {
-        $response = $this->apiClient->get(
+        $data = $this->fetchData(
             "public/{$lang}/categories/{$collectionKey}",
             [],
             self::CACHE_TTL,
             'taxonomies'
         );
 
-        if (!($response['ok'] ?? false)) {
+        if ($data === null) {
             return [];
         }
 
-        return $response['data']['data'] ?? $response['data'] ?? [];
+        // Some endpoints wrap the list in a nested `data` key.
+        if (is_array($data['data'] ?? null)) {
+            return $data['data'];
+        }
+
+        return $data;
     }
 }

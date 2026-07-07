@@ -4,15 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Libraries\WebApiClient;
-
-class SiteRedirectService
+class SiteRedirectService extends BaseSiteService
 {
     private const CACHE_TTL = 3600; // 1 hour (very stable)
-
-    public function __construct(private WebApiClient $apiClient)
-    {
-    }
 
     /**
      * Resolve a redirect by path.
@@ -21,12 +15,6 @@ class SiteRedirectService
      */
     public function resolve(string $path): ?array
     {
-        $response = $this->apiClient->get("public/redirects/{$path}", [], self::CACHE_TTL, 'redirects');
-
-        if (! ($response['ok'] ?? false)) {
-            return null;
-        }
-
-        return $response['data'] ?? null;
+        return $this->fetchData("public/redirects/{$path}", [], self::CACHE_TTL, 'redirects');
     }
 }

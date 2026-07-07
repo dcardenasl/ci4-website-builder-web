@@ -4,15 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Libraries\WebApiClient;
-
-class SiteSettingsService
+class SiteSettingsService extends BaseSiteService
 {
     private const CACHE_TTL = 3600; // 1 hour
-
-    public function __construct(private WebApiClient $apiClient)
-    {
-    }
 
     /**
      * Get all public settings as a key-value array.
@@ -21,13 +15,7 @@ class SiteSettingsService
      */
     public function getAll(): array
     {
-        $response = $this->apiClient->get('public/settings', [], self::CACHE_TTL, 'settings');
-
-        if (! ($response['ok'] ?? false)) {
-            return [];
-        }
-
-        return $response['data'] ?? [];
+        return $this->fetchData('public/settings', [], self::CACHE_TTL, 'settings') ?? [];
     }
 
     /**
