@@ -1,78 +1,25 @@
 <?php
 /**
- * collection_grid block — Displays entries from a configured CMS collection.
+ * collection_grid block — all variables prepared by CollectionGridViewModel
+ * (registered in BlockRenderer::VIEW_MODELS).
  *
- * @var array<string, mixed> $block
- * @var array<string, mixed> $config
- * @var array<string, mixed> $data
- * @var string $lang
+ * @var string                     $sectionTitle
+ * @var string                     $sectionSubtitle
+ * @var string                     $viewAllLabel
+ * @var string                     $emptyMessage
+ * @var string                     $collectionKey
+ * @var string                     $layoutVariant
+ * @var string                     $cssClass
+ * @var string                     $canonicalViewAllUrl
+ * @var list<array<string, mixed>> $entries
+ * @var string                     $sectionClass
+ * @var string                     $containerClass
+ * @var string                     $gridClass
  */
-$sectionTitle    = $data['section_title'] ?? '';
-$sectionSubtitle = $data['section_subtitle'] ?? '';
-$viewAllLabel    = $data['view_all_label'] ?? '';
-$viewAllUrl      = $data['view_all_url'] ?? '';
-$emptyMessage    = $data['empty_message'] ?? '';
-$collectionKey   = (string) ($config['collection_key'] ?? '');
-$itemsLimit      = max(1, min(100, (int) ($config['items_limit'] ?? 3)));
-$orderBy         = in_array(($config['order_by'] ?? ''), ['published_at', 'sort_order', 'created_at', 'title'], true)
-    ? (string) $config['order_by']
-    : 'published_at';
-$orderDirection  = strtolower((string) ($config['order_direction'] ?? 'desc')) === 'asc' ? 'asc' : 'desc';
-$layoutVariant   = in_array(($config['layout_variant'] ?? ''), ['cards', 'compact', 'portfolio'], true)
-    ? (string) $config['layout_variant']
-    : 'cards';
-$cssClass        = $config['css_class'] ?? '';
 
-if ($collectionKey === '') {
+if ($collectionKey === '' || ($entries === [] && $sectionTitle === '')) {
     return;
 }
-
-$canonicalViewAllUrl = '';
-try {
-    /** @var \App\Services\SiteCollectionService $collectionSvc */
-    $collectionSvc = service('siteCollectionService');
-    foreach ($collectionSvc->getAll($lang) as $collection) {
-        if (($collection['collection_key'] ?? '') === $collectionKey) {
-            $canonicalViewAllUrl = collection_url_path($collection);
-            break;
-        }
-    }
-} catch (\Throwable) {
-    $canonicalViewAllUrl = '';
-}
-if ($canonicalViewAllUrl === '' && $viewAllUrl !== '') {
-    $canonicalViewAllUrl = $viewAllUrl;
-}
-
-$entries = [];
-try {
-    /** @var \App\Services\SiteEntryService $entrySvc */
-    $entrySvc = service('siteEntryService');
-    $result   = $entrySvc->list($lang, $collectionKey, [
-        'per_page'        => $itemsLimit,
-        'order_by'        => $orderBy,
-        'order_direction' => $orderDirection,
-    ]);
-    $entries  = $result['data'] ?? [];
-} catch (\Throwable) {
-    $entries = [];
-}
-
-if ($entries === [] && $sectionTitle === '') {
-    return;
-}
-
-$sectionClass = $layoutVariant === 'portfolio'
-    ? 'py-16 sm:py-20 bg-slate-50/50'
-    : 'py-12 sm:py-14';
-$containerClass = $layoutVariant === 'portfolio'
-    ? 'max-w-6xl mx-auto px-4'
-    : 'container-base';
-$gridClass = match ($layoutVariant) {
-    'compact'   => 'grid gap-4 sm:grid-cols-2 lg:grid-cols-4',
-    'portfolio' => 'grid gap-8 sm:grid-cols-2 lg:grid-cols-3',
-    default     => 'grid gap-6 md:grid-cols-3',
-};
 ?>
 <section class="<?= esc($sectionClass) ?> <?= esc((string) $cssClass) ?>">
     <div class="<?= esc($containerClass) ?>">

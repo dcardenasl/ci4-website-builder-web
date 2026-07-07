@@ -1,66 +1,24 @@
 <?php
-/** @var array<string, mixed> $block */
-/** @var array<string, mixed> $config */
-/** @var array<string, mixed> $data */
+/**
+ * video_player block — all variables prepared by VideoPlayerViewModel
+ * (registered in BlockRenderer::VIEW_MODELS).
+ *
+ * @var string $videoUrl
+ * @var string $posterUrl
+ * @var string $heading
+ * @var bool   $autoplay
+ * @var bool   $mute
+ * @var bool   $loop
+ * @var string $cssClass
+ * @var string $embedUrl
+ * @var bool   $isIframe
+ * @var string $aspectRatioClass
+ * @var string $uniqueId
+ */
 
-$videoUrl = (string) ($data['video_url'] ?? '');
 if ($videoUrl === '') {
     return;
 }
-
-$posterUrl = (string) ($data['poster_url'] ?? '');
-$heading = (string) ($data['heading'] ?? '');
-
-$autoplay = filter_var($config['autoplay'] ?? false, FILTER_VALIDATE_BOOL);
-$mute = filter_var($config['mute'] ?? false, FILTER_VALIDATE_BOOL);
-$loop = filter_var($config['loop'] ?? false, FILTER_VALIDATE_BOOL);
-$aspectRatio = (string) ($config['aspect_ratio'] ?? '16/9');
-$cssClass = trim((string) ($config['css_class'] ?? ''));
-
-// Helper function to extract YouTube ID
-$getYouTubeId = static function (string $url): ?string {
-    $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i';
-    if (preg_match($pattern, $url, $matches)) {
-        return $matches[1];
-    }
-    return null;
-};
-
-// Helper function to extract Vimeo ID
-$getVimeoId = static function (string $url): ?string {
-    $pattern = '/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/i';
-    if (preg_match($pattern, $url, $matches)) {
-        return $matches[3];
-    }
-    return null;
-};
-
-$ytId = $getYouTubeId($videoUrl);
-$vimeoId = $getVimeoId($videoUrl);
-
-$embedUrl = '';
-$isIframe = false;
-
-if ($ytId !== null) {
-    $isIframe = true;
-    $embedUrl = "https://www.youtube.com/embed/{$ytId}?autoplay=1";
-    if ($mute) $embedUrl .= '&mute=1';
-    if ($loop) $embedUrl .= "&loop=1&playlist={$ytId}";
-} elseif ($vimeoId !== null) {
-    $isIframe = true;
-    $embedUrl = "https://player.vimeo.com/video/{$vimeoId}?autoplay=1";
-    if ($mute) $embedUrl .= '&muted=1';
-    if ($loop) $embedUrl .= '&loop=1';
-}
-
-$aspectRatioClass = 'aspect-video'; // Default 16/9
-if ($aspectRatio === '4/3') {
-    $aspectRatioClass = 'aspect-[4/3]';
-} elseif ($aspectRatio === 'auto') {
-    $aspectRatioClass = 'aspect-auto';
-}
-
-$uniqueId = 'video_' . uniqid();
 ?>
 
 <section class="py-8 <?= esc($cssClass) ?>">
@@ -130,38 +88,4 @@ $uniqueId = 'video_' . uniqid();
     </div>
 </section>
 
-<!-- On-demand Video Loading Script -->
-<?php if ($posterUrl !== ''): ?>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const player = document.getElementById('<?= $uniqueId ?>');
-            if (!player) return;
-
-            const overlay = player.querySelector('[data-poster-overlay]');
-            
-            overlay.addEventListener('click', () => {
-                const embedUrl = player.getAttribute('data-embed-url') || '';
-                const isIframe = player.getAttribute('data-is-iframe') === '1';
-                const nativeUrl = player.getAttribute('data-native-url') || '';
-                const autoplay = player.getAttribute('data-autoplay') === '1';
-                const mute = player.getAttribute('data-mute') === '1';
-                const loop = player.getAttribute('data-loop') === '1';
-                
-                let content = '';
-                
-                if (isIframe) {
-                    content = `<iframe src="${embedUrl}" class="w-full h-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                } else {
-                    content = `<video src="${nativeUrl}" class="w-full h-full object-contain" controls autoplay ${mute ? 'muted' : ''} ${loop ? 'loop' : ''}></video>`;
-                }
-                
-                // Animate overlay out, then inject video
-                overlay.style.opacity = '0';
-                setTimeout(() => {
-                    overlay.remove();
-                    player.innerHTML = content;
-                }, 300);
-            });
-        });
-    </script>
-<?php endif; ?>
+<?php // Click-to-play behavior lives in src/js/components/videoPlayer.js (data-video-player). ?>

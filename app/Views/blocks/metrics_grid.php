@@ -1,58 +1,19 @@
 <?php
-/** @var array<string, mixed> $block */
-/** @var array<string, mixed> $config */
-/** @var array<string, mixed> $data */
-
-$stats = [];
-foreach ($block['children'] ?? [] as $child) {
-    if (($child['block_key'] ?? '') !== 'metric_item') {
-        continue;
-    }
-    $childData = $child['block_data'] ?? [];
-    
-    $stats[] = [
-        'prefix'      => (string) ($childData['prefix'] ?? ''),
-        'number'      => (string) ($childData['number'] ?? ''),
-        'suffix'      => (string) ($childData['suffix'] ?? ''),
-        'label'       => (string) ($childData['label'] ?? ''),
-        'description' => (string) ($childData['description'] ?? ''),
-        'source_label'=> (string) ($childData['source_label'] ?? ''),
-        'source_url'  => (string) ($childData['source_url'] ?? ''),
-        'icon'        => (string) ($childData['icon'] ?? ''),
-    ];
-}
+/**
+ * metrics_grid block — all variables prepared by MetricsGridViewModel
+ * (registered in BlockRenderer::VIEW_MODELS).
+ *
+ * @var list<array{prefix: string, number: string, suffix: string, label: string, description: string, source_label: string, source_url: string, icon: string, num_only: int, display_suffix: string, display_value: string}> $stats
+ * @var string $cssClass
+ * @var string $columnsClass
+ * @var string $sectionClass
+ * @var string $numColorClass
+ * @var string $lblColorClass
+ * @var string $iconColorClass
+ */
 
 if ($stats === []) {
     return;
-}
-
-$variant = (string) ($config['variant'] ?? 'light');
-$columns = min(4, max(2, (int) ($config['columns'] ?? count($stats))));
-$cssClass = trim((string) ($config['css_class'] ?? ''));
-$columnsClass = match ($columns) {
-    2 => 'md:grid-cols-2',
-    3 => 'md:grid-cols-3',
-    default => 'md:grid-cols-4',
-};
-
-// Map variants
-$sectionClass = 'rounded-3xl py-10 px-6 md:px-12 ';
-$numColorClass = 'text-violet-600';
-$lblColorClass = 'text-slate-600';
-$iconColorClass = 'text-violet-500 bg-violet-50';
-
-if ($variant === 'dark') {
-    $sectionClass .= 'bg-slate-900 border border-slate-800 text-white shadow-xl';
-    $numColorClass = 'text-violet-400';
-    $lblColorClass = 'text-slate-400';
-    $iconColorClass = 'text-violet-400 bg-slate-800';
-} elseif ($variant === 'primary') {
-    $sectionClass .= 'bg-gradient-to-tr from-violet-600 to-indigo-700 text-white shadow-lg shadow-violet-500/20';
-    $numColorClass = 'text-amber-300';
-    $lblColorClass = 'text-violet-100/90';
-    $iconColorClass = 'text-amber-300 bg-violet-800/50';
-} else { // light
-    $sectionClass .= 'bg-white border border-slate-100 shadow-sm';
 }
 ?>
 
@@ -60,11 +21,6 @@ if ($variant === 'dark') {
     <div class="<?= esc($sectionClass) ?>">
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 <?= esc($columnsClass) ?> divide-y sm:divide-y-0 sm:divide-x divide-slate-100/10">
             <?php foreach ($stats as $stat): ?>
-                <?php 
-                $numOnly = (int) preg_replace('/[^0-9]/', '', $stat['number']);
-                $displaySuffix = $stat['suffix'] !== '' ? $stat['suffix'] : (string) preg_replace('/[0-9]/', '', $stat['number']);
-                $displayValue = $stat['prefix'] . $stat['number'] . $stat['suffix'];
-                ?>
                 <div class="flex flex-col items-center text-center p-4 first:pt-0 sm:first:pt-4">
                     <?php if ($stat['icon'] !== ''): ?>
                         <div class="mb-4 h-12 w-12 rounded-2xl flex items-center justify-center <?= esc($iconColorClass) ?>">
@@ -75,11 +31,11 @@ if ($variant === 'dark') {
                     <span 
                         class="text-4xl md:text-5xl font-black tracking-tight <?= esc($numColorClass) ?> mb-2"
                         data-stat-counter
-                        data-target-value="<?= esc((string) $numOnly) ?>"
+                        data-target-value="<?= esc((string) $stat['num_only']) ?>"
                         data-prefix="<?= esc($stat['prefix']) ?>"
-                        data-suffix="<?= esc($displaySuffix) ?>"
+                        data-suffix="<?= esc($stat['display_suffix']) ?>"
                     >
-                        <?= esc($displayValue) ?>
+                        <?= esc($stat['display_value']) ?>
                     </span>
                     
                     <span class="text-sm md:text-base font-semibold tracking-wide uppercase <?= esc($lblColorClass) ?>">
@@ -107,43 +63,4 @@ if ($variant === 'dark') {
     </div>
 </section>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const animateCounters = () => {
-            const counters = document.querySelectorAll('[data-stat-counter]');
-            
-            const observer = new IntersectionObserver((entries, obs) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const el = entry.target;
-                        const target = parseInt(el.getAttribute('data-target-value') || '0', 10);
-                        const prefix = el.getAttribute('data-prefix') || '';
-                        const suffix = el.getAttribute('data-suffix') || '';
-                        
-                        if (target === 0) return;
-                        
-                        let count = 0;
-                        const duration = 1500; // ms
-                        const stepTime = Math.max(10, Math.floor(duration / target));
-                        
-                        const timer = setInterval(() => {
-                            count += Math.ceil(target / 50); // fast increment steps
-                            if (count >= target) {
-                                el.textContent = prefix + target + suffix;
-                                clearInterval(timer);
-                            } else {
-                                el.textContent = prefix + count + suffix;
-                            }
-                        }, stepTime);
-                        
-                        obs.unobserve(el);
-                    }
-                });
-            }, { threshold: 0.2 });
-            
-            counters.forEach(counter => observer.observe(counter));
-        };
-        
-        animateCounters();
-    });
-</script>
+<?php // Counter animation lives in src/js/components/metricsCounter.js (data-stat-counter). ?>

@@ -1,49 +1,30 @@
 <?php
 /**
- * form_embed block — dynamic form renderer driven by Domain CMS form definition.
+ * form_embed block — all variables prepared by FormEmbedViewModel
+ * (registered in BlockRenderer::VIEW_MODELS).
  *
- * Variables injected by BlockRenderer:
- * @var array<string, mixed>      $config         Block config (form_key, css_class, show_info_boxes, ...)
- * @var array<string, mixed>      $data           Block data (heading, description, info_email_label, ...)
- * @var array<string, mixed>|null $formDefinition Form definition from Domain API (null = unavailable)
- * @var string                    $lang           Current locale code
+ * @var string                     $formKey
+ * @var string                     $cssClass
+ * @var bool                       $showInfoBoxes
+ * @var string                     $heading
+ * @var string                     $description
+ * @var string                     $infoEmailLabel
+ * @var string                     $infoEmailDesc
+ * @var string                     $infoPhoneLabel
+ * @var string                     $infoPhoneDesc
+ * @var array<string, mixed>|null  $formDefinition
+ * @var list<array<string, mixed>> $fields
+ * @var string                     $submitLabel
+ * @var string                     $successMsg
+ * @var bool                       $hasCaptcha
+ * @var string                     $recaptchaSiteKey
+ * @var string                     $inputClass
  */
 
-$formKey      = (string) ($config['form_key'] ?? 'contact');
-$cssClass     = (string) ($config['css_class'] ?? '');
-$showInfoBoxes = ! isset($config['show_info_boxes']) || ($config['show_info_boxes'] !== false && $config['show_info_boxes'] !== 'false');
-
-$heading          = (string) ($data['heading'] ?? '');
-$description      = (string) ($data['description'] ?? '');
-$infoEmailLabel   = (string) ($data['info_email_label'] ?? '');
-$infoEmailDesc    = (string) ($data['info_email_desc'] ?? '');
-$infoPhoneLabel   = (string) ($data['info_phone_label'] ?? '');
-$infoPhoneDesc    = (string) ($data['info_phone_desc'] ?? '');
-
-// Flash data keyed by form_key so multiple forms on the same page don't collide
-$sent    = session()->getFlashdata("form_sent_{$formKey}");
-$errors  = (array) (session()->getFlashdata("form_errors_{$formKey}") ?? []);
-
-// Resolve form definition: injected by BlockRenderer, or lazy fallback
-if (! isset($formDefinition)) {
-    $formDefinition = null;
-}
-if ($formDefinition === null) {
-    try {
-        $formDefinition = \Config\Services::siteFormService()->getDefinition($lang ?? 'es', $formKey);
-    } catch (\Throwable) {
-        $formDefinition = null;
-    }
-}
-
-$fields      = (array) ($formDefinition['fields'] ?? []);
-$submitLabel = (string) ($formDefinition['submit_label'] ?? 'Enviar');
-$successMsg  = (string) ($formDefinition['success_message'] ?? '¡Mensaje enviado! Nos pondremos en contacto pronto.');
-$hasCaptcha  = ! empty($formDefinition['has_captcha']);
-$recaptchaSiteKey = (string) \Config\Services::siteSettingsService()
-    ->get('recaptcha_site_key', env('RECAPTCHA_SITE_KEY', ''));
-
-$inputClass = 'form-input rounded-xl border-slate-300 bg-white px-4 py-3 text-sm shadow-none';
+// Flash data keyed by form_key so multiple forms on the same page don't collide.
+// Session state is render-time only, so it stays in the view, not the view model.
+$sent   = session()->getFlashdata("form_sent_{$formKey}");
+$errors = (array) (session()->getFlashdata("form_errors_{$formKey}") ?? []);
 ?>
 
 <section class="py-12 sm:py-14 <?= esc($cssClass) ?>">

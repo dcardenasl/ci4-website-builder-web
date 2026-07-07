@@ -1,57 +1,24 @@
 <?php
-/** @var array<string, mixed> $block */
-/** @var array<string, mixed> $config */
-/** @var array<string, mixed> $data */
-
-$buildPlaceholder = static function (string $label, string $background = '#e5e7eb', string $foreground = '#111827'): string {
-    $svg = sprintf(
-        '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500"><rect width="1200" height="500" fill="%s"/><text x="50%%" y="50%%" fill="%s" font-family="Arial,Helvetica,sans-serif" font-size="56" font-weight="700" text-anchor="middle" dominant-baseline="middle">%s</text></svg>',
-        htmlspecialchars($background, ENT_QUOTES | ENT_XML1, 'UTF-8'),
-        htmlspecialchars($foreground, ENT_QUOTES | ENT_XML1, 'UTF-8'),
-        htmlspecialchars($label, ENT_QUOTES | ENT_XML1, 'UTF-8')
-    );
-
-    return 'data:image/svg+xml;charset=UTF-8,' . rawurlencode($svg);
-};
-
-$slides = [];
-foreach ($block['children'] ?? [] as $index => $child) {
-    $childData = $child['block_data'] ?? [];
-    $heading   = (string) ($childData['heading'] ?? '');
-    $slides[]  = [
-        'image_url'      => (string) ($childData['image_url'] ?? $buildPlaceholder($heading !== '' ? $heading : ('Slide ' . ($index + 1)))),
-        'image_alt_text' => (string) ($childData['image_alt_text'] ?? $heading),
-        'heading'        => $heading,
-        'subtitle'       => (string) ($childData['subtitle'] ?? ''),
-        'cta_label'      => (string) ($childData['cta_label'] ?? ''),
-        'cta_url'        => lang_url((string) ($childData['cta_url'] ?? '#')),
-    ];
-}
+/**
+ * hero_slider block — all variables prepared by HeroSliderViewModel
+ * (registered in BlockRenderer::VIEW_MODELS).
+ *
+ * @var list<array{image_url: string, image_alt_text: string, heading: string, subtitle: string, cta_label: string, cta_url: string}> $slides
+ * @var string $captionPosition
+ * @var string $controlsPosition
+ * @var string $cssClass
+ * @var bool   $autoplay
+ * @var int    $intervalMs
+ * @var int    $overlayPct
+ * @var string $jsonSlides
+ * @var bool   $captionIsBelow
+ * @var bool   $captionIsOverlay
+ * @var bool   $controlsIsOverlay
+ */
 
 if ($slides === []) {
     return;
 }
-
-$captionPosition = (string) ($config['caption_position'] ?? 'below');
-if (! in_array($captionPosition, ['below', 'overlay_top', 'overlay_bottom', 'hide'], true)) {
-    $captionPosition = 'below';
-}
-
-$controlsPosition = (string) ($config['controls_position'] ?? 'below');
-if (! in_array($controlsPosition, ['below', 'overlay_bottom'], true)) {
-    $controlsPosition = 'below';
-}
-
-$cssClass = trim((string) ($config['css_class'] ?? ''));
-$autoplay = filter_var($config['autoplay'] ?? true, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
-$autoplay = $autoplay ?? true;
-$intervalMs = isset($config['interval']) ? max(1000, (int) $config['interval']) : 6000;
-$overlayPct = isset($config['overlay_opacity']) ? max(0, min(80, (int) $config['overlay_opacity'])) : 0;
-$jsonSlides = json_encode($slides, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-
-$captionIsBelow = $captionPosition === 'below';
-$captionIsOverlay = in_array($captionPosition, ['overlay_top', 'overlay_bottom'], true);
-$controlsIsOverlay = $controlsPosition === 'overlay_bottom';
 ?>
 
 <section class="py-0 <?= esc($cssClass) ?>">

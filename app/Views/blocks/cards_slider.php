@@ -1,45 +1,25 @@
 <?php
-/** @var array<string, mixed> $block */
-/** @var array<string, mixed> $config */
-/** @var array<string, mixed> $data */
-
-$cards = [];
-foreach ($block['children'] ?? [] as $child) {
-    if (($child['block_key'] ?? '') !== 'slide_card') {
-        continue;
-    }
-    $childData = $child['block_data'] ?? [];
-    
-    $cards[] = [
-        'eyebrow'          => (string) ($childData['eyebrow'] ?? ''),
-        'title'            => (string) ($childData['title'] ?? ''),
-        'body'             => (string) ($childData['body'] ?? ''),
-        'meta_title'       => (string) ($childData['meta_title'] ?? ''),
-        'meta_description' => (string) ($childData['meta_description'] ?? ''),
-        'image_url'        => (string) ($childData['image_url'] ?? ''),
-        'rating'           => (int) ($childData['rating'] ?? 0),
-        'link_url'         => (string) ($childData['link_url'] ?? ''),
-        'link_label'       => (string) ($childData['link_label'] ?? ''),
-    ];
-}
+/**
+ * cards_slider block — all variables prepared by CardsSliderViewModel
+ * (registered in BlockRenderer::VIEW_MODELS).
+ *
+ * @var list<array{eyebrow: string, title: string, body: string, meta_title: string, meta_description: string, image_url: string, rating: int, link_url: string, link_label: string}> $cards
+ * @var string    $sectionTitle
+ * @var string    $sectionSubtitle
+ * @var bool      $isSlider
+ * @var bool      $autoplay
+ * @var int       $interval
+ * @var int       $visibleCount
+ * @var string    $cardVariant
+ * @var string    $cssClass
+ * @var float|int $slideBasis
+ * @var int       $dotCount
+ * @var string    $sliderWidthClass
+ */
 
 if ($cards === []) {
     return;
 }
-
-$sectionTitle = (string) ($data['section_title'] ?? '');
-$sectionSubtitle = (string) ($data['section_subtitle'] ?? '');
-$layout = (string) ($config['layout'] ?? 'slider');
-$autoplay = filter_var($config['autoplay'] ?? true, FILTER_VALIDATE_BOOL);
-$interval = isset($config['interval']) ? max(1000, (int) $config['interval']) : 5000;
-$visibleCount = min(3, max(1, (int) ($config['visible_count'] ?? 1)));
-$cardVariant = (string) ($config['card_variant'] ?? 'editorial');
-$cssClass = trim((string) ($config['css_class'] ?? ''));
-
-$isSlider = $layout === 'slider';
-$slideBasis = 100 / $visibleCount;
-$dotCount = max(1, count($cards) - $visibleCount + 1);
-$sliderWidthClass = $visibleCount === 1 ? 'max-w-4xl' : 'max-w-6xl';
 ?>
 
 <section class="py-8 <?= esc($cssClass) ?>">
@@ -133,78 +113,7 @@ $sliderWidthClass = $visibleCount === 1 ? 'max-w-4xl' : 'max-w-6xl';
             <?php endif; ?>
         </div>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('[data-cards-slider]').forEach(slider => {
-                    const container = slider.querySelector('.slides-container');
-                    const slides = container.children;
-                    const totalSlides = slides.length;
-                    if (totalSlides <= 1) return;
-
-                    let currentIdx = 0;
-                    let timer = null;
-
-                    const autoplay = slider.getAttribute('data-autoplay') === '1';
-                    const interval = parseInt(slider.getAttribute('data-interval') || '5000', 10);
-                    const visibleCount = Math.max(1, parseInt(slider.getAttribute('data-visible-count') || '1', 10));
-                    const maxIndex = Math.max(0, totalSlides - visibleCount);
-
-                    const updateSlider = (newIndex) => {
-                        if (newIndex > maxIndex) {
-                            currentIdx = 0;
-                        } else if (newIndex < 0) {
-                            currentIdx = maxIndex;
-                        } else {
-                            currentIdx = newIndex;
-                        }
-                        container.style.transform = `translateX(-${currentIdx * (100 / visibleCount)}%)`;
-                        
-                        const dots = slider.querySelectorAll('[data-slider-dots] button');
-                        dots.forEach((dot, idx) => {
-                            if (idx === currentIdx) {
-                                dot.classList.add('bg-violet-600', 'w-6');
-                                dot.classList.remove('bg-slate-300');
-                            } else {
-                                dot.classList.remove('bg-violet-600', 'w-6');
-                                dot.classList.add('bg-slate-300');
-                            }
-                        });
-                    };
-
-                    slider.querySelector('[data-slider-prev]')?.addEventListener('click', () => {
-                        resetAutoplay();
-                        updateSlider(currentIdx - 1);
-                    });
-
-                    slider.querySelector('[data-slider-next]')?.addEventListener('click', () => {
-                        resetAutoplay();
-                        updateSlider(currentIdx + 1);
-                    });
-
-                    slider.querySelectorAll('[data-dot]').forEach(dot => {
-                        dot.addEventListener('click', () => {
-                            resetAutoplay();
-                            const idx = parseInt(dot.getAttribute('data-dot'), 10);
-                            updateSlider(idx);
-                        });
-                    });
-
-                    const startAutoplay = () => {
-                        if (!autoplay) return;
-                        timer = setInterval(() => {
-                            updateSlider(currentIdx + 1);
-                        }, interval);
-                    };
-
-                    const resetAutoplay = () => {
-                        if (timer) clearInterval(timer);
-                        startAutoplay();
-                    };
-
-                    startAutoplay();
-                });
-            });
-        </script>
+        <?php // Slider behavior lives in src/js/components/cardsSlider.js (data-cards-slider). ?>
 
     <?php else: ?>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
