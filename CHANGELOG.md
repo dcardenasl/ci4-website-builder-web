@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Monorepo standardization pass** — added level-8 PHPStan quality gates, explicit PHPUnit suites, pre-commit hooks, `WebApiClientInterface`, shared service base class, block ViewModels, stale API cache fallback, POST throttling, modular JS source/build tooling, and expanded resolver/form/cache test coverage
 - **Map embed block** — new standalone `map_embed` block renderer for displaying embedded maps and iframes with configurable aspect ratio and height; complementary to `contact_info` block which now focuses on contact details only
 - **Unified collection grid block** — migrated from `news_grid` and `portfolio_grid` to a single `collection_grid` block renderer; supports flexible configuration (order_by, order_direction, layout_variant) for paginated collection listings across the frontend
 - **Forms module** — new public-facing forms feature to display and submit CMS forms with field validation and submission handling (CMS-012)

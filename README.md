@@ -1,69 +1,125 @@
-# CodeIgniter 4 Application Starter
+# ci4-website-builder-web
 
-## What is CodeIgniter?
+Sitio público de Website Builder construido con CodeIgniter 4. Renderiza páginas,
+colecciones, entradas, formularios y bloques dinámicos consumiendo el API público
+de `ci4-website-builder-domain`.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Stack
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+- CodeIgniter 4.7
+- PHP 8.2+
+- Tailwind CSS 4
+- esbuild + ESLint para JavaScript modular
+- PHPUnit + PHPStan level 8 + PHP CS Fixer
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## Puertos Locales
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+| Servicio | Puerto | URL |
+| :--- | :--- | :--- |
+| API Hub | `8180` | `http://localhost:8180/` |
+| Admin | `8182` | `http://localhost:8182/` |
+| Sitio público | `8186` | `http://localhost:8186/` |
+| Domain CMS | `8190` | `http://localhost:8190/` |
 
-## Installation & updates
+Usa `localhost` para navegar. No mezcles `localhost` y `127.0.0.1` durante
+pruebas con sesión/CSRF.
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+## Arranque
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+Desde la raíz del monorepo:
 
-## Setup
+```bash
+cd ci4-website-builder-api && php spark serve --port 8180
+cd ci4-website-builder-domain && php spark serve --port 8190
+cd ci4-website-builder-admin && php spark serve --port 8182
+cd ci4-website-builder-web && php spark serve --port 8186
+```
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+Para trabajar en assets del sitio público:
 
-## Important Change with index.php
+```bash
+npm run dev:css
+npm run dev:js
+```
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+## Configuración
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+Variables principales:
 
-**Please** read the user guide for a better explanation of how CI4 works!
+```dotenv
+app.baseURL=http://localhost:8186/
+app.defaultLocale=es
+WEB_API_BASE_URL=http://localhost:8190
+WEB_API_KEY=web_api_test_key
+WEB_API_TIMEOUT=15
+WEB_API_STALE_TTL=86400
+CACHE_INVALIDATE_KEY=change-me
+cache.handler=file
+```
 
-## Repository Management
+`CACHE_INVALIDATE_KEY` debe estar configurado en producción. El webhook de
+invalidación rechaza claves vacías o incorrectas.
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+## Arquitectura
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+- `PageController` resuelve rutas públicas dinámicas: colección, entrada, página
+  CMS, redirect y 404.
+- `FormController` valida campos, honeypot y CAPTCHA antes de enviar al Domain.
+- `WebApiClientInterface` permite fakear el cliente HTTP en tests.
+- `WebApiClient` guarda caché fresca y copia stale para tolerar caídas del
+  Domain en errores de red o `5xx`.
+- `BaseSiteService` centraliza el patrón de servicios API.
+- `BlockRenderer` usa ViewModels para bloques con lógica no trivial.
+- `src/js/` contiene el código fuente JavaScript; `public/assets/js/site.js` es
+  un artefacto generado y versionado por `filemtime()`.
 
-## Server Requirements
+## Bloques Con ViewModel
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+- `hero_slider`
+- `cards_slider`
+- `video_player`
+- `form_embed`
+- `collection_grid`
+- `metrics_grid`
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+Para agregar un ViewModel, extiende
+`app/ViewModels/Blocks/AbstractBlockViewModel.php`, registra el bloque en
+`BlockRenderer::VIEW_MODELS` y cubre normalización/defaults con tests unitarios.
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
+## Comandos De Calidad
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+```bash
+composer test
+composer test:unit
+composer test:feature
+composer analyse
+composer format:check
+composer quality
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+npm run lint:js
+npm run build:all
+```
+
+La política de PHPStan baseline es decreasing-only: no agregues deuda nueva al
+baseline para cerrar cambios ordinarios.
+
+## Smoke Manual
+
+Con los cuatro servidores activos:
+
+1. Abrir `http://localhost:8186/` y confirmar redirección/localización.
+2. Abrir `http://localhost:8186/es`.
+3. Abrir una colección publicada.
+4. Abrir una entrada publicada.
+5. Enviar un formulario CMS válido.
+6. Invalidar caché con `POST /cache/invalidate` y un `X-Invalidate-Key` válido.
+7. Probar stale cache: cargar una página, detener Domain, recargar y confirmar
+   que el sitio sigue renderizando desde caché stale.
+
+## Reglas De Mantenimiento
+
+- No devolver lógica pesada a las vistas de bloques.
+- No editar `public/assets/js/site.js` directamente; edita `src/js/` y rebuild.
+- No servir stale cache para respuestas `4xx`.
+- No reintroducir archivos de ejemplo del starter de CodeIgniter.
+- No bajar PHPStan ni crecer el baseline como atajo.

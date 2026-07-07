@@ -1,135 +1,177 @@
 # CLAUDE.md - ci4-website-builder-web
 
-Generic CI4 4.7 website powered by `ci4-website-builder-domain` API.
+Public CI4 website for the Website Builder monorepo. It renders CMS content from
+`ci4-website-builder-domain` and keeps controllers thin, API access centralized,
+block presentation normalized through ViewModels, and JS source separate from
+generated browser assets.
 
 ## Quick Start
 
 ```bash
 cd /Users/davidcardenas/Developer/PHP/ci4-website-starter/ci4-website-builder-web
 
-# Development server (port 8186)
 php spark serve --port 8186
-
-# Tailwind CSS dev watch
 npm run dev:css
-
-# Build production CSS
-npm run build:css
+npm run dev:js
 ```
+
+Domain should run on port `8190` with a matching public API key.
+
+## Quality Gates
+
+```bash
+composer test
+composer test:unit
+composer test:feature
+composer analyse
+composer format:check
+composer quality
+
+npm run lint:js
+npm run build:all
+```
+
+`phpstan.neon` runs at level 8 and includes `phpstan-baseline.neon`. The baseline
+is decreasing-only: fix or remove entries when touching nearby code; do not add
+new debt unless an explicit migration step requires it.
+
+The root `pre-commit` hook runs PHP formatting checks and PHPStan. Husky runs
+`lint-staged` for frontend files. Both hooks should remain installed.
+
+## Runtime Configuration
+
+Key environment variables:
+
+- `app.baseURL=http://localhost:8186/`
+- `app.defaultLocale=es`
+- `WEB_API_BASE_URL=http://localhost:8190`
+- `WEB_API_KEY=web_api_test_key`
+- `WEB_API_TIMEOUT=15`
+- `WEB_API_STALE_TTL=86400`
+- `CACHE_INVALIDATE_KEY=<strong-secret>`
+- `cache.handler=file`
+
+`CACHE_INVALIDATE_KEY` is mandatory in production. The cache invalidation
+endpoint returns `500` when it is unset, `401` for bad keys, and `422` for empty
+scope lists.
+
+`app.defaultLocale` must match an active CMS language and a localized `home`
+page. It is static CI4 routing configuration, not discovered from Domain.
 
 ## Architecture
 
-- **API-driven**: All content comes from `ci4-website-builder-domain` (port 8190).
-- **Dynamic routing**: Resolves pages, collections, entries, redirects at runtime.
-- **Block-based**: Pages and entries render dynamic blocks by `block_key`.
-- **SEO-ready**: Full metadata, schema.org markup, sitemaps.
-- **Caching**: Configurable TTL per service (settings 3600s, menus 600s, entries 180s, etc.).
+- Controllers stay thin and call `Config\Services`.
+- `PageController::resolve()` resolves dynamic paths in this order:
+  collection prefix/index, collection entry, CMS page, redirect, 404.
+- `FormController` validates required/email fields, honeypot, and required
+  CAPTCHA tokens before submitting to Domain.
+- Public POST routes (`forms/*/submit`, `cache/invalidate`) use
+  `throttle:10,60`. GET pages are not throttled, so crawlers are not penalized.
 
-## Key Files
+## API Client And Services
 
-| File | Purpose |
-|------|---------|
-| `app/Controllers/PageController.php` | Dynamic page/collection/entry resolver |
-| `app/Controllers/SitemapController.php` | XML sitemap generation |
-| `app/Services/SiteXxxService.php` | API adapters (Settings, Menu, Page, Collection, Entry, Redirect) |
-| `app/Libraries/WebApiClient.php` | HTTP client with caching (from teatromuseo) |
-| `app/Libraries/BlockRenderer.php` | Recursive block rendering by `block_key` |
-| `app/Views/layouts/public.php` | Master layout with pre-loaded menus & settings |
-| `app/Views/blocks/*.php` | Block type templates (rich_text, image, hero_banner, cta, container) |
+`app/Libraries/WebApiClientInterface.php` is the test seam for Domain access.
+`WebApiClient` implements it with:
 
-## Configuration
+- normalized envelopes: `{ok, status, data, meta, messages}`;
+- configurable timeout via `WEB_API_TIMEOUT`;
+- fresh cache keys: `web_api_v{N}_{scope}_{md5}`;
+- stale cache keys: `web_api_stale_v{N}_{scope}_{md5}`;
+- stale fallback only for transport failures (`status 0`) and upstream `5xx`.
 
-`.env` variables:
-- `CI_ENVIRONMENT` = `development`
-- `app.baseURL` = `http://localhost:8186/`
-- `app.defaultLocale` = `es` (default language)
-- `WEB_API_BASE_URL` = `http://localhost:8190` (domain API URL)
-- `WEB_API_KEY` = `web_api_test_key` (API key registered in domain)
-- `cache.handler` = `file`
+Do not serve stale data for `4xx` responses. A `404` from Domain is a valid
+negative answer.
 
-**`app.defaultLocale` must match a language registered as active in the Domain CMS
-(`cms_languages`), and a `home` page must exist in that language.** This value is read by CI4's
-own routing/locale negotiation before any request reaches a controller, so it can't be resolved
-dynamically from the Domain's language list — it's a static config value, not derived from CMS
-data. If it points at a language that doesn't exist (or whose `home` page was deleted), `/`
-resolves cleanly to a 404 rather than crashing, but the site has no working homepage until either
-the config or the CMS content is fixed. `ci4-website-builder-admin` (`app.defaultLocale`) and
-`ci4-website-builder-domain` (`app.defaultLocale`) each control a different, independent thing —
-admin's own UI language and the API's internal `lang()` fallback, respectively — they are not
-required to match this value or each other.
+`app/Services/BaseSiteService.php` owns the shared constructor and
+`fetchData()` pattern. Site services type-hint `WebApiClientInterface`, return
+arrays/null, and do not throw for upstream failures.
 
-## Page Resolution Algorithm
+In tests, inject a fake client with:
 
-PageController::resolve() implements a 5-step fallback:
+```php
+Services::injectMock('webApiClient', $fake);
+```
 
-1. Try CMS page by slug → `SitePageService::getBySlug(lang, slug)`
-2. Try collection prefix resolved from the public API payload → `collection_url_path_info($collection, $path)`
-3. Try collection/entry combo → `SiteEntryService::getBySlug(lang, collectionKey, slug)`
-4. Try redirect → `SiteRedirectService::resolve(path)`
-5. Return 404
+## Cache Invalidation
 
-## Service Layers
+`CacheInvalidator` accepts known scopes only and deletes keys matching
+`web_api_*_{scope}_*`, which purges fresh and stale entries together.
 
-All services in `app/Services/`:
-- **SiteSettingsService**: Fetch public settings (cache 3600s)
-- **SiteMenuService**: Fetch menu trees (cache 600s)
-- **SitePageService**: Fetch pages by slug, list all pages (cache 300-600s)
-- **SiteCollectionService**: Fetch collections from the domain API (cache 600s)
-- **SiteEntryService**: List entries, fetch by slug (cache 180-300s)
-- **SiteRedirectService**: Resolve redirects (cache 3600s)
+Webhook:
 
-All return normalized arrays or `null` on error. No exceptions — services degrade gracefully.
+```http
+POST /cache/invalidate
+X-Invalidate-Key: <CACHE_INVALIDATE_KEY>
+Content-Type: application/json
+
+{"scopes":["pages","entries"]}
+```
 
 ## Block Rendering
 
-`BlockRenderer::render(blocks, lang)` recursively renders blocks:
-- For each block, checks if view `blocks/{block_key}.php` exists
-- Falls back to `blocks/unknown.php` if not found
-- Passes `$block`, `$config`, `$data`, `$renderedChildren` to each view
-- Built-in types: `rich_text`, `image`, `hero_banner`, `cta`, `container`
+`BlockRenderer` passes base data (`block`, `config`, `data`,
+`renderedChildren`) to `app/Views/blocks/{block_key}.php`. Complex blocks use
+ViewModels from `app/ViewModels/Blocks`.
 
-Add new block types by creating `app/Views/blocks/{block_key}.php`.
+Current mapped ViewModels:
 
-## Prerequisite: Domain Endpoints
+- `hero_slider` -> `HeroSliderViewModel`
+- `cards_slider` -> `CardsSliderViewModel`
+- `video_player` -> `VideoPlayerViewModel`
+- `form_embed` -> `FormEmbedViewModel`
+- `collection_grid` -> `CollectionGridViewModel`
+- `metrics_grid` -> `MetricsGridViewModel`
 
-Two endpoints required in `ci4-website-builder-domain`:
-- `GET /api/v1/public/settings` — Returns all public settings (is_public=1)
-- `GET /api/v1/public/{lang}/pages` — Returns published pages for sitemap
+To add one:
 
-See `ci4-website-builder-domain/CLAUDE.md` for setup.
+1. Create `app/ViewModels/Blocks/{Name}ViewModel.php`.
+2. Extend `AbstractBlockViewModel` and return prepared variables from `vars()`.
+3. Add the block key to `BlockRenderer::VIEW_MODELS`.
+4. Keep the view focused on escaping and markup.
+5. Add unit tests for full data, empty data, invalid config, and URL parsing
+   helpers when relevant.
 
-## Testing
+`block_text_content()` prefers canonical `content`, then legacy `body`/`html`.
+Legacy fallback is logged at debug level so Domain payloads can be migrated
+without breaking existing content.
 
-Start both servers:
+## Frontend Assets
+
+Edit JS in `src/js/`. The browser asset
+`public/assets/js/site.js` is generated and committed because the layout
+versions it with `filemtime()`.
+
+Commands:
+
 ```bash
-# Terminal 1: Domain API (port 8190)
-cd ci4-website-builder-domain && php spark serve --port 8190
-
-# Terminal 2: Website (port 8186)
-cd ci4-website-builder-web && php spark serve --port 8186
-
-# Terminal 3: Tailwind CSS watch
-cd ci4-website-builder-web && npm run dev:css
+npm run dev:js
+npm run build:js
+npm run lint:js
+npm run build:all
 ```
 
-Visit:
-- Homepage: `http://localhost:8186/`
-- Sitemap: `http://localhost:8186/sitemap.xml`
-- Page (example): `http://localhost:8186/about` (if page with slug "about" exists in domain)
-- Collection (example): `http://localhost:8186/news` (if the collection slug for the active language is `/news`)
-- Entry (example): `http://localhost:8186/news/first-post` (if entry exists in domain)
+Generated `site.js` should keep its banner:
 
-## Troubleshooting
+```js
+/* Generated from src/js — do not edit directly. Run: npm run build:js */
+```
 
-- **401 on every request**: Check `WEB_API_KEY` matches domain app configuration
-- **Collections not rendering**: Verify the translated collection slug exists in the domain response
-- **CSS not compiled**: Run `npm run build:css` or start `npm run dev:css` watcher
-- **Cache issues**: Clear with `php spark cache:clear`
+## Manual Smoke Checks
 
-## Future Enhancements
+With Domain on `8190` and Web on `8186`, verify:
 
-- Pagination UI in collection/index.php
-- Form handling for contact/custom pages
-- Image file resolution (currently placeholder)
-- Multi-language navigation switching
-- PWA/offline support
+- localized home page;
+- collection index;
+- collection entry;
+- form submission;
+- cache invalidation with a valid key;
+- stale cache fallback: load a cached page, stop Domain, reload, confirm page
+  still renders and a warning is logged.
+
+## Common Pitfalls
+
+- Do not add `Modules/`; this repo intentionally stays app-structured.
+- Do not put heavy normalization logic back into block views.
+- Do not edit generated JS without updating `src/js/` and rebuilding.
+- Do not mask Domain `404` responses with stale cache.
+- Do not loosen PHPStan or grow the baseline as a shortcut.
