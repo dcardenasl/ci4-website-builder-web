@@ -34,6 +34,7 @@ class Filters extends BaseFilters
         'secureheaders'  => SecureHeaders::class,
         'securityheaders' => \App\Filters\SecurityHeadersFilter::class,
         'tracking'        => \App\Filters\TrackingFilter::class,
+        'throttle'        => \App\Filters\ThrottleFilter::class,
         'cors'           => Cors::class,
         'forcehttps'     => ForceHTTPS::class,
         'pagecache'      => PageCache::class,

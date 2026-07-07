@@ -10,17 +10,18 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('health', 'HealthController::index', ['as' => 'health']);
 $routes->get('sitemap.xml', 'SitemapController::index', ['as' => 'sitemap']);
 
-// Internal cache invalidation — no locale prefix, secured by X-Invalidate-Key header
-$routes->post('cache/invalidate', 'CacheController::invalidate', ['as' => 'cache_invalidate']);
+// Internal cache invalidation — no locale prefix, secured by X-Invalidate-Key header.
+// Throttled: POST endpoints only, so crawlers on GET pages are never rate-limited.
+$routes->post('cache/invalidate', 'CacheController::invalidate', ['as' => 'cache_invalidate', 'filter' => 'throttle:10,60']);
 
 // Dynamic form submissions
-$routes->post('forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit']);
+$routes->post('forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit', 'filter' => 'throttle:10,60']);
 
 // Restrict routes with {locale} to Config\App::$supportedLocales
 $routes->useSupportedLocalesOnly(true);
 
 // Dynamic form submissions (localized)
-$routes->post('{locale}/forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit_localized']);
+$routes->post('{locale}/forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit_localized', 'filter' => 'throttle:10,60']);
 
 // Localized routes
 $routes->get('{locale}', 'PageController::home', ['as' => 'home_localized']);

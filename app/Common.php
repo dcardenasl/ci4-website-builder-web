@@ -217,6 +217,10 @@ if (! function_exists('block_text_content')) {
 
             $value = $data[$key];
             if (is_string($value) && trim($value) !== '') {
+                if ($key !== 'content') {
+                    log_message('debug', "[block_text_content] Legacy payload key '{$key}' used; source should migrate to 'content'.");
+                }
+
                 // Second-layer sanitization (defense-in-depth): the Domain CMS
                 // sanitizes on write, but the public site must never render
                 // unsanitized HTML regardless of the content's provenance.

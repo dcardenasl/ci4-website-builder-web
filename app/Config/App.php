@@ -161,6 +161,18 @@ class App extends BaseConfig
     public string $webApiKey = '';
 
     /**
+     * Timeout (seconds) for requests against the Domain API.
+     * Override with WEB_API_TIMEOUT in .env.
+     */
+    public int $webApiTimeout = 15;
+
+    /**
+     * TTL (seconds) for the long-lived stale cache copy served when the
+     * Domain API is down. Set WEB_API_STALE_TTL=0 in .env to disable.
+     */
+    public int $webApiStaleTtl = 86400;
+
+    /**
      * --------------------------------------------------------------------------
      * Force Global Secure Requests
      * --------------------------------------------------------------------------
@@ -249,5 +261,16 @@ class App extends BaseConfig
             );
         }
         $this->webApiKey = $webApiKey;
+
+        // Optional tuning knobs — silently keep defaults when absent.
+        $webApiTimeout = env('WEB_API_TIMEOUT');
+        if (is_numeric($webApiTimeout) && (int) $webApiTimeout > 0) {
+            $this->webApiTimeout = (int) $webApiTimeout;
+        }
+
+        $webApiStaleTtl = env('WEB_API_STALE_TTL');
+        if (is_numeric($webApiStaleTtl) && (int) $webApiStaleTtl >= 0) {
+            $this->webApiStaleTtl = (int) $webApiStaleTtl;
+        }
     }
 }

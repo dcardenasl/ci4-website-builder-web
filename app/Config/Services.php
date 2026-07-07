@@ -4,111 +4,136 @@ declare(strict_types=1);
 
 namespace Config;
 
+use App\Libraries\BlockRenderer;
+use App\Libraries\CacheInvalidator;
+use App\Libraries\WebApiClient;
+use App\Libraries\WebApiClientInterface;
+use App\Services\SiteCategoryService;
+use App\Services\SiteCollectionService;
+use App\Services\SiteEntryService;
+use App\Services\SiteFormService;
+use App\Services\SiteMenuService;
+use App\Services\SitePageService;
+use App\Services\SiteRedirectService;
+use App\Services\SiteSettingsService;
 use CodeIgniter\Config\BaseService;
 
 class Services extends BaseService
 {
-    public static function webApiClient(bool $getShared = true): \App\Libraries\WebApiClient
+    public static function webApiClient(bool $getShared = true): WebApiClientInterface
     {
         if ($getShared) {
+            /** @var WebApiClientInterface */
             return static::getSharedInstance('webApiClient');
         }
 
         $config = config('App');
 
-        return new \App\Libraries\WebApiClient(
+        return new WebApiClient(
             $config->webApiBaseUrl,
-            $config->webApiKey
+            $config->webApiKey,
+            $config->webApiTimeout,
+            $config->webApiStaleTtl
         );
     }
 
-    public static function siteSettingsService(bool $getShared = true): \App\Services\SiteSettingsService
+    public static function siteSettingsService(bool $getShared = true): SiteSettingsService
     {
         if ($getShared) {
+            /** @var SiteSettingsService */
             return static::getSharedInstance('siteSettingsService');
         }
 
-        return new \App\Services\SiteSettingsService(static::webApiClient());
+        return new SiteSettingsService(static::webApiClient());
     }
 
-    public static function siteMenuService(bool $getShared = true): \App\Services\SiteMenuService
+    public static function siteMenuService(bool $getShared = true): SiteMenuService
     {
         if ($getShared) {
+            /** @var SiteMenuService */
             return static::getSharedInstance('siteMenuService');
         }
 
-        return new \App\Services\SiteMenuService(static::webApiClient());
+        return new SiteMenuService(static::webApiClient());
     }
 
-    public static function sitePageService(bool $getShared = true): \App\Services\SitePageService
+    public static function sitePageService(bool $getShared = true): SitePageService
     {
         if ($getShared) {
+            /** @var SitePageService */
             return static::getSharedInstance('sitePageService');
         }
 
-        return new \App\Services\SitePageService(static::webApiClient());
+        return new SitePageService(static::webApiClient());
     }
 
-    public static function siteCollectionService(bool $getShared = true): \App\Services\SiteCollectionService
+    public static function siteCollectionService(bool $getShared = true): SiteCollectionService
     {
         if ($getShared) {
+            /** @var SiteCollectionService */
             return static::getSharedInstance('siteCollectionService');
         }
 
-        return new \App\Services\SiteCollectionService(static::webApiClient());
+        return new SiteCollectionService(static::webApiClient());
     }
 
-    public static function siteEntryService(bool $getShared = true): \App\Services\SiteEntryService
+    public static function siteEntryService(bool $getShared = true): SiteEntryService
     {
         if ($getShared) {
+            /** @var SiteEntryService */
             return static::getSharedInstance('siteEntryService');
         }
 
-        return new \App\Services\SiteEntryService(static::webApiClient());
+        return new SiteEntryService(static::webApiClient());
     }
 
-    public static function siteCategoryService(bool $getShared = true): \App\Services\SiteCategoryService
+    public static function siteCategoryService(bool $getShared = true): SiteCategoryService
     {
         if ($getShared) {
+            /** @var SiteCategoryService */
             return static::getSharedInstance('siteCategoryService');
         }
 
-        return new \App\Services\SiteCategoryService(static::webApiClient());
+        return new SiteCategoryService(static::webApiClient());
     }
 
-    public static function siteRedirectService(bool $getShared = true): \App\Services\SiteRedirectService
+    public static function siteRedirectService(bool $getShared = true): SiteRedirectService
     {
         if ($getShared) {
+            /** @var SiteRedirectService */
             return static::getSharedInstance('siteRedirectService');
         }
 
-        return new \App\Services\SiteRedirectService(static::webApiClient());
+        return new SiteRedirectService(static::webApiClient());
     }
 
-    public static function blockRenderer(bool $getShared = true): \App\Libraries\BlockRenderer
+    public static function blockRenderer(bool $getShared = true): BlockRenderer
     {
         if ($getShared) {
+            /** @var BlockRenderer */
             return static::getSharedInstance('blockRenderer');
         }
 
-        return new \App\Libraries\BlockRenderer();
+        return new BlockRenderer();
     }
 
-    public static function cacheInvalidator(bool $getShared = true): \App\Libraries\CacheInvalidator
+    public static function cacheInvalidator(bool $getShared = true): CacheInvalidator
     {
         if ($getShared) {
+            /** @var CacheInvalidator */
             return static::getSharedInstance('cacheInvalidator');
         }
 
-        return new \App\Libraries\CacheInvalidator();
+        return new CacheInvalidator();
     }
 
-    public static function siteFormService(bool $getShared = true): \App\Services\SiteFormService
+    public static function siteFormService(bool $getShared = true): SiteFormService
     {
         if ($getShared) {
+            /** @var SiteFormService */
             return static::getSharedInstance('siteFormService');
         }
 
-        return new \App\Services\SiteFormService(static::webApiClient());
+        return new SiteFormService(static::webApiClient());
     }
 }
