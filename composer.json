@@ -1,14 +1,8 @@
 {
-    "name": "codeigniter4/appstarter",
-    "description": "CodeIgniter4 starter app",
+    "name": "ci4/website-builder-web",
+    "description": "Public CodeIgniter 4 website frontend for ci4-website-builder-domain.",
     "license": "MIT",
     "type": "project",
-    "homepage": "https://codeigniter.com",
-    "support": {
-        "forum": "https://forum.codeigniter.com/",
-        "source": "https://github.com/codeigniter4/CodeIgniter4",
-        "slack": "https://codeigniterchat.slack.com"
-    },
     "require": {
         "php": "^8.2",
         "codeigniter4/framework": "^4.7",
@@ -46,15 +40,26 @@
         }
     },
     "scripts": {
-        "test": "phpunit --no-coverage",
-        "test:seo": "phpunit tests/feature/LighthouseSeoTest.php",
-        "quality": [
-            "@cs-check",
-            "@phpstan",
-            "@test"
+        "post-install-cmd": [
+            "chmod +x pre-commit",
+            "cp pre-commit .git/hooks/pre-commit"
         ],
-        "phpstan": "phpstan analyse --memory-limit=512M",
-        "cs-fix": "php-cs-fixer fix",
-        "cs-check": "php-cs-fixer fix --dry-run --diff --sequential"
+        "post-update-cmd": [
+            "chmod +x pre-commit",
+            "cp pre-commit .git/hooks/pre-commit"
+        ],
+        "test": "phpunit --no-coverage",
+        "test:unit": "phpunit --testsuite=Unit --no-coverage",
+        "test:feature": "phpunit --testsuite=Feature --no-coverage",
+        "test:coverage": "phpunit",
+        "test:seo": "phpunit tests/feature/LighthouseSeoTest.php",
+        "analyse": "phpstan analyse --memory-limit=512M",
+        "format": "php-cs-fixer fix",
+        "format:check": "php-cs-fixer fix --dry-run --diff --sequential",
+        "quality": [
+            "@format:check",
+            "@analyse",
+            "@test"
+        ]
     }
 }
