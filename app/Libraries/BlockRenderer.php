@@ -6,6 +6,21 @@ namespace App\Libraries;
 
 class BlockRenderer
 {
+    /**
+     * Blocks whose view data is prepared by a dedicated view model.
+     * Blocks not listed here keep receiving the raw payload directly.
+     *
+     * @var array<string, class-string<\App\ViewModels\Blocks\AbstractBlockViewModel>>
+     */
+    private const VIEW_MODELS = [
+        'hero_slider'     => \App\ViewModels\Blocks\HeroSliderViewModel::class,
+        'cards_slider'    => \App\ViewModels\Blocks\CardsSliderViewModel::class,
+        'form_embed'      => \App\ViewModels\Blocks\FormEmbedViewModel::class,
+        'video_player'    => \App\ViewModels\Blocks\VideoPlayerViewModel::class,
+        'collection_grid' => \App\ViewModels\Blocks\CollectionGridViewModel::class,
+        'metrics_grid'    => \App\ViewModels\Blocks\MetricsGridViewModel::class,
+    ];
+
     /** @var array<string, array<string, mixed>|null> form definitions pre-loaded per render pass */
     private array $formDefinitions = [];
 
@@ -55,14 +70,22 @@ class BlockRenderer
             $blockViewName = 'blocks/unknown';
         }
 
-        return view($blockViewName, [
+        $viewData = [
             'block'            => $block,
             'config'           => $config,
             'data'             => $data,
             'renderedChildren' => $renderedChildren,
             'lang'             => $lang,
             'formDefinition'   => $formDefinition,
-        ]);
+        ];
+
+        if (is_string($blockKey) && isset(self::VIEW_MODELS[$blockKey])) {
+            $viewModelClass = self::VIEW_MODELS[$blockKey];
+            $viewModel      = new $viewModelClass($block, $lang, ['formDefinition' => $formDefinition]);
+            $viewData       = array_merge($viewData, $viewModel->vars());
+        }
+
+        return view($blockViewName, $viewData);
     }
 
     /**
@@ -97,6 +120,10 @@ class BlockRenderer
  */
 function view_exists(string $view): bool
 {
+    if ($view === '') {
+        return false;
+    }
+
     $file = APPPATH . 'Views/' . str_replace('.', '/', $view) . '.php';
     if (is_file($file)) {
         return true;
