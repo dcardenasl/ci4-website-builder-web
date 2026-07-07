@@ -32,7 +32,7 @@ class FormController extends BasePublicWebController
         // Real users never see or fill the "website" field. Bots that fill
         // every input trip it. Return a success-looking redirect so bots get
         // no signal that they were filtered.
-        if (trim((string) $this->request->getPost('website')) !== '') {
+        if (trim($this->postString('website')) !== '') {
             log_message('info', "[FormController] Honeypot triggered for form '{$formKey}' from IP: " . $this->request->getIPAddress());
 
             return redirect()->back()->with("form_success_{$formKey}", true);
@@ -44,7 +44,7 @@ class FormController extends BasePublicWebController
 
         foreach ($fields as $field) {
             $key   = $field['field_key'] ?? '';
-            $value = (string) $this->request->getPost($key);
+            $value = $this->postString($key);
 
             if (! empty($field['is_required']) && trim($value) === '') {
                 $errors[$key] = $field['error_required'] ?? 'Este campo es obligatorio.';
@@ -64,11 +64,19 @@ class FormController extends BasePublicWebController
                 ->with("form_errors_{$formKey}", $errors);
         }
 
+        if (! empty($definition['has_captcha']) && trim($this->postString('g_recaptcha_response')) === '') {
+            return redirect()->back()
+                ->withInput()
+                ->with("form_errors_{$formKey}", [
+                    '_captcha' => 'No se pudo validar el CAPTCHA. Inténtelo de nuevo.',
+                ]);
+        }
+
         // ── 2. Build sanitised form data ──────────────────────────────────
         $formData = [];
         foreach ($fields as $field) {
             $key        = $field['field_key'] ?? '';
-            $raw        = (string) $this->request->getPost($key);
+            $raw        = $this->postString($key);
             $fieldType  = $field['field_type'] ?? 'text';
 
             $formData[$key] = $fieldType === 'email'
@@ -78,7 +86,7 @@ class FormController extends BasePublicWebController
 
         // ── 3. Submit to Domain API ───────────────────────────────────────
         $captchaToken = ! empty($definition['has_captcha'])
-            ? ((string) $this->request->getPost('g_recaptcha_response') ?: null)
+            ? ($this->postString('g_recaptcha_response') ?: null)
             : null;
 
         $result = $formService->submit($formKey, $formData, $captchaToken);
@@ -91,6 +99,16 @@ class FormController extends BasePublicWebController
         }
 
         return redirect()->back()->with("form_sent_{$formKey}", true);
+    }
+
+    /**
+     * POST value as string; non-string payloads (arrays, nulls) become ''.
+     */
+    private function postString(string $key): string
+    {
+        $value = $this->request->getPost($key);
+
+        return is_string($value) ? $value : '';
     }
 
     // ── Locale detection ──────────────────────────────────────────────────

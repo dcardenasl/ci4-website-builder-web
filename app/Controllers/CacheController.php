@@ -37,8 +37,11 @@ class CacheController extends BaseController
                 ->setJSON(['ok' => false, 'message' => 'Unauthorized.']);
         }
 
-        $body   = $this->request->getJSON(true);
-        $scopes = array_values(array_filter((array) ($body['scopes'] ?? []), 'is_string'));
+        $body = $this->request instanceof \CodeIgniter\HTTP\IncomingRequest
+            ? $this->request->getJSON(true)
+            : null;
+        $rawScopes = is_array($body) && is_array($body['scopes'] ?? null) ? $body['scopes'] : [];
+        $scopes    = array_values(array_filter($rawScopes, 'is_string'));
 
         if (empty($scopes)) {
             return $this->response

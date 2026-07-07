@@ -189,8 +189,10 @@ class PageController extends BasePublicWebController
         $categoryService = Services::siteCategoryService();
         $collectionUrlPath = collection_url_path($collection);
 
-        $currentPage     = max(1, (int) ($this->request->getGet('page') ?? 1));
-        $currentCategory = (string) ($this->request->getGet('category') ?? '');
+        $pageParam       = $this->request->getGet('page');
+        $categoryParam   = $this->request->getGet('category');
+        $currentPage     = max(1, is_numeric($pageParam) ? (int) $pageParam : 1);
+        $currentCategory = is_string($categoryParam) ? $categoryParam : '';
 
         $query = [
             'page'     => $currentPage,
