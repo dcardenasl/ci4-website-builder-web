@@ -55,7 +55,7 @@ class MetricsGridViewModel extends AbstractBlockViewModel
                 'label'          => $string('label'),
                 'description'    => $string('description'),
                 'source_label'   => $string('source_label'),
-                'source_url'     => $string('source_url'),
+                'source_url'     => lang_url($string('source_url')),
                 'icon'           => $string('icon'),
                 'num_only'       => (int) preg_replace('/[^0-9]/', '', $number),
                 'display_suffix' => $suffix !== '' ? $suffix : (string) preg_replace('/[0-9]/', '', $number),
