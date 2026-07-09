@@ -13,12 +13,17 @@ class BlockRenderer
      * @var array<string, class-string<\App\ViewModels\Blocks\AbstractBlockViewModel>>
      */
     private const VIEW_MODELS = [
-        'hero_slider'     => \App\ViewModels\Blocks\HeroSliderViewModel::class,
-        'cards_slider'    => \App\ViewModels\Blocks\CardsSliderViewModel::class,
-        'form_embed'      => \App\ViewModels\Blocks\FormEmbedViewModel::class,
-        'video_player'    => \App\ViewModels\Blocks\VideoPlayerViewModel::class,
-        'collection_grid' => \App\ViewModels\Blocks\CollectionGridViewModel::class,
-        'metrics_grid'    => \App\ViewModels\Blocks\MetricsGridViewModel::class,
+        'hero_slider'        => \App\ViewModels\Blocks\HeroSliderViewModel::class,
+        'cards_slider'       => \App\ViewModels\Blocks\CardsSliderViewModel::class,
+        'form_embed'         => \App\ViewModels\Blocks\FormEmbedViewModel::class,
+        'video_player'       => \App\ViewModels\Blocks\VideoPlayerViewModel::class,
+        'collection_grid'    => \App\ViewModels\Blocks\CollectionGridViewModel::class,
+        'collection_listing' => \App\ViewModels\Blocks\CollectionListingViewModel::class,
+        'metrics_grid'       => \App\ViewModels\Blocks\MetricsGridViewModel::class,
+        'cta'                => \App\ViewModels\Blocks\CtaViewModel::class,
+        'hero_banner'        => \App\ViewModels\Blocks\HeroBannerViewModel::class,
+        'asset_showcase'     => \App\ViewModels\Blocks\AssetShowcaseViewModel::class,
+        'social_links'       => \App\ViewModels\Blocks\SocialLinksViewModel::class,
     ];
 
     /** @var array<string, array<string, mixed>|null> form definitions pre-loaded per render pass */
@@ -83,6 +88,10 @@ class BlockRenderer
             $viewModelClass = self::VIEW_MODELS[$blockKey];
             $viewModel      = new $viewModelClass($block, $lang, ['formDefinition' => $formDefinition]);
             $viewData       = array_merge($viewData, $viewModel->vars());
+        } else {
+            // Safety net: automatically localize any URLs in data and config if no view model exists
+            $viewData['data']   = $this->localizeUrlsInArray($data);
+            $viewData['config'] = $this->localizeUrlsInArray($config);
         }
 
         return view($blockViewName, $viewData);
@@ -112,6 +121,30 @@ class BlockRenderer
                 $this->preloadFormDefinitions($children, $lang);
             }
         }
+    }
+
+    /**
+     * Recursively localizes any string values in an array whose keys suggest they are URLs.
+     *
+     * @param array<string, mixed> $array
+     * @return array<string, mixed>
+     */
+    private function localizeUrlsInArray(array $array): array
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $array[$key] = $this->localizeUrlsInArray($value);
+            } elseif (is_string($value) && $value !== '') {
+                $isUrlKey = ($key === 'url' || str_ends_with($key, '_url') || str_ends_with($key, '_path'));
+                $isAsset  = (bool) preg_match('/\.(png|jpe?g|gif|svg|webp|pdf|zip|mp4|webm)$/i', $value);
+
+                if ($isUrlKey && ! $isAsset) {
+                    $array[$key] = lang_url($value);
+                }
+            }
+        }
+
+        return $array;
     }
 }
 

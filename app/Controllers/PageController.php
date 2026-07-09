@@ -72,11 +72,9 @@ class PageController extends BasePublicWebController
         }
 
         // Step 1: Try collection prefix match first.
-        // This prevents a CMS page with the same slug as a collection root
-        // from stealing the index URL and showing editorial blocks instead of
-        // the dynamic listing.
         $collectionService = Services::siteCollectionService();
         $entryService = Services::siteEntryService();
+        $pageService = Services::sitePageService();
         $collections = $collectionService->getAll($lang);
 
         foreach ($collections as $collection) {
@@ -92,7 +90,12 @@ class PageController extends BasePublicWebController
             $remainder = $pathInfo['remainder'];
 
             if ($remainder === '') {
-                return $this->renderCollectionIndex($collection, $lang);
+                $page = $pageService->getBySlug($lang, $path);
+                if ($page && (string) ($page['page_type'] ?? '') === 'collection_index' && (int) ($page['collection_id'] ?? 0) === (int) ($collection['id'] ?? 0)) {
+                    return $this->renderPage($page, $lang);
+                }
+
+                return $this->notFound("No se encontró la página índice para la colección: {$path}");
             }
 
             $entry = $entryService->getBySlug($lang, $collection['collection_key'], $remainder);
@@ -103,7 +106,6 @@ class PageController extends BasePublicWebController
         }
 
         // Step 2: Try CMS page by slug only when the path is not a collection route.
-        $pageService = Services::sitePageService();
         $page = $pageService->getBySlug($lang, $path);
 
         if ($page) {
@@ -167,7 +169,9 @@ class PageController extends BasePublicWebController
             'showPageHeading'    => ! $hasHeroHeading,
             'pageTitle'          => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'    => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
-            'canonicalUrl'       => $translation['canonical_url'] ?: site_url('/' . $lang . '/' . ltrim($translation['slug'] ?? '', '/')),
+            'canonicalUrl'       => ($translation['canonical_url'] ?? '') !== ''
+                ? $translation['canonical_url']
+                : site_url('/' . $lang . '/' . ltrim((string) ($translation['slug'] ?? ''), '/')),
             'ogImage'            => $translation['og_image_url'] ?? '',
             'metaRobots'         => $translation['robots'] ?? 'index, follow',
             'schemaData'         => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
@@ -176,51 +180,6 @@ class PageController extends BasePublicWebController
         ];
 
         return $this->render('page', $data);
-    }
-
-    /**
-     * Render a collection index (listing of entries).
-     *
-     * @param array<string, mixed> $collection
-     */
-    private function renderCollectionIndex(array $collection, string $lang): ResponseInterface
-    {
-        $entryService    = Services::siteEntryService();
-        $categoryService = Services::siteCategoryService();
-        $collectionUrlPath = collection_url_path($collection);
-
-        $pageParam       = $this->request->getGet('page');
-        $categoryParam   = $this->request->getGet('category');
-        $currentPage     = max(1, is_numeric($pageParam) ? (int) $pageParam : 1);
-        $currentCategory = is_string($categoryParam) ? $categoryParam : '';
-
-        $query = [
-            'page'     => $currentPage,
-            'per_page' => 12,
-        ];
-        if ($currentCategory !== '') {
-            $query['category'] = $currentCategory;
-        }
-
-        $result     = $entryService->list($lang, $collection['collection_key'], $query);
-        $categories = $categoryService->list($lang, $collection['collection_key']);
-
-        $data = [
-            'collection'      => $collection,
-            'data'            => $result['data'] ?? [],
-            'meta'            => $result['meta'] ?? [],
-            'categories'      => $categories,
-            'currentCategory' => $currentCategory,
-            'currentPage'     => $currentPage,
-            'pagination'      => $result['meta']['pagination'] ?? [],
-            'pageTitle'       => $collection['listing_title'] ?? $collection['name'] ?? '',
-            'metaDescription' => $collection['default_meta_description'] ?? '',
-            'lang'            => $lang,
-            'collectionUrlPath'   => $collectionUrlPath,
-            'localized_urls'      => localized_collection_urls($collection),
-        ];
-
-        return $this->render('collection/index', $data);
     }
 
     /**
@@ -251,7 +210,9 @@ class PageController extends BasePublicWebController
             'lang'                => $lang,
             'pageTitle'           => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'     => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
-            'canonicalUrl'        => $translation['canonical_url'] ?: site_url('/' . $lang . $collectionUrlPath . '/' . ltrim($translation['slug'] ?? '', '/')),
+            'canonicalUrl'        => ($translation['canonical_url'] ?? '') !== ''
+                ? $translation['canonical_url']
+                : site_url('/' . $lang . $collectionUrlPath . '/' . ltrim((string) ($translation['slug'] ?? ''), '/')),
             'ogImage'             => $translation['og_image_url'] ?? ($entry['featured_image_url'] ?? ''),
             'metaRobots'          => $translation['robots'] ?? 'index, follow',
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,

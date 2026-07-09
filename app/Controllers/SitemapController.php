@@ -76,14 +76,9 @@ class SitemapController extends BasePublicWebController
         foreach ($collections as $collection) {
             $collectionKey = $collection['collection_key'] ?? '';
             $urlPath       = collection_url_path($collection);
-
-            // Add collection index
-            $urls[] = [
-                'loc'        => base_url('/' . $lang . $urlPath),
-                'lastmod'    => $collection['updated_at'] ?? date('c'),
-                'changefreq' => $collection['default_changefreq'] ?? 'weekly',
-                'priority'   => $collection['default_sitemap_priority'] ?? '0.6',
-            ];
+            if ($urlPath === '') {
+                continue;
+            }
 
             // Add entries
             $result = $entryService->list($lang, $collectionKey, ['limit' => 500]);
