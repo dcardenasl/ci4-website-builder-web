@@ -87,9 +87,9 @@ if (! function_exists('collection_url_path')) {
      */
     function collection_url_path(array $collection): string
     {
-        $canonicalPath = trim((string) ($collection['slug'] ?? ''), '/');
+        $locale = service('request')->getLocale();
 
-        return $canonicalPath !== '' ? '/' . $canonicalPath : '';
+        return localized_collection_url_path($collection, $locale);
     }
 }
 
@@ -130,22 +130,25 @@ if (! function_exists('localized_collection_url_path')) {
     /**
      * Resolve the canonical public path for a collection in a given locale.
      *
-     * Falls back to the collection's current slug when the locale-specific
-     * translation is not available in the payload.
+     * Returns an empty string when the collection has no explicit index page
+     * for the requested locale.
      *
      * @param array<string, mixed> $collection
      */
     function localized_collection_url_path(array $collection, string $locale): string
     {
-        $localizedSlugs = $collection['localized_slugs'] ?? [];
-        if (is_array($localizedSlugs) && isset($localizedSlugs[$locale])) {
-            $slug = trim((string) $localizedSlugs[$locale], '/');
-            if ($slug !== '') {
-                return '/' . $slug;
+        $indexPage = $collection['index_page'] ?? null;
+        if (is_array($indexPage)) {
+            $localizedSlugs = $indexPage['localized_slugs'] ?? [];
+            if (is_array($localizedSlugs) && isset($localizedSlugs[$locale])) {
+                $slug = trim((string) $localizedSlugs[$locale], '/');
+                if ($slug !== '') {
+                    return '/' . $slug;
+                }
             }
         }
 
-        return collection_url_path($collection);
+        return '';
     }
 }
 

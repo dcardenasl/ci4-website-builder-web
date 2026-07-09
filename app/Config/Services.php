@@ -14,6 +14,7 @@ use App\Services\SiteEntryService;
 use App\Services\SiteFormService;
 use App\Services\SiteMenuService;
 use App\Services\SitePageService;
+use App\Services\SiteTagService;
 use App\Services\SiteRedirectService;
 use App\Services\SiteSettingsService;
 use CodeIgniter\Config\BaseService;
@@ -95,6 +96,16 @@ class Services extends BaseService
         }
 
         return new SiteCategoryService(static::webApiClient());
+    }
+
+    public static function siteTagService(bool $getShared = true): SiteTagService
+    {
+        if ($getShared) {
+            /** @var SiteTagService */
+            return static::getSharedInstance('siteTagService');
+        }
+
+        return new SiteTagService(static::webApiClient());
     }
 
     public static function siteRedirectService(bool $getShared = true): SiteRedirectService
