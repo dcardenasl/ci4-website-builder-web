@@ -46,9 +46,12 @@ class HeroSliderViewModel extends AbstractBlockViewModel
         $slides = [];
 
         foreach ($this->children() as $index => $child) {
-            $childData = is_array($child['block_data'] ?? null) ? $child['block_data'] : [];
-            $heading   = $this->childString($childData, 'heading');
-            $imageUrl  = $this->childString($childData, 'image_url');
+            $childData    = is_array($child['block_data'] ?? null) ? $child['block_data'] : [];
+            $heading      = $this->childString($childData, 'heading');
+            $imageUrl     = $this->childString($childData, 'image_url');
+            $childConfig  = is_array($child['block_config'] ?? null) ? $child['block_config'] : [];
+            $textColor    = is_scalar($childConfig['text_color'] ?? null) ? (string) $childConfig['text_color'] : '';
+            $overlayColor = is_scalar($childConfig['overlay_color'] ?? null) ? (string) $childConfig['overlay_color'] : '';
 
             $slides[] = [
                 'image_url'      => $imageUrl !== ''
@@ -59,6 +62,8 @@ class HeroSliderViewModel extends AbstractBlockViewModel
                 'subtitle'       => $this->childString($childData, 'subtitle'),
                 'cta_label'      => $this->childString($childData, 'cta_label'),
                 'cta_url'        => lang_url($this->childString($childData, 'cta_url', '#')),
+                'text_color'     => $textColor,
+                'overlay_color'  => $overlayColor,
             ];
         }
 

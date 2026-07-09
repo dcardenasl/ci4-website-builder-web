@@ -22,6 +22,8 @@ const initHeroCarousel = (root) => {
   const autoplayEnabled = root.dataset.autoplay !== '0';
   const slideDuration = Math.max(1000, Number(root.dataset.interval || 6000));
   const hoverTarget = image || root;
+  const overlay = root.querySelector('[data-hero-overlay]');
+  const captionCard = root.querySelector('[data-hero-caption-card]');
 
   const dotFills = dots.map((dot) => {
     let fill = dot.querySelector('[data-hero-dot-fill]');
@@ -164,6 +166,23 @@ const initHeroCarousel = (root) => {
       node.textContent = slide.cta_label || '';
       node.hidden = !slide.cta_label;
     });
+
+    if (overlay) {
+      if (slide.overlay_color) {
+        overlay.style.background = slide.overlay_color;
+      } else {
+        const overlayOpacity = root.dataset.overlayPct || '0';
+        overlay.style.background = `linear-gradient(to bottom, rgba(15, 23, 42, ${overlayOpacity / 100}) 0%, rgba(15, 23, 42, 0) 42%, rgba(15, 23, 42, ${overlayOpacity / 100}) 100%)`;
+      }
+    }
+    if (captionCard) {
+      if (slide.text_color) {
+        captionCard.style.color = slide.text_color;
+      } else {
+        const captionPosition = root.dataset.captionPosition || 'below';
+        captionCard.style.color = captionPosition.startsWith('overlay') ? '#ffffff' : 'rgb(15, 23, 42)';
+      }
+    }
 
     setActiveDot();
   };

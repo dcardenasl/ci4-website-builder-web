@@ -30,6 +30,7 @@ if ($slides === []) {
         data-caption-position="<?= esc($captionPosition, 'attr') ?>"
         data-controls-position="<?= esc($controlsPosition, 'attr') ?>"
         data-slides='<?= esc($jsonSlides, 'attr') ?>'
+        data-overlay-pct="<?= esc((string) $overlayPct) ?>"
     >
         <style>
             [data-hero-carousel] .hero-shell {
@@ -73,14 +74,15 @@ if ($slides === []) {
             />
 
             <div
+                data-hero-overlay
                 class="absolute inset-0"
-                style="background:linear-gradient(to bottom, rgba(15, 23, 42, <?= number_format($overlayPct / 100, 2, '.', '') ?>) 0%, rgba(15, 23, 42, 0) 42%, rgba(15, 23, 42, <?= number_format($overlayPct / 100, 2, '.', '') ?>) 100%);"
+                style="background: <?= !empty($slides[0]['overlay_color']) ? esc($slides[0]['overlay_color']) : 'linear-gradient(to bottom, rgba(15, 23, 42, '.number_format($overlayPct / 100, 2, '.', '').') 0%, rgba(15, 23, 42, 0) 42%, rgba(15, 23, 42, '.number_format($overlayPct / 100, 2, '.', '').') 100%)' ?>;"
             ></div>
 
             <?php if ($captionIsOverlay): ?>
                 <div class="absolute inset-x-0 <?= $captionPosition === 'overlay_top' ? 'top-0' : 'bottom-0' ?> z-20 p-4 sm:p-6">
                     <div class="max-w-3xl">
-                        <div class="surface-overlay rounded-2xl bg-slate-950/65 px-4 py-3 text-white shadow-2xl shadow-slate-950/20 ring-1 ring-white/10 backdrop-blur-md sm:px-5 sm:py-4">
+                        <div data-hero-caption-card class="surface-overlay rounded-2xl bg-slate-950/65 px-4 py-3 shadow-2xl shadow-slate-950/20 ring-1 ring-white/10 backdrop-blur-md sm:px-5 sm:py-4" style="color: <?= !empty($slides[0]['text_color']) ? esc($slides[0]['text_color']) : '#ffffff' ?>;">
                             <?php if (($slides[0]['heading'] ?? '') !== ''): ?>
                                 <h2 data-hero-caption-title class="text-lg font-semibold tracking-tight sm:text-[1.45rem]"><?= esc($slides[0]['heading']) ?></h2>
                             <?php endif; ?>
@@ -139,7 +141,7 @@ if ($slides === []) {
                 <div class="flex flex-col gap-3">
                     <?php if ($captionIsBelow): ?>
                         <div class="max-w-2xl">
-                            <div class="px-0 py-0 text-slate-900">
+                            <div data-hero-caption-card class="px-0 py-0" style="color: <?= !empty($slides[0]['text_color']) ? esc($slides[0]['text_color']) : 'rgb(15, 23, 42)' ?>;">
                                 <?php if (($slides[0]['heading'] ?? '') !== ''): ?>
                                     <h2 data-hero-caption-title class="section-title text-xl sm:text-[1.6rem]"><?= esc($slides[0]['heading']) ?></h2>
                                 <?php endif; ?>

@@ -5,10 +5,10 @@
             alt="<?= esc($alt) ?>"
             class="absolute inset-0 w-full h-full object-cover"
         />
-        <div class="absolute inset-0 bg-black/40"></div>
+        <div class="absolute inset-0" style="background-color: <?= esc($overlay_color ?? 'rgba(0, 0, 0, 0.4)') ?>;"></div>
     <?php endif; ?>
 
-    <div class="relative z-10 text-center text-white px-4">
+    <div class="relative z-10 text-center px-4" style="color: <?= esc($text_color ?? '#ffffff') ?>;">
         <?php if (!empty($heading)): ?>
             <h1 class="text-4xl md:text-5xl font-bold mb-4">
                 <?= esc($heading) ?>
