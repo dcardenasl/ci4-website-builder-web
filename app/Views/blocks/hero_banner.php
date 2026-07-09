@@ -1,3 +1,7 @@
+<?php
+$textColor    = ($text_color ?? '') !== '' ? $text_color : '#ffffff';
+$overlayColor = ($overlay_color ?? '') !== '' ? $overlay_color : 'transparent';
+?>
 <section class="relative h-96 flex items-center justify-center overflow-hidden <?= esc($cssClass) ?>">
     <?php if (!empty($image_url)): ?>
         <img
@@ -5,18 +9,18 @@
             alt="<?= esc($alt) ?>"
             class="absolute inset-0 w-full h-full object-cover"
         />
-        <div class="absolute inset-0" style="background-color: <?= esc($overlay_color ?? 'rgba(0, 0, 0, 0.4)') ?>;"></div>
+        <div class="absolute inset-0" style="background-color: <?= esc($overlayColor) ?>;"></div>
     <?php endif; ?>
 
-    <div class="relative z-10 text-center px-4" style="color: <?= esc($text_color ?? '#ffffff') ?>;">
+    <div class="relative z-10 text-center px-4" style="color: <?= esc($textColor) ?>;">
         <?php if (!empty($heading)): ?>
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4" style="color: <?= esc($textColor) ?>;">
                 <?= esc($heading) ?>
             </h1>
         <?php endif; ?>
 
         <?php if (!empty($subheading)): ?>
-            <p class="text-lg md:text-xl mb-6">
+            <p class="text-lg md:text-xl mb-6" style="color: <?= esc($textColor) ?>;">
                 <?= esc($subheading) ?>
             </p>
         <?php endif; ?>

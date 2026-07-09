@@ -175,13 +175,19 @@ const initHeroCarousel = (root) => {
         overlay.style.background = `linear-gradient(to bottom, rgba(15, 23, 42, ${overlayOpacity / 100}) 0%, rgba(15, 23, 42, 0) 42%, rgba(15, 23, 42, ${overlayOpacity / 100}) 100%)`;
       }
     }
-    if (captionCard) {
-      if (slide.text_color) {
-        captionCard.style.color = slide.text_color;
-      } else {
+    if (captionCard || captionTitles.length) {
+      let resolvedTextColor = slide.text_color;
+      if (!resolvedTextColor) {
         const captionPosition = root.dataset.captionPosition || 'below';
-        captionCard.style.color = captionPosition.startsWith('overlay') ? '#ffffff' : 'rgb(15, 23, 42)';
+        resolvedTextColor = captionPosition.startsWith('overlay') ? '#ffffff' : 'rgb(15, 23, 42)';
       }
+      // Set color on the heading itself too, not just the wrapping card: the global
+      // `h1, h2, h3, h4, h5, h6` base rule targets <h2> directly, which always wins
+      // over a color merely inherited from the parent.
+      if (captionCard) captionCard.style.color = resolvedTextColor;
+      captionTitles.forEach((node) => {
+        node.style.color = resolvedTextColor;
+      });
     }
 
     setActiveDot();

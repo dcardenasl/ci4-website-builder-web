@@ -19,6 +19,14 @@
 if ($slides === []) {
     return;
 }
+
+// Inline color must land on the heading itself, not just the wrapping card: the
+// global `h1, h2, h3, h4, h5, h6 { color: #0f172a }` base rule (public/assets/css/app.css)
+// directly targets <h2>, and a directly-matching rule always wins over an inherited
+// value regardless of specificity — an inline style on the parent alone is silently
+// overridden.
+$captionTextColorOverlay = !empty($slides[0]['text_color']) ? $slides[0]['text_color'] : '#ffffff';
+$captionTextColorBelow   = !empty($slides[0]['text_color']) ? $slides[0]['text_color'] : 'rgb(15, 23, 42)';
 ?>
 
 <section class="py-0 <?= esc($cssClass) ?>">
@@ -82,9 +90,9 @@ if ($slides === []) {
             <?php if ($captionIsOverlay): ?>
                 <div class="absolute inset-x-0 <?= $captionPosition === 'overlay_top' ? 'top-0' : 'bottom-0' ?> z-20 p-4 sm:p-6">
                     <div class="max-w-3xl">
-                        <div data-hero-caption-card class="surface-overlay rounded-2xl bg-slate-950/65 px-4 py-3 shadow-2xl shadow-slate-950/20 ring-1 ring-white/10 backdrop-blur-md sm:px-5 sm:py-4" style="color: <?= !empty($slides[0]['text_color']) ? esc($slides[0]['text_color']) : '#ffffff' ?>;">
+                        <div data-hero-caption-card class="surface-overlay rounded-2xl bg-slate-950/65 px-4 py-3 shadow-2xl shadow-slate-950/20 ring-1 ring-white/10 backdrop-blur-md sm:px-5 sm:py-4" style="color: <?= esc($captionTextColorOverlay) ?>;">
                             <?php if (($slides[0]['heading'] ?? '') !== ''): ?>
-                                <h2 data-hero-caption-title class="text-lg font-semibold tracking-tight sm:text-[1.45rem]"><?= esc($slides[0]['heading']) ?></h2>
+                                <h2 data-hero-caption-title class="text-lg font-semibold tracking-tight sm:text-[1.45rem]" style="color: <?= esc($captionTextColorOverlay) ?>;"><?= esc($slides[0]['heading']) ?></h2>
                             <?php endif; ?>
                             <?php if (($slides[0]['subtitle'] ?? '') !== ''): ?>
                                 <p data-hero-caption-subtitle class="mt-1 text-sm leading-relaxed text-white/85 sm:text-base"><?= esc($slides[0]['subtitle']) ?></p>
@@ -141,9 +149,9 @@ if ($slides === []) {
                 <div class="flex flex-col gap-3">
                     <?php if ($captionIsBelow): ?>
                         <div class="max-w-2xl">
-                            <div data-hero-caption-card class="px-0 py-0" style="color: <?= !empty($slides[0]['text_color']) ? esc($slides[0]['text_color']) : 'rgb(15, 23, 42)' ?>;">
+                            <div data-hero-caption-card class="px-0 py-0" style="color: <?= esc($captionTextColorBelow) ?>;">
                                 <?php if (($slides[0]['heading'] ?? '') !== ''): ?>
-                                    <h2 data-hero-caption-title class="section-title text-xl sm:text-[1.6rem]"><?= esc($slides[0]['heading']) ?></h2>
+                                    <h2 data-hero-caption-title class="section-title text-xl sm:text-[1.6rem]" style="color: <?= esc($captionTextColorBelow) ?>;"><?= esc($slides[0]['heading']) ?></h2>
                                 <?php endif; ?>
                                 <?php if (($slides[0]['subtitle'] ?? '') !== ''): ?>
                                     <p data-hero-caption-subtitle class="section-copy mt-1 max-w-2xl text-sm sm:text-[0.98rem]"><?= esc($slides[0]['subtitle']) ?></p>
