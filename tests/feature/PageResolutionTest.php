@@ -61,8 +61,12 @@ final class PageResolutionTest extends CIUnitTestCase
         $this->client->fakeGet('public/es/entries/news', [], ['total_pages' => 1]);
         $this->client->fakeGet('public/es/categories/news', []);
         $this->client->fakeGet('public/es/pages/noticias', [
-            'title' => 'CMS page that should not win',
-            'slug'  => 'noticias',
+            'title'          => 'Noticias',
+            'slug'           => 'noticias',
+            'page_type'      => 'collection_index',
+            'collection_id'  => 1,
+            'canonical_url'  => '',
+            'localized_slugs'=> ['es' => 'noticias'],
         ]);
 
         $result = $this->get('es/noticias');
@@ -76,14 +80,14 @@ final class PageResolutionTest extends CIUnitTestCase
     {
         $this->client->fakeGet('public/es/collections', [$this->collection()]);
         $this->client->fakeGet('public/es/entries/news/primer-post', [
-            'title'             => 'Primer post',
-            'slug'              => 'primer-post',
-            'excerpt'           => 'Entrada publicada',
-            'meta_description'  => 'Meta entry',
-            'canonical_url'     => '',
-            'published_at'      => '2026-07-06 12:00:00',
-            'blocks'            => [],
-            'localized_slugs'   => ['es' => 'primer-post'],
+            'title'            => 'Primer post',
+            'slug'             => 'primer-post',
+            'excerpt'          => 'Entrada publicada',
+            'meta_description' => 'Meta entry',
+            'canonical_url'    => '',
+            'published_at'     => '2026-07-06 12:00:00',
+            'blocks'           => [],
+            'localized_slugs'  => ['es' => 'primer-post'],
         ]);
 
         $result = $this->get('es/noticias/primer-post');
@@ -126,13 +130,19 @@ final class PageResolutionTest extends CIUnitTestCase
     private function collection(): array
     {
         return [
+            'id'                       => 1,
             'collection_key'           => 'news',
             'slug'                     => 'noticias',
             'name'                     => 'Noticias',
             'listing_title'            => 'Noticias',
             'listing_intro'            => '',
             'default_meta_description' => 'Ultimas noticias',
-            'localized_slugs'          => ['es' => 'noticias'],
+            'index_page'               => [
+                'localized_slugs' => [
+                    'es' => 'noticias',
+                    'en' => 'news',
+                ],
+            ],
         ];
     }
 }

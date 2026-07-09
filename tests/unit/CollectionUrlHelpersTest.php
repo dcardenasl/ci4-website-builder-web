@@ -13,8 +13,14 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
 {
     public function testCanonicalPathIsNormalized(): void
     {
+        service('request')->setLocale('en');
+
         $collection = [
-            'slug' => '/news',
+            'index_page' => [
+                'localized_slugs' => [
+                    'en' => '/news',
+                ],
+            ],
         ];
 
         $this->assertSame('/news', collection_url_path($collection));
@@ -22,8 +28,14 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
 
     public function testCanonicalPathMatchesAndReportsPrefix(): void
     {
+        service('request')->setLocale('en');
+
         $collection = [
-            'slug' => 'news',
+            'index_page' => [
+                'localized_slugs' => [
+                    'en' => 'news',
+                ],
+            ],
         ];
 
         $info = collection_url_path_info($collection, 'news/welcome-to-our-news');
@@ -35,6 +47,8 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
 
     public function testCanonicalPathReturnsNullWithoutSlug(): void
     {
+        service('request')->setLocale('en');
+
         $collection = [
             'collection_key' => 'noticias',
         ];
@@ -45,11 +59,14 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
 
     public function testLocalizedCollectionUrlPathUsesTranslatedSlug(): void
     {
+        service('request')->setLocale('en');
+
         $collection = [
-            'slug' => 'news',
-            'localized_slugs' => [
-                'es' => 'noticias',
-                'en' => 'news',
+            'index_page' => [
+                'localized_slugs' => [
+                    'es' => 'noticias',
+                    'en' => 'news',
+                ],
             ],
         ];
 
@@ -59,11 +76,14 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
 
     public function testLocalizedEntryUrlsUseTranslatedCollectionAndEntrySlugs(): void
     {
+        service('request')->setLocale('en');
+
         $collection = [
-            'slug' => 'news',
-            'localized_slugs' => [
-                'es' => 'noticias',
-                'en' => 'news',
+            'index_page' => [
+                'localized_slugs' => [
+                    'es' => 'noticias',
+                    'en' => 'news',
+                ],
             ],
         ];
 
