@@ -71,118 +71,119 @@ $cardClass = match ($layoutVariant) {
 };
 
 $imageClass = $layoutVariant === 'portfolio' ? 'aspect-[4/3]' : 'aspect-video';
-$bodyClass = $layoutVariant === 'portfolio' ? 'p-6' : 'p-5';
+$bodyClass = $layoutVariant === 'portfolio' ? 'p-7' : 'p-5';
+$sectionClass = trim($cssClass . ' py-8 sm:py-12');
 ?>
-<section class="<?= esc($cssClass) ?> py-10 sm:py-14">
+<section class="<?= esc($sectionClass) ?>" data-ajax-listing>
     <div class="container-base">
-        <header class="max-w-4xl">
-            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-primary"><?= esc(lang('Site.collection_index_label')) ?></p>
-            <h2 class="mt-3 section-title text-3xl sm:text-4xl"><?= esc($pageTitle ?: ($collection['listing_title'] ?? $collection['name'] ?? '')) ?></h2>
-            <?php if ($introText !== ''): ?>
-                <div class="section-copy mt-4 prose max-w-none">
-                    <?= $introText ?>
-                </div>
-            <?php elseif (! empty($collection['listing_intro'])): ?>
-                <div class="section-copy mt-4 prose max-w-none">
-                    <?= $collection['listing_intro'] ?>
-                </div>
-            <?php endif; ?>
-            <?php if ($introTitle !== ''): ?>
-                <p class="mt-4 text-sm font-medium text-slate-700"><?= esc($introTitle) ?></p>
-            <?php endif; ?>
-        </header>
+        
+        <!-- ── 1. Block Header ────────────────────────────────────────────── -->
+        <?php if ($introTitle !== '' || $introText !== '' || ! empty($collection['listing_intro'])): ?>
+            <header class="max-w-4xl mb-8">
+                <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary mb-2">
+                    <?= esc(lang('Site.collection_index_label')) ?>
+                </p>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+                    <?= esc($introTitle !== '' ? $introTitle : ($collection['listing_title'] ?? $collection['name'] ?? '')) ?>
+                </h2>
+                <?php if ($introText !== ''): ?>
+                    <div class="mt-4 text-slate-500 max-w-2xl leading-relaxed text-base">
+                        <?= $introText ?>
+                    </div>
+                <?php elseif (! empty($collection['listing_intro'])): ?>
+                    <div class="mt-4 text-slate-500 max-w-2xl leading-relaxed text-base">
+                        <?= $collection['listing_intro'] ?>
+                    </div>
+                <?php endif; ?>
+            </header>
+        <?php endif; ?>
 
+        <!-- ── 2. Filters & Controls ──────────────────────────────────────── -->
         <?php if ($showSearch || $showCategories || $showTags): ?>
-            <form method="get" action="<?= esc(lang_url($basePath)) ?>" class="mt-10 rounded-3xl border border-slate-200 bg-white/95 p-6 shadow-sm backdrop-blur-sm sm:p-7">
-                <div class="flex flex-col gap-1 border-b border-slate-100 pb-5">
-                    <p class="text-xs font-semibold uppercase tracking-[0.26em] text-slate-500"><?= esc(lang('Site.collection_filters')) ?></p>
-                    <p class="text-sm text-slate-500"><?= esc(lang('Site.collection_filters_hint')) ?></p>
-                </div>
-
-                <div class="mt-6 space-y-5">
+            <form method="get" action="<?= esc(lang_url($basePath)) ?>" class="mb-10 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-5 shadow-sm">
+                <div class="flex flex-col md:flex-row gap-3">
                     <?php if ($showSearch): ?>
-                        <label class="block">
-                            <span class="mb-1 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"><?= esc(lang('Site.search')) ?></span>
+                        <div class="relative flex-1">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </span>
                             <input type="search"
                                    name="q"
                                    value="<?= esc($currentQuery, 'attr') ?>"
-                                   placeholder="<?= esc(lang('Site.search')) ?>"
-                            class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-                        </label>
+                                   placeholder="<?= esc(lang('Site.search')) ?>..."
+                                   class="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-sm shadow-sm transition placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15">
+                        </div>
                     <?php endif; ?>
-
-                    <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-start">
-                        <button type="submit" class="inline-flex w-full max-w-full items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark sm:w-max sm:max-w-none sm:flex-none">
-                            <?= esc($filterLabel) ?>
-                        </button>
-                        <a href="<?= esc(lang_url($basePath)) ?>" class="inline-flex w-full max-w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-text-secondary shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50 sm:w-max sm:max-w-none sm:flex-none">
+                    
+                    <div class="flex items-center gap-2">
+                        <?php if ($showSearch): ?>
+                            <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-dark cursor-pointer">
+                                <?= esc($filterLabel) ?>
+                            </button>
+                        <?php endif; ?>
+                        <a href="<?= esc(lang_url($basePath)) ?>" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-605 shadow-sm transition-all hover:border-slate-350 hover:bg-slate-100">
                             <?= esc($resetLabel) ?>
                         </a>
                     </div>
-
-                    <div class="grid gap-6 lg:grid-cols-2">
-                        <input type="hidden" name="order_by" value="<?= esc($orderBy, 'attr') ?>">
-                        <input type="hidden" name="order_direction" value="<?= esc($orderDirection, 'attr') ?>">
-                        <input type="hidden" name="per_page" value="<?= esc((string) ((int) ($pagination['per_page'] ?? 12)), 'attr') ?>">
-                        <?php if ($currentCategory !== ''): ?>
-                            <input type="hidden" name="category" value="<?= esc($currentCategory, 'attr') ?>">
-                        <?php endif; ?>
-                        <?php if ($currentTag !== ''): ?>
-                            <input type="hidden" name="tag" value="<?= esc($currentTag, 'attr') ?>">
-                        <?php endif; ?>
-
-                        <?php if ($showCategories && $categories !== []): ?>
-                            <div>
-                                <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"><?= esc($categoriesLabel) ?></span>
-                                <div class="flex flex-nowrap gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                    <a href="<?= esc($buildUrl(['q' => $currentQuery !== '' ? $currentQuery : null, 'tag' => $currentTag !== '' ? $currentTag : null, 'order_by' => $orderBy, 'order_direction' => $orderDirection, 'per_page' => (int) ($pagination['per_page'] ?? 12)])) ?>"
-                                       class="<?= esc($currentCategory === '' ? 'border border-primary/20 bg-primary/5 text-primary shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200') ?> inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap shrink-0">
-                                        <?= esc($allLabel) ?>
-                                    </a>
-                                    <?php foreach ($categories as $category): ?>
-                                        <?php $active = $currentCategory === (string) ($category['slug'] ?? ''); ?>
-                                        <a href="<?= esc((string) ($category['url'] ?? '#')) ?>"
-                                           class="<?= esc($active ? 'border border-primary/20 bg-primary/5 text-primary shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200') ?> inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap shrink-0">
-                                            <?= esc((string) ($category['name'] ?? $category['slug'] ?? '')) ?>
-                                        </a>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
-                        <?php if ($showTags && $tags !== []): ?>
-                            <div>
-                                <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"><?= esc($tagsLabel) ?></span>
-                                <div class="flex flex-nowrap gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                                    <?php foreach ($tags as $tag): ?>
-                                        <?php $active = $currentTag === (string) ($tag['slug'] ?? ''); ?>
-                                        <a href="<?= esc((string) ($tag['url'] ?? '#')) ?>"
-                                           class="<?= esc($active ? 'border border-primary/20 bg-primary/5 text-primary shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200') ?> inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition-colors whitespace-nowrap shrink-0">
-                                            <?= esc((string) ($tag['name'] ?? $tag['slug'] ?? '')) ?>
-                                        </a>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                    </div>
                 </div>
+
+                <input type="hidden" name="order_by" value="<?= esc($orderBy, 'attr') ?>">
+                <input type="hidden" name="order_direction" value="<?= esc($orderDirection, 'attr') ?>">
+                <input type="hidden" name="per_page" value="<?= esc((string) ((int) ($pagination['per_page'] ?? 12)), 'attr') ?>">
+
+                <!-- Horizontal Category Filter Tab-like Pills -->
+                <?php if ($showCategories && !empty($categories)): ?>
+                    <div class="mt-5 pt-4 border-t border-slate-200/60">
+                        <span class="block text-xs font-bold uppercase tracking-[0.15em] text-slate-450 mb-3"><?= esc($categoriesLabel) ?></span>
+                        <div class="flex gap-2 overflow-x-auto pb-1.5 scrollbar-none -mx-1 px-1" data-listing-pills>
+                            <a href="<?= esc($buildUrl(['q' => $currentQuery !== '' ? $currentQuery : null, 'tag' => $currentTag !== '' ? $currentTag : null, 'order_by' => $orderBy, 'order_direction' => $orderDirection, 'per_page' => (int) ($pagination['per_page'] ?? 12)])) ?>"
+                               class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-200 border <?= $currentCategory === '' ? '!bg-primary !border-primary !text-white hover:!text-white !no-underline shadow-sm' : 'bg-white border-slate-200 !text-slate-500 hover:!text-slate-700 hover:!bg-slate-100 hover:!border-slate-300 !no-underline' ?>">
+                                <?= esc($allLabel) ?>
+                            </a>
+                            <?php foreach ($categories as $category): ?>
+                                <?php $active = $currentCategory === (string) ($category['slug'] ?? ''); ?>
+                                <a href="<?= esc((string) ($category['url'] ?? '#')) ?>"
+                                   class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-200 border <?= $active ? '!bg-primary !border-primary !text-white hover:!text-white !no-underline shadow-sm' : 'bg-white border-slate-200 !text-slate-500 hover:!text-slate-700 hover:!bg-slate-100 hover:!border-slate-300 !no-underline' ?>">
+                                    <?= esc((string) ($category['name'] ?? $category['slug'] ?? '')) ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Tag Cloud Filters -->
+                <?php if ($showTags && !empty($tags)): ?>
+                    <div class="mt-4 pt-3 border-t border-slate-200/40">
+                        <span class="block text-xs font-bold uppercase tracking-[0.15em] text-slate-450 mb-2.5"><?= esc($tagsLabel) ?></span>
+                        <div class="flex flex-wrap gap-2" data-listing-pills>
+                            <?php foreach ($tags as $tag): ?>
+                                <?php $active = $currentTag === (string) ($tag['slug'] ?? ''); ?>
+                                <a href="<?= esc((string) ($tag['url'] ?? '#')) ?>"
+                                   class="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium transition-all duration-200 border <?= $active ? '!bg-slate-800 !border-slate-900 !text-white hover:!text-white !no-underline' : 'bg-white border-slate-200 !text-slate-500 hover:!text-slate-700 hover:!bg-slate-100 !no-underline' ?>">
+                                    #<?= esc((string) ($tag['name'] ?? $tag['slug'] ?? '')) ?>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </form>
         <?php endif; ?>
 
+        <!-- ── 3. Entries Grid ────────────────────────────────────────────── -->
         <?php if ($entries !== []): ?>
-            <div class="mt-20">
-                <div class="flex flex-col gap-3 border-b border-slate-100 pb-5 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500"><?= esc(lang('Site.collection_listing_section')) ?></p>
-                        <h2 class="mt-1 text-2xl font-semibold tracking-tight text-slate-900"><?= esc(lang('Site.collection_listing_title')) ?></h2>
-                    </div>
-                    <p class="text-sm font-medium text-slate-500">
+            <div>
+                <!-- List Metadata Bar -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-6">
+                    <span class="text-xs font-bold uppercase tracking-[0.15em] text-slate-400" data-listing-count>
                         <?= esc(str_replace('{count}', (string) count($entries), lang('Site.collection_listing_count'))) ?>
-                    </p>
+                    </span>
                 </div>
 
-                <div class="<?= esc($gridClass) ?> mt-10 gap-y-8">
-                <?php foreach ($entries as $entry):
+                <!-- Grid -->
+                <div class="<?= esc($gridClass) ?> gap-y-8" data-listing-grid>
+                <?php foreach ($entries as $index => $entry):
                     $entryTitle = (string) ($entry['title'] ?? '');
                     $entryExcerpt = (string) ($entry['excerpt'] ?? '');
                     $entryDate = (string) ($entry['published_at'] ?? $entry['created_at'] ?? '');
@@ -192,12 +193,13 @@ $bodyClass = $layoutVariant === 'portfolio' ? 'p-6' : 'p-5';
                         ? lang_url(rtrim($basePath, '/') . '/' . ltrim($entrySlug, '/'))
                         : '#';
                 ?>
-                    <article class="<?= esc($cardClass) ?>">
+                    <article class="<?= esc($cardClass) ?> animate-fade-in-up" style="animation-delay: <?= $index * 60 ?>ms; animation-fill-mode: both;">
+                        <!-- Image Container with Zoom effect on hover -->
                         <?php if ($entryImage !== ''): ?>
                             <a href="<?= esc($entryUrl) ?>" class="block overflow-hidden <?= esc($imageClass) ?>" tabindex="-1" aria-hidden="true">
                                 <img src="<?= esc($entryImage) ?>"
                                      alt="<?= esc($entryTitle) ?>"
-                                     class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                     class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-103"
                                      loading="lazy">
                             </a>
                         <?php else: ?>
@@ -211,52 +213,84 @@ $bodyClass = $layoutVariant === 'portfolio' ? 'p-6' : 'p-5';
                                 </div>
                             </div>
                         <?php endif; ?>
-                        <div class="<?= esc($bodyClass) ?>">
-                            <?php if ($entryDate !== ''): ?>
-                                <p class="text-xs uppercase tracking-[0.2em] text-slate-400">
-                                    <?= esc(date('d M Y', strtotime($entryDate))) ?>
-                                </p>
+
+                        <!-- Body Content Container -->
+                        <div class="<?= esc($bodyClass) ?> flex flex-col flex-1">
+                            <!-- Categories badges -->
+                            <?php if (!empty($entry['categories'])): ?>
+                                <div class="flex flex-wrap gap-1.5 mb-3.5">
+                                    <?php foreach (array_slice($entry['categories'], 0, 2) as $cat): ?>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
+                                            <?= esc($cat['name'] ?? '') ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
                             <?php endif; ?>
-                            <h2 class="mt-2 text-lg font-semibold leading-tight text-slate-900">
-                                <a href="<?= esc($entryUrl) ?>" class="transition-colors hover:text-primary">
+
+                            <!-- Entry Date -->
+                            <?php if ($entryDate !== ''): ?>
+                                <time datetime="<?= esc($entryDate) ?>" class="text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-450 block mb-2">
+                                    <?= esc(date('d M Y', strtotime($entryDate))) ?>
+                                </time>
+                            <?php endif; ?>
+
+                            <!-- Entry Title -->
+                            <h3 class="text-lg font-bold leading-tight text-slate-900 group-hover:text-primary transition-colors duration-200">
+                                <a href="<?= esc($entryUrl) ?>" class="!text-slate-900 group-hover:!text-primary !no-underline hover:!no-underline">
                                     <?= esc($entryTitle) ?>
                                 </a>
-                            </h2>
+                            </h3>
+
+                            <!-- Excerpt -->
                             <?php if ($entryExcerpt !== ''): ?>
-                                <p class="section-copy mt-2 text-sm <?= $layoutVariant === 'compact' ? 'line-clamp-1' : 'line-clamp-3' ?>">
+                                <p class="mt-3 text-sm text-slate-500 leading-relaxed line-clamp-3">
                                     <?= esc($entryExcerpt) ?>
                                 </p>
                             <?php endif; ?>
+
+                            <!-- Call to Action Link -->
+                            <div class="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between">
+                                <a href="<?= esc($entryUrl) ?>" class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider !text-primary group-hover:!text-primary-dark !no-underline">
+                                    <?= esc($collection['collection_type'] === 'news' ? lang('Site.view_article') : lang('Site.view_project')) ?>
+                                    <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                                    </svg>
+                                </a>
+                            </div>
                         </div>
                     </article>
                 <?php endforeach; ?>
                 </div>
             </div>
         <?php else: ?>
-            <div class="surface-default mt-14 border-dashed px-5 py-10 text-slate-500">
+            <div class="surface-default mt-6 border-dashed px-5 py-10 text-slate-500 text-center">
+                <svg class="mx-auto mb-4 h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
                 <?= esc($emptyMessage !== '' ? $emptyMessage : $noResultsLabel) ?>
             </div>
         <?php endif; ?>
 
+        <!-- ── 4. Pagination ──────────────────────────────────────────────── -->
         <?php if ($totalPages > 1): ?>
-            <nav class="mt-12 flex flex-wrap items-center justify-center gap-3" aria-label="<?= esc(lang('Site.pagination')) ?>">
+            <nav class="mt-12 flex flex-wrap items-center justify-center gap-3" aria-label="<?= esc(lang('Site.pagination')) ?>" data-listing-pagination>
                 <?php if ($currentPage > 1): ?>
-                    <a href="<?= esc($buildUrl(['page' => $currentPage - 1, 'category' => $currentCategory !== '' ? $currentCategory : null, 'tag' => $currentTag !== '' ? $currentTag : null, 'q' => $currentQuery !== '' ? $currentQuery : null, 'order_by' => $orderBy, 'order_direction' => $orderDirection, 'per_page' => (int) ($pagination['per_page'] ?? 12)])) ?>"
-                       class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-text-secondary shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50">
-                        <?= esc($previousLabel) ?>
-                    </a>
-                <?php endif; ?>
+                                    <a href="<?= esc($buildUrl(['page' => $currentPage - 1, 'category' => $currentCategory !== '' ? $currentCategory : null, 'tag' => $currentTag !== '' ? $currentTag : null, 'q' => $currentQuery !== '' ? $currentQuery : null, 'order_by' => $orderBy, 'order_direction' => $orderDirection, 'per_page' => (int) ($pagination['per_page'] ?? 12)])) ?>"
+                                       class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold !text-slate-600 shadow-sm transition-colors hover:border-slate-350 hover:!bg-slate-100 !no-underline">
+                                        <?= esc($previousLabel) ?>
+                                    </a>
+                                <?php endif; ?>
 
-                <span class="text-sm text-slate-500">
-                    <?= esc((string) ($pagination['current_page'] ?? $currentPage)) ?> / <?= esc((string) $totalPages) ?>
-                </span>
+                                <span class="text-sm font-medium text-slate-500 px-3">
+                                    <?= esc((string) ($pagination['current_page'] ?? $currentPage)) ?> / <?= esc((string) $totalPages) ?>
+                                </span>
 
-                <?php if ($currentPage < $totalPages): ?>
-                    <a href="<?= esc($buildUrl(['page' => $currentPage + 1, 'category' => $currentCategory !== '' ? $currentCategory : null, 'tag' => $currentTag !== '' ? $currentTag : null, 'q' => $currentQuery !== '' ? $currentQuery : null, 'order_by' => $orderBy, 'order_direction' => $orderDirection, 'per_page' => (int) ($pagination['per_page'] ?? 12)])) ?>"
-                       class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-text-secondary shadow-sm transition-colors hover:border-slate-300 hover:bg-slate-50">
-                        <?= esc($nextLabel) ?>
-                    </a>
-                <?php endif; ?>
+                                <?php if ($currentPage < $totalPages): ?>
+                                    <a href="<?= esc($buildUrl(['page' => $currentPage + 1, 'category' => $currentCategory !== '' ? $currentCategory : null, 'tag' => $currentTag !== '' ? $currentTag : null, 'q' => $currentQuery !== '' ? $currentQuery : null, 'order_by' => $orderBy, 'order_direction' => $orderDirection, 'per_page' => (int) ($pagination['per_page'] ?? 12)])) ?>"
+                                       class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold !text-slate-600 shadow-sm transition-colors hover:border-slate-350 hover:!bg-slate-100 !no-underline">
+                                        <?= esc($nextLabel) ?>
+                                    </a>
+                                <?php endif; ?>
             </nav>
         <?php endif; ?>
     </div>

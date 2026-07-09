@@ -16,8 +16,9 @@ final class HeroBannerBlockEscapingTest extends CIUnitTestCase
         $malicious = '"><script>alert(1)</script><section class="';
 
         $html = view('blocks/hero_banner', [
-            'config' => ['css_class' => $malicious],
-            'data'   => [],
+            'cssClass' => $malicious,
+            'config'   => ['css_class' => $malicious],
+            'data'     => [],
         ]);
 
         $this->assertStringNotContainsString('<script>', $html);
@@ -27,8 +28,10 @@ final class HeroBannerBlockEscapingTest extends CIUnitTestCase
     public function testEmptyCssClassRendersSection(): void
     {
         $html = view('blocks/hero_banner', [
-            'config' => [],
-            'data'   => ['heading' => 'Welcome'],
+            'cssClass' => '',
+            'heading'  => 'Welcome',
+            'config'   => [],
+            'data'     => ['heading' => 'Welcome'],
         ]);
 
         $this->assertStringContainsString('<section', $html);

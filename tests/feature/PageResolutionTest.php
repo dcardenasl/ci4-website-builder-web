@@ -66,7 +66,7 @@ final class PageResolutionTest extends CIUnitTestCase
             'page_type'      => 'collection_index',
             'collection_id'  => 1,
             'canonical_url'  => '',
-            'localized_slugs'=> ['es' => 'noticias'],
+            'localized_slugs' => ['es' => 'noticias'],
         ]);
 
         $result = $this->get('es/noticias');

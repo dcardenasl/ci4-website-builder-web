@@ -14,9 +14,9 @@ use App\Services\SiteEntryService;
 use App\Services\SiteFormService;
 use App\Services\SiteMenuService;
 use App\Services\SitePageService;
-use App\Services\SiteTagService;
 use App\Services\SiteRedirectService;
 use App\Services\SiteSettingsService;
+use App\Services\SiteTagService;
 use CodeIgniter\Config\BaseService;
 
 class Services extends BaseService

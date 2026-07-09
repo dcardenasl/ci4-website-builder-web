@@ -10,6 +10,7 @@ import { initHeroCarousels } from './components/heroCarousel.js';
 import { initCardsSliders } from './components/cardsSlider.js';
 import { initMetricsCounters } from './components/metricsCounter.js';
 import { initVideoPlayers } from './components/videoPlayer.js';
+import { initCollectionFilters } from './components/collectionFilters.js';
 
 const boot = () => {
   initMobileDrawer();
@@ -17,6 +18,7 @@ const boot = () => {
   initCardsSliders();
   initMetricsCounters();
   initVideoPlayers();
+  initCollectionFilters();
 };
 
 if (document.readyState === 'loading') {

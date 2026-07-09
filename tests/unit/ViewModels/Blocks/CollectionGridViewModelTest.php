@@ -46,6 +46,9 @@ final class CollectionGridViewModelTest extends CIUnitTestCase
                 'collection_key' => 'news',
                 'slug'           => 'noticias',
                 'url_path'       => '/noticias',
+                'index_page'     => [
+                    'localized_slugs' => ['es' => 'noticias', 'en' => 'news'],
+                ],
             ]],
             ['data' => [['title' => 'Post 1', 'slug' => 'post-1']], 'meta' => []]
         );

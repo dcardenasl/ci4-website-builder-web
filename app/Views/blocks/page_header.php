@@ -5,6 +5,8 @@ $heading         = $data['heading'] ?? '';
 $subheading      = $data['subheading'] ?? '';
 $breadcrumbLabel = $data['breadcrumb_label'] ?? '';
 $breadcrumbUrl   = $data['breadcrumb_url'] ?? '/';
+// Background color is now a simple config value (e.g., 'bg-gray-100' or 'bg-slate-50')
+// Can be easily changed via the CMS config
 $bgColor         = $config['bg_color'] ?? 'bg-gray-100';
 $cssClass        = $config['css_class'] ?? '';
 
@@ -12,7 +14,7 @@ if ($heading === '') {
     return;
 }
 ?>
-<section class="<?= esc($bgColor) ?> py-12 sm:py-14 <?= esc($cssClass) ?>">
+<section class="<?= esc($bgColor) ?> py-10 sm:py-12 border-b border-slate-200 <?= esc($cssClass) ?>">
     <div class="container-base">
         <div class="max-w-4xl">
             <?php if ($breadcrumbLabel): ?>

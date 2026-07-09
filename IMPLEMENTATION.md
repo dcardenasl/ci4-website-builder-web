@@ -177,6 +177,7 @@ File: `app/Controllers/SitemapController.php`
 - Uses sitemap_priority and sitemap_changefreq from API
 - Caches generated XML (3600 seconds)
 - Returns Content-Type: application/xml
+- For a comprehensive guide on the database mappings, caching strategies, and tests, see the [SEO & Sitemaps Architecture Guide](file:///Users/davidcardenas/Developer/PHP/ci4-website-starter/docs/SEO_SITEMAP_ARCHITECTURE.md).
 
 ## 11. Routing Configuration
 File: `app/Config/Routes.php`

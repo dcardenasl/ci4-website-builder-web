@@ -9,7 +9,7 @@
         <?php endif; ?>
     <?php endif; ?>
 
-    <div class="prose max-w-none">
+    <div class="space-y-8 sm:space-y-10 py-6 sm:py-8">
         <?= $renderedBlocks ?? '' ?>
     </div>
 </article>

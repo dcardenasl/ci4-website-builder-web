@@ -89,62 +89,73 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
             role="dialog"
             aria-modal="true"
             aria-hidden="true"
-            class="fixed inset-0 z-[100] hidden flex-col justify-between bg-black/95 p-4 text-white select-none md:p-8"
+            class="fixed inset-0 z-[100] hidden flex-col bg-black/95 p-2 text-white select-none sm:p-4 md:p-8"
         >
-            <div class="flex justify-end p-2">
+            <!-- Close button (top-right) -->
+            <div class="flex justify-end flex-shrink-0">
                 <button
                     type="button"
                     data-gallery-close
                     class="rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    aria-label="Cerrar visor"
+                    aria-label="<?= esc(lang('Site.gallery_close_modal')) ?>"
+                    title="<?= esc(lang('Site.gallery_close_modal')) ?> (Esc)"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
-            <div class="flex flex-1 items-center justify-between gap-4 max-h-[80vh]">
+            <!-- Image and navigation -->
+            <div class="flex flex-1 items-center justify-between gap-2 sm:gap-3 md:gap-4 min-h-0 overflow-hidden">
+                <!-- Prev button -->
                 <button
                     type="button"
                     data-gallery-prev
-                    class="shrink-0 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    aria-label="Anterior"
+                    class="shrink-0 rounded-full bg-white/10 p-2 sm:p-3 text-white transition-colors hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50"
+                    aria-label="<?= esc(lang('Site.gallery_previous')) ?>"
+                    title="<?= esc(lang('Site.gallery_previous')) ?> (←)"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
 
-                <div class="relative flex h-full flex-1 items-center justify-center">
+                <!-- Image container -->
+                <div class="relative flex-1 flex items-center justify-center min-h-0 min-w-0">
                     <img
                         data-gallery-modal-image
                         src=""
                         alt=""
-                        class="max-h-[75vh] max-w-full rounded shadow-2xl object-contain transition-all duration-300"
+                        class="max-h-full max-w-full object-contain rounded shadow-2xl transition-all duration-300"
+                        decoding="async"
+                        onerror="this.classList.add('opacity-50'); this.alt='<?= esc(lang('Site.image_failed_to_load')) ?>';"
                     >
                 </div>
 
+                <!-- Next button -->
                 <button
                     type="button"
                     data-gallery-next
-                    class="shrink-0 rounded-full bg-white/10 p-3 text-white transition-colors hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
-                    aria-label="Siguiente"
+                    class="shrink-0 rounded-full bg-white/10 p-2 sm:p-3 text-white transition-colors hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50"
+                    aria-label="<?= esc(lang('Site.gallery_next')) ?>"
+                    title="<?= esc(lang('Site.gallery_next')) ?> (→)"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
             </div>
 
-            <div class="mx-auto max-w-2xl space-y-2 p-4 text-center text-white/90">
-                <p data-gallery-modal-caption class="text-base font-medium md:text-lg"></p>
-                <div class="flex flex-wrap items-center justify-center gap-3">
-                    <p data-gallery-modal-counter class="text-xs text-white/50"></p>
+            <!-- Caption and metadata (bottom) -->
+            <div class="flex-shrink-0 mx-auto max-w-2xl space-y-2 p-2 sm:p-4 text-center text-white/90 w-full">
+                <p data-gallery-modal-caption class="text-sm sm:text-base font-medium md:text-lg truncate"></p>
+                <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+                    <p data-gallery-modal-counter class="text-xs text-white/50 flex-shrink-0"></p>
                     <a
                         data-gallery-modal-link
                         href="#"
-                        class="hidden rounded-full bg-white/15 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-white/25"
+                        class="hidden rounded-full bg-white/15 px-3 py-1.5 sm:px-4 sm:py-2 text-xs font-semibold text-white transition-colors hover:bg-white/25 flex-shrink-0"
                     >
                         <?= esc(lang('Site.gallery_view_page')) ?>
                     </a>
@@ -156,7 +167,7 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
 
 <script>
 (function () {
-    const root = document.querySelector('[data-gallery-id="<?= esc($galleryId, 'js') ?>"]');
+    const root = document.querySelector('[data-gallery-id="<?= esc($galleryId) ?>"]');
     if (!root || root.dataset.galleryInitialized === '1') {
         return;
     }
@@ -194,7 +205,11 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
         if (isInteractiveMode) {
             item.setAttribute('role', 'button');
             item.setAttribute('tabindex', '0');
-            item.classList.add('cursor-zoom-in');
+            if (mode === 'inline_preview') {
+                item.classList.add('cursor-pointer');
+            } else {
+                item.classList.add('cursor-zoom-in');
+            }
             const data = getItemData(index);
             const ariaLabel = data && data.caption
                 ? openImageCaptionLabel.replace('{caption}', data.caption)
@@ -214,7 +229,7 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
             }
 
             if (mode === 'inline_preview') {
-                setInlinePreview(index, data);
+                updateInlinePreview(index, data);
                 return;
             }
 
@@ -235,7 +250,7 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
             }
 
             if (mode === 'inline_preview') {
-                setInlinePreview(index, data);
+                updateInlinePreview(index, data);
                 return;
             }
 
@@ -245,36 +260,42 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
         });
     };
 
+    let previewImage = null;
+    let previewEmpty = null;
+    let previewCaption = null;
+    let previewAlt = null;
+    let previewCounter = null;
+
+    const updateInlinePreview = (index, data) => {
+        if (!previewImage || !previewEmpty || !previewCaption || !previewAlt || !previewCounter) {
+            return;
+        }
+
+        root.querySelectorAll('[data-gallery-item]').forEach((item, itemIndex) => {
+            previewActiveClasses.forEach((className) => item.classList.toggle(className, itemIndex === index));
+        });
+
+        previewImage.src = data.url;
+        previewImage.alt = data.alt || '';
+        previewImage.classList.remove('hidden');
+        previewEmpty.classList.add('hidden');
+        previewCaption.textContent = data.caption || data.alt || '';
+        previewAlt.textContent = data.alt || '';
+        previewCounter.textContent = `${index + 1} / ${items.length}`;
+    };
+
     items.forEach((item, index) => {
         bindInteractiveItem(item, index);
     });
 
     if (mode === 'inline_preview') {
-        const previewImage = root.querySelector('[data-gallery-preview-image]');
-        const previewEmpty = root.querySelector('[data-gallery-preview-empty]');
-        const previewCaption = root.querySelector('[data-gallery-preview-caption]');
-        const previewAlt = root.querySelector('[data-gallery-preview-alt]');
-        const previewCounter = root.querySelector('[data-gallery-preview-counter]');
+        previewImage = root.querySelector('[data-gallery-preview-image]');
+        previewEmpty = root.querySelector('[data-gallery-preview-empty]');
+        previewCaption = root.querySelector('[data-gallery-preview-caption]');
+        previewAlt = root.querySelector('[data-gallery-preview-alt]');
+        previewCounter = root.querySelector('[data-gallery-preview-counter]');
 
-        const setInlinePreview = (index, data) => {
-            if (!previewImage || !previewEmpty || !previewCaption || !previewAlt || !previewCounter) {
-                return;
-            }
-
-            root.querySelectorAll('[data-gallery-item]').forEach((item, itemIndex) => {
-                previewActiveClasses.forEach((className) => item.classList.toggle(className, itemIndex === index));
-            });
-
-            previewImage.src = data.url;
-            previewImage.alt = data.alt || '';
-            previewImage.classList.remove('hidden');
-            previewEmpty.classList.add('hidden');
-            previewCaption.textContent = data.caption || data.alt || '';
-            previewAlt.textContent = data.alt || '';
-            previewCounter.textContent = `${index + 1} / ${items.length}`;
-        };
-
-        setInlinePreview(0, getItemData(0));
+        updateInlinePreview(0, getItemData(0));
         return;
     }
 
@@ -313,6 +334,39 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
         }
     };
 
+    const updateNavButtonStates = () => {
+        const isFirst = activeIndex === 0;
+        const isLast = activeIndex === items.length - 1;
+
+        if (prevButton) {
+            prevButton.setAttribute('aria-disabled', isFirst ? 'true' : 'false');
+            prevButton.style.opacity = isFirst ? '0.5' : '1';
+            prevButton.style.pointerEvents = isFirst ? 'none' : 'auto';
+        }
+        if (nextButton) {
+            nextButton.setAttribute('aria-disabled', isLast ? 'true' : 'false');
+            nextButton.style.opacity = isLast ? '0.5' : '1';
+            nextButton.style.pointerEvents = isLast ? 'none' : 'auto';
+        }
+    };
+
+    const focusTrap = (event) => {
+        if (!modal || modal.classList.contains('hidden')) {
+            return;
+        }
+        const focusableElements = modal.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])');
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+            event.preventDefault();
+            lastElement?.focus?.();
+        } else if (!event.shiftKey && document.activeElement === lastElement) {
+            event.preventDefault();
+            firstElement?.focus?.();
+        }
+    };
+
     const openModal = (index, data) => {
         if (!modal || !data) {
             return;
@@ -320,9 +374,13 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
 
         previousFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         renderModal(index);
+        updateNavButtonStates();
         modal.classList.remove('hidden');
         modal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('overflow-hidden');
+
+        // Focus trap setup
+        modal.addEventListener('keydown', focusTrap);
         closeButton?.focus?.();
     };
 
@@ -331,6 +389,7 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
             return;
         }
 
+        modal.removeEventListener('keydown', focusTrap);
         modal.classList.add('hidden');
         modal.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('overflow-hidden');
@@ -344,6 +403,7 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
 
         const nextIndex = (activeIndex + delta + items.length) % items.length;
         renderModal(nextIndex);
+        updateNavButtonStates();
     };
 
     closeButton?.addEventListener('click', closeModal);

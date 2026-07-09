@@ -4,6 +4,12 @@ export default {
     './app/Views/**/*.php',
     './public/**/*.html',
   ],
+  safelist: [
+    // Background colors for dynamic config values
+    { pattern: /^bg-(slate|gray|stone|zinc|neutral|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|100|200|300|400|500|600|700|800|900|950)/ },
+    // Gradient colors
+    { pattern: /^(from|via|to)-(slate|gray|stone|zinc|neutral|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(50|100|200|300|400|500|600|700|800|900|950)/ },
+  ],
   theme: {
     extend: {
       colors: {

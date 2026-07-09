@@ -16,12 +16,12 @@ if ($imageUrl === ''): ?>
         <img
             src="<?= esc($imageUrl) ?>"
             alt="<?= esc($alt) ?>"
-            class="w-full h-auto"
+            class="w-full h-auto rounded-3xl border border-slate-200/40 shadow-sm transition-all duration-300 hover:shadow-md"
             loading="lazy"
             decoding="async"
         />
         <?php if (! empty($caption)): ?>
-            <figcaption class="mt-2 text-center text-sm text-gray-600">
+            <figcaption class="mt-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-450">
                 <?= esc((string) $caption) ?>
             </figcaption>
         <?php endif; ?>
