@@ -1,42 +1,16 @@
 <?php
-/** @var array<string, mixed> $block */
-/** @var array<string, mixed> $config */
-/** @var array<string, mixed> $data */
-
-$logos = [];
-foreach ($block['children'] ?? [] as $child) {
-    if (($child['block_key'] ?? '') !== 'asset_item') {
-        continue;
-    }
-    $childData = $child['block_data'] ?? [];
-    
-    $logos[] = [
-        'logo_url' => (string) ($childData['logo_url'] ?? ''),
-        'name'     => (string) ($childData['name'] ?? ''),
-        'link_url' => (string) ($childData['link_url'] ?? ''),
-    ];
-}
+/** @var list<array{logo_url: string, name: string, link_url: string}> $logos */
+/** @var string $layout */
+/** @var string $speed */
+/** @var bool $grayscale */
+/** @var bool $isMarquee */
+/** @var string $duration */
+/** @var string $logoStyleClass */
+/** @var string $cssClass */
 
 if ($logos === []) {
     return;
 }
-
-$layout = (string) ($config['layout'] ?? 'marquee');
-$speed = (string) ($config['speed'] ?? 'normal');
-$grayscale = filter_var($config['grayscale'] ?? true, FILTER_VALIDATE_BOOL);
-$cssClass = trim((string) ($config['css_class'] ?? ''));
-
-$isMarquee = $layout === 'marquee';
-
-// Speed matching
-$duration = '25s';
-if ($speed === 'slow') {
-    $duration = '40s';
-} elseif ($speed === 'fast') {
-    $duration = '12s';
-}
-
-$logoStyleClass = $grayscale ? 'filter grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300' : 'opacity-80 hover:opacity-100 transition-all duration-300';
 ?>
 
 <section class="py-6 overflow-hidden <?= esc($cssClass) ?>">
