@@ -43,7 +43,25 @@ class FormController extends BasePublicWebController
         $errors = [];
 
         foreach ($fields as $field) {
-            $key   = $field['field_key'] ?? '';
+            $key       = $field['field_key'] ?? '';
+            $fieldType = $field['field_type'] ?? 'text';
+            $isChoice  = in_array($fieldType, ['select', 'radio', 'checkbox'], true);
+
+            if ($fieldType === 'checkbox') {
+                $selected = $this->postStringList($key);
+
+                if (! empty($field['is_required']) && $selected === []) {
+                    $errors[$key] = $field['error_required'] ?? 'Este campo es obligatorio.';
+                    continue;
+                }
+
+                if ($selected !== [] && ! $this->valuesAllowed($selected, $field)) {
+                    $errors[$key] = $field['error_invalid'] ?? 'Selección inválida.';
+                }
+
+                continue;
+            }
+
             $value = $this->postString($key);
 
             if (! empty($field['is_required']) && trim($value) === '') {
@@ -51,10 +69,17 @@ class FormController extends BasePublicWebController
                 continue;
             }
 
-            if ($value !== '' && ($field['field_type'] ?? '') === 'email') {
-                if (! filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                    $errors[$key] = $field['error_invalid'] ?? 'Introduce un email válido.';
-                }
+            if ($value === '') {
+                continue;
+            }
+
+            if ($fieldType === 'email' && ! filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                $errors[$key] = $field['error_invalid'] ?? 'Introduce un email válido.';
+                continue;
+            }
+
+            if ($isChoice && ! $this->valuesAllowed([$value], $field)) {
+                $errors[$key] = $field['error_invalid'] ?? 'Selección inválida.';
             }
         }
 
@@ -75,9 +100,15 @@ class FormController extends BasePublicWebController
         // ── 2. Build sanitised form data ──────────────────────────────────
         $formData = [];
         foreach ($fields as $field) {
-            $key        = $field['field_key'] ?? '';
-            $raw        = $this->postString($key);
-            $fieldType  = $field['field_type'] ?? 'text';
+            $key       = $field['field_key'] ?? '';
+            $fieldType = $field['field_type'] ?? 'text';
+
+            if ($fieldType === 'checkbox') {
+                $formData[$key] = array_map('strip_tags', $this->postStringList($key));
+                continue;
+            }
+
+            $raw = $this->postString($key);
 
             $formData[$key] = $fieldType === 'email'
                 ? strtolower(trim($raw))
@@ -109,6 +140,56 @@ class FormController extends BasePublicWebController
         $value = $this->request->getPost($key);
 
         return is_string($value) ? $value : '';
+    }
+
+    /**
+     * POST value as a list of strings, for checkbox-group fields submitted as
+     * `name="field[]"`. Non-array payloads become an empty list.
+     *
+     * @return list<string>
+     */
+    private function postStringList(string $key): array
+    {
+        $value = $this->request->getPost($key);
+
+        if (! is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(
+            static fn (mixed $item): string => is_scalar($item) ? trim((string) $item) : '',
+            $value
+        ), static fn (string $item): bool => $item !== ''));
+    }
+
+    /**
+     * Whether every submitted value is one of the field's configured option
+     * values. Fields without an options list (or a non-choice type) pass
+     * trivially — this only guards select/radio/checkbox against tampered
+     * requests submitting values that were never offered in the form.
+     *
+     * @param list<string>          $values
+     * @param array<string, mixed>  $field
+     */
+    private function valuesAllowed(array $values, array $field): bool
+    {
+        $options = $field['options'] ?? [];
+        if (! is_array($options) || $options === []) {
+            return true;
+        }
+
+        $allowed = array_map(
+            static fn (mixed $opt): string => is_array($opt) ? (string) ($opt['value'] ?? '') : '',
+            $options
+        );
+
+        foreach ($values as $value) {
+            if (! in_array($value, $allowed, true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // ── Locale detection ──────────────────────────────────────────────────

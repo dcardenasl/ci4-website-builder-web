@@ -102,6 +102,7 @@ $errors = (array) (session()->getFlashdata("form_errors_{$formKey}") ?? []);
                                 <?php
                                 $fKey         = (string) ($field['field_key'] ?? '');
                                 $fType        = (string) ($field['field_type'] ?? 'text');
+                                $fOptions     = is_array($field['options'] ?? null) ? $field['options'] : [];
                                 $label        = (string) ($field['label'] ?? $fKey);
                                 $placeholder  = (string) ($field['placeholder'] ?? '');
                                 $helpText     = (string) ($field['help_text'] ?? '');
@@ -124,6 +125,49 @@ $errors = (array) (session()->getFlashdata("form_errors_{$formKey}") ?? []);
                                                   rows="6"
                                                   placeholder="<?= esc($placeholder) ?>"
                                                   class="<?= $inputClass . $errorClass ?> block min-h-[9rem] w-full resize-none"><?= $oldValue ?></textarea>
+                                    <?php elseif ($fType === 'select'): ?>
+                                        <select id="<?= $inputId ?>"
+                                                name="<?= esc($fKey) ?>"
+                                                <?= $isRequired ? 'required' : '' ?>
+                                                class="<?= $inputClass . $errorClass ?> w-full">
+                                            <option value="" <?= $oldValue === '' ? 'selected' : '' ?>><?= esc($placeholder !== '' ? $placeholder : '—') ?></option>
+                                            <?php foreach ($fOptions as $opt): ?>
+                                                <?php $optValue = (string) ($opt['value'] ?? ''); ?>
+                                                <option value="<?= esc($optValue) ?>" <?= $oldValue === $optValue ? 'selected' : '' ?>>
+                                                    <?= esc((string) ($opt['label'] ?? $optValue)) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php elseif ($fType === 'radio'): ?>
+                                        <div id="<?= $inputId ?>" class="space-y-2">
+                                            <?php foreach ($fOptions as $i => $opt): ?>
+                                                <?php $optValue = (string) ($opt['value'] ?? ''); ?>
+                                                <label class="flex items-center gap-2 text-sm text-slate-700">
+                                                    <input type="radio"
+                                                           name="<?= esc($fKey) ?>"
+                                                           value="<?= esc($optValue) ?>"
+                                                           <?= $oldValue === $optValue ? 'checked' : '' ?>
+                                                           <?= $isRequired ? 'required' : '' ?>
+                                                           class="h-4 w-4 border-slate-300 text-primary focus:ring-primary" />
+                                                    <?= esc((string) ($opt['label'] ?? $optValue)) ?>
+                                                </label>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php elseif ($fType === 'checkbox'): ?>
+                                        <?php $oldSelected = array_map('strval', (array) old($fKey, [])); ?>
+                                        <div id="<?= $inputId ?>" class="space-y-2">
+                                            <?php foreach ($fOptions as $opt): ?>
+                                                <?php $optValue = (string) ($opt['value'] ?? ''); ?>
+                                                <label class="flex items-center gap-2 text-sm text-slate-700">
+                                                    <input type="checkbox"
+                                                           name="<?= esc($fKey) ?>[]"
+                                                           value="<?= esc($optValue) ?>"
+                                                           <?= in_array($optValue, $oldSelected, true) ? 'checked' : '' ?>
+                                                           class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary" />
+                                                    <?= esc((string) ($opt['label'] ?? $optValue)) ?>
+                                                </label>
+                                            <?php endforeach; ?>
+                                        </div>
                                     <?php else: ?>
                                         <input type="<?= esc($fType) ?>"
                                                id="<?= $inputId ?>"
