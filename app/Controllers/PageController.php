@@ -34,6 +34,28 @@ class PageController extends BasePublicWebController
     }
 
     /**
+     * Reads the preview query params off the incoming request and forwards
+     * them opaquely — this app never validates the signature itself, only
+     * Domain does (PreviewToken::verify). Passing an invalid or missing
+     * signature through just means Domain falls back to published-only rules.
+     *
+     * @return array{0: bool, 1: ?string, 2: ?string}
+     */
+    private function previewParams(): array
+    {
+        $request = service('request');
+        $preview = $request->getGet('preview') === '1';
+        $previewExpires = $request->getGet('preview_expires');
+        $previewSig = $request->getGet('preview_sig');
+
+        return [
+            $preview,
+            is_string($previewExpires) ? $previewExpires : null,
+            is_string($previewSig) ? $previewSig : null,
+        ];
+    }
+
+    /**
      * Render the homepage.
      */
     public function home(): ResponseInterface
@@ -43,10 +65,11 @@ class PageController extends BasePublicWebController
         }
 
         $lang = service('request')->getLocale();
+        [$preview, $previewExpires, $previewSig] = $this->previewParams();
 
         // For now, try to fetch a page by slug 'home'
         $pageService = Services::sitePageService();
-        $page = $pageService->getBySlug($lang, 'home');
+        $page = $pageService->getBySlug($lang, 'home', $preview, $previewExpires, $previewSig);
 
         if (!$page) {
             return $this->notFound('Página de inicio no encontrada');
@@ -66,6 +89,7 @@ class PageController extends BasePublicWebController
 
         $lang = service('request')->getLocale();
         $path = trim(implode('/', $segments), '/');
+        [$preview, $previewExpires, $previewSig] = $this->previewParams();
 
         if (empty($path)) {
             return $this->home();
@@ -90,7 +114,7 @@ class PageController extends BasePublicWebController
             $remainder = $pathInfo['remainder'];
 
             if ($remainder === '') {
-                $page = $pageService->getBySlug($lang, $path);
+                $page = $pageService->getBySlug($lang, $path, $preview, $previewExpires, $previewSig);
                 if ($page && (string) ($page['page_type'] ?? '') === 'collection_index' && (int) ($page['collection_id'] ?? 0) === (int) ($collection['id'] ?? 0)) {
                     return $this->renderPage($page, $lang);
                 }
@@ -98,7 +122,7 @@ class PageController extends BasePublicWebController
                 return $this->notFound("No se encontró la página índice para la colección: {$path}");
             }
 
-            $entry = $entryService->getBySlug($lang, $collection['collection_key'], $remainder);
+            $entry = $entryService->getBySlug($lang, $collection['collection_key'], $remainder, $preview, $previewExpires, $previewSig);
 
             if ($entry) {
                 return $this->renderEntry($entry, $collection, $lang);
@@ -106,7 +130,7 @@ class PageController extends BasePublicWebController
         }
 
         // Step 2: Try CMS page by slug only when the path is not a collection route.
-        $page = $pageService->getBySlug($lang, $path);
+        $page = $pageService->getBySlug($lang, $path, $preview, $previewExpires, $previewSig);
 
         if ($page) {
             return $this->renderPage($page, $lang);

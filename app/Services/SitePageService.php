@@ -10,13 +10,28 @@ class SitePageService extends BaseSiteService
     private const CACHE_TTL_LIST = 600;   // 10 minutes for list
 
     /**
-     * Get a published page by slug.
+     * Get a page by slug (with optional preview support).
+     *
+     * preview_expires/preview_sig are forwarded opaquely — this app never
+     * validates them, only Domain does (PreviewToken::verify).
      *
      * @return array<string, mixed>|null
      */
-    public function getBySlug(string $lang, string $slug): ?array
+    public function getBySlug(string $lang, string $slug, bool $preview = false, ?string $previewExpires = null, ?string $previewSig = null): ?array
     {
-        return $this->fetchData("public/{$lang}/pages/{$slug}", [], self::CACHE_TTL_DETAIL, 'pages');
+        $query = [];
+        if ($preview) {
+            $query['preview'] = '1';
+            if ($previewExpires !== null) {
+                $query['preview_expires'] = $previewExpires;
+            }
+            if ($previewSig !== null) {
+                $query['preview_sig'] = $previewSig;
+            }
+        }
+        $ttl = $preview ? 0 : self::CACHE_TTL_DETAIL;
+
+        return $this->fetchData("public/{$lang}/pages/{$slug}", $query, $ttl, 'pages');
     }
 
     /**

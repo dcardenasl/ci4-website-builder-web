@@ -36,16 +36,31 @@ class SiteEntryService extends BaseSiteService
     }
 
     /**
-     * Get a single published entry by slug.
+     * Get a single entry by slug (with optional preview support).
+     *
+     * preview_expires/preview_sig are forwarded opaquely — this app never
+     * validates them, only Domain does (PreviewToken::verify).
      *
      * @return array<string, mixed>|null
      */
-    public function getBySlug(string $lang, string $collectionKey, string $slug): ?array
+    public function getBySlug(string $lang, string $collectionKey, string $slug, bool $preview = false, ?string $previewExpires = null, ?string $previewSig = null): ?array
     {
+        $query = [];
+        if ($preview) {
+            $query['preview'] = '1';
+            if ($previewExpires !== null) {
+                $query['preview_expires'] = $previewExpires;
+            }
+            if ($previewSig !== null) {
+                $query['preview_sig'] = $previewSig;
+            }
+        }
+        $ttl = $preview ? 0 : self::CACHE_TTL_DETAIL;
+
         return $this->fetchData(
             "public/{$lang}/entries/{$collectionKey}/{$slug}",
-            [],
-            self::CACHE_TTL_DETAIL,
+            $query,
+            $ttl,
             'entries'
         );
     }

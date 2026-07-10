@@ -16,6 +16,18 @@ class CollectionListingViewModel extends AbstractBlockViewModel
     {
         $collectionId = $this->configInt('collection_id', 0);
         $collection = $this->resolveCollection($collectionId);
+
+        if ($collection === null && str_contains(service('request')->getUri()->getPath(), 'blocks/preview')) {
+            $collection = [
+                'id' => 999,
+                'name' => 'Colección de Ejemplo',
+                'collection_key' => 'mock-collection',
+                'slug' => 'mock-collection',
+                'listing_title' => 'Colección de Ejemplo en Vista Previa',
+                'default_meta_description' => 'Descripción de ejemplo para metadatos de la colección.',
+            ];
+        }
+
         $this->collection = $collection;
 
         if ($collection === null) {
@@ -80,6 +92,41 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             $result = \Config\Services::siteEntryService()->list($this->lang, $collectionKey, $query);
         } catch (\Throwable) {
             $result = ['data' => [], 'meta' => ['pagination' => []]];
+        }
+
+        if ((empty($result['data']) || !is_array($result['data'])) && str_contains(service('request')->getUri()->getPath(), 'blocks/preview')) {
+            $result = [
+                'data' => [
+                    [
+                        'id' => 1,
+                        'slug' => 'mock-entry-1',
+                        'title' => 'Caso de Éxito de Ejemplo 1',
+                        'summary' => 'Esta es una descripción corta para la primera entrada de ejemplo en la lista.',
+                        'published_at' => date('Y-m-d H:i:s'),
+                        'featured_image_url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
+                        'categories' => [['title' => 'Casos', 'slug' => 'casos']],
+                        'tags' => [['title' => 'Tag 1', 'slug' => 'tag-1']],
+                    ],
+                    [
+                        'id' => 2,
+                        'slug' => 'mock-entry-2',
+                        'title' => 'Lanzamiento de Producto Especial',
+                        'summary' => 'Esta es una descripción corta para la segunda entrada de ejemplo en la lista.',
+                        'published_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
+                        'featured_image_url' => 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80',
+                        'categories' => [['title' => 'Productos', 'slug' => 'productos']],
+                        'tags' => [['title' => 'Tag 2', 'slug' => 'tag-2']],
+                    ]
+                ],
+                'meta' => [
+                    'pagination' => [
+                        'currentPage' => 1,
+                        'totalPages' => 1,
+                        'perPage' => 12,
+                        'totalItems' => 2,
+                    ]
+                ]
+            ];
         }
 
         $categories = $this->configBool('show_categories', true)

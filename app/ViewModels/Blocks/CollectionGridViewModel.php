@@ -39,9 +39,7 @@ class CollectionGridViewModel extends AbstractBlockViewModel
             'layoutVariant'       => $layoutVariant,
             'cssClass'            => $this->configString('css_class'),
             'canonicalViewAllUrl' => $canonicalViewAllUrl,
-            'entries'             => $collectionKey !== ''
-                ? $this->entries($collectionKey, $itemsLimit, $orderBy, $orderDirection)
-                : [],
+            'entries'             => $this->resolvePreviewEntries($collectionKey, $itemsLimit, $orderBy, $orderDirection),
             'sectionClass'        => $layoutVariant === 'portfolio' ? 'py-16 sm:py-20 bg-slate-50/50' : 'py-12 sm:py-14',
             'containerClass'      => $layoutVariant === 'portfolio' ? 'max-w-6xl mx-auto px-4' : 'container-base',
             'gridClass'           => match ($layoutVariant) {
@@ -89,5 +87,55 @@ class CollectionGridViewModel extends AbstractBlockViewModel
         } catch (\Throwable) {
             return [];
         }
+    }
+
+    /**
+     * Resolve entries for preview mode, falling back to mock entries if empty.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function resolvePreviewEntries(string $collectionKey, int $itemsLimit, string $orderBy, string $orderDirection): array
+    {
+        $entries = [];
+        if ($collectionKey !== '') {
+            $entries = $this->entries($collectionKey, $itemsLimit, $orderBy, $orderDirection);
+        }
+
+        if ($entries === [] && str_contains(service('request')->getUri()->getPath(), 'blocks/preview')) {
+            return [
+                [
+                    'id' => 1,
+                    'slug' => 'mock-entry-1',
+                    'title' => 'Caso de Éxito de Ejemplo',
+                    'summary' => 'Resumen breve de la historia de éxito que ilustra la efectividad de nuestra metodología en proyectos reales.',
+                    'published_at' => date('Y-m-d H:i:s'),
+                    'featured_image_url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
+                    'categories' => [['title' => 'Casos de Éxito', 'slug' => 'casos']],
+                    'tags' => [['title' => 'Negocios', 'slug' => 'negocios']],
+                ],
+                [
+                    'id' => 2,
+                    'slug' => 'mock-entry-2',
+                    'title' => 'Lanzamiento de Nueva Solución',
+                    'summary' => 'Una descripción detallada de las ventajas y el impacto de nuestra última innovación tecnológica en el sector.',
+                    'published_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
+                    'featured_image_url' => 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80',
+                    'categories' => [['title' => 'Innovación', 'slug' => 'innovacion']],
+                    'tags' => [['title' => 'Tecnología', 'slug' => 'tecnologia']],
+                ],
+                [
+                    'id' => 3,
+                    'slug' => 'mock-entry-3',
+                    'title' => 'Mejores Prácticas en el Sector',
+                    'summary' => 'Una guía completa de las tendencias actuales y recomendaciones clave para optimizar procesos y flujos de trabajo.',
+                    'published_at' => date('Y-m-d H:i:s', strtotime('-2 days')),
+                    'featured_image_url' => 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=600&q=80',
+                    'categories' => [['title' => 'Educación', 'slug' => 'educacion']],
+                    'tags' => [['title' => 'Guías', 'slug' => 'guias']],
+                ]
+            ];
+        }
+
+        return $entries;
     }
 }

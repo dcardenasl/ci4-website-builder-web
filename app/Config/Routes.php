@@ -17,6 +17,10 @@ $routes->post('cache/invalidate', 'CacheController::invalidate', ['as' => 'cache
 // Dynamic form submissions
 $routes->post('forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit', 'filter' => 'throttle:10,60']);
 
+// Block Preview (called from admin panel) — unauthenticated, so throttled like
+// the other public POST routes above.
+$routes->post('blocks/preview', 'BlockPreviewController::preview', ['as' => 'blocks_preview', 'filter' => 'throttle:10,60']);
+
 // Restrict routes with {locale} to Config\App::$supportedLocales
 $routes->useSupportedLocalesOnly(true);
 
