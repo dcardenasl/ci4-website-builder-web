@@ -57,13 +57,39 @@ jobs:
           echo 'WEB_API_KEY = ci_testing_key' >> .env
 
       - name: PHP CS Fixer (style check)
-        run: composer cs-check
+        run: composer format:check
 
       - name: PHPStan (static analysis)
-        run: composer phpstan
+        run: composer analyse
 
       # The web app has no database; feature tests (SEO, page resolution) need a
       # live Domain API and are excluded here. Unit tests mock WebApiClient and
       # run in isolation.
       - name: Unit tests
-        run: vendor/bin/phpunit tests/unit
+        run: composer test:unit
+
+  frontend:
+    name: Frontend quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.22.1'
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Lint JavaScript
+        run: npm run lint:js
+
+      - name: Build frontend assets
+        run: npm run build:all
+
+      - name: Audit frontend dependencies
+        run: npm audit --audit-level=moderate

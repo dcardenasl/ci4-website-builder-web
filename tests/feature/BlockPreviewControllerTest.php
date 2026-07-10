@@ -28,7 +28,7 @@ final class BlockPreviewControllerTest extends CIUnitTestCase
 
         $result->assertStatus(200);
         $result->assertHeader('Content-Type', 'application/json; charset=UTF-8');
-        
+
         $json = json_decode($result->getJSON(), true);
         $this->assertIsArray($json);
         $this->assertArrayHasKey('html', $json);
@@ -48,7 +48,7 @@ final class BlockPreviewControllerTest extends CIUnitTestCase
         $result = $this->post('blocks/preview', $payload);
 
         $result->assertStatus(200);
-        
+
         $json = json_decode($result->getJSON(), true);
         $this->assertStringContainsString('Previsualización de Banner', $json['html']);
         $this->assertStringContainsString('Este banner utiliza las tipografías y el diseño completo de tu sitio público.', $json['html']);
