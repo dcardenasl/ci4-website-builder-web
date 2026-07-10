@@ -22,6 +22,7 @@ module.exports = [
                 document: 'readonly',
                 fetch: 'readonly',
                 history: 'readonly',
+                navigator: 'readonly',
                 parseInt: 'readonly',
                 setInterval: 'readonly',
                 setTimeout: 'readonly',

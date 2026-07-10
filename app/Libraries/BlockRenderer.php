@@ -94,7 +94,11 @@ class BlockRenderer
             $viewData['config'] = $this->localizeUrlsInArray($config);
         }
 
-        return view($blockViewName, $viewData);
+        // saveData defaults to true (Config\View), which persists each view()
+        // call's variables into the shared view store for the rest of the
+        // request — a block field like "title" would otherwise leak into the
+        // page template rendered afterwards. Disable it for isolation.
+        return view($blockViewName, $viewData, ['saveData' => false]);
     }
 
     /**

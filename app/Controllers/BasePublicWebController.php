@@ -46,7 +46,16 @@ abstract class BasePublicWebController extends BaseController
             $data['schemaData'] = null;
         }
 
-        $body = view('layouts/public', $data);
+        // layouts/public.php forwards the full page data to nested partials
+        // (head, $view) as a single $data variable, so it needs it under its
+        // own 'data' key explicitly — it must not rely on Config\View's
+        // saveData persistence to leak it in as a side effect.
+        $data['data'] = $data;
+
+        // saveData:false — Config\View::$saveData defaults to true and would
+        // otherwise persist this render's data into the shared view store for
+        // the rest of the process (e.g. across PHPUnit test cases).
+        $body = view('layouts/public', $data, ['saveData' => false]);
         $etag = '"' . sha1($body) . '"';
 
         return $this->response

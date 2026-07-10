@@ -196,6 +196,43 @@ class PageController extends BasePublicWebController
         $translation = $this->getEntryTranslation($entry, $lang);
 
         $collectionUrlPath = collection_url_path($collection);
+        $canonicalUrl = ($translation['canonical_url'] ?? '') !== ''
+            ? $translation['canonical_url']
+            : site_url('/' . $lang . $collectionUrlPath . '/' . ltrim((string) ($translation['slug'] ?? ''), '/'));
+
+        $allowedOgTypes = ['article', 'website'];
+        $ogType = in_array($translation['og_type'] ?? '', $allowedOgTypes, true) ? $translation['og_type'] : 'article';
+
+        // The API serializes CodeIgniter Time fields (e.g. updated_at) as
+        // {date, timezone_type, timezone} rather than a plain string.
+        $updatedAtRaw = $entry['updated_at'] ?? null;
+        $articleModifiedTime = is_array($updatedAtRaw) ? ($updatedAtRaw['date'] ?? null) : $updatedAtRaw;
+
+        $relatedEntries = [];
+        try {
+            $relatedEntries = Services::siteEntryService()->related(
+                $lang,
+                $collection['collection_key'],
+                ['slug' => $translation['slug'] ?? '', 'categories' => $entry['categories'] ?? []],
+                3
+            );
+        } catch (\Throwable) {
+            $relatedEntries = [];
+        }
+
+        // Entries whose own blocks already render a heading/hero image must not
+        // duplicate the article template's hardcoded title/featured image.
+        $hasHeroHeading = false;
+        $hasHeroImage = false;
+        foreach (($entry['blocks'] ?? []) as $block) {
+            $blockKey = $block['block_key'] ?? '';
+            if (in_array($blockKey, ['hero_slider', 'hero_banner', 'page_header'], true)) {
+                $hasHeroHeading = true;
+            }
+            if (in_array($blockKey, ['hero_slider', 'hero_banner'], true)) {
+                $hasHeroImage = true;
+            }
+        }
 
         $data = [
             'title'               => $translation['title'] ?? '',
@@ -207,13 +244,17 @@ class PageController extends BasePublicWebController
             'tags'                => $entry['tags'] ?? [],
             'collectionName'      => $collection['listing_title'] ?? $collection['name'] ?? '',
             'collectionUrlPath'   => $collectionUrlPath,
+            'relatedEntries'      => $relatedEntries,
+            'showEntryHeading'    => ! $hasHeroHeading,
+            'showFeaturedImage'   => ! $hasHeroImage,
             'lang'                => $lang,
             'pageTitle'           => $translation['meta_title'] ?? $translation['title'] ?? '',
             'metaDescription'     => $translation['meta_description'] ?? $translation['excerpt'] ?? '',
-            'canonicalUrl'        => ($translation['canonical_url'] ?? '') !== ''
-                ? $translation['canonical_url']
-                : site_url('/' . $lang . $collectionUrlPath . '/' . ltrim((string) ($translation['slug'] ?? ''), '/')),
+            'canonicalUrl'        => $canonicalUrl,
             'ogImage'             => $translation['og_image_url'] ?? ($entry['featured_image_url'] ?? ''),
+            'ogType'              => $ogType,
+            'articlePublishedTime' => $entry['published_at'] ?? null,
+            'articleModifiedTime'  => $articleModifiedTime,
             'metaRobots'          => $translation['robots'] ?? 'index, follow',
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'      => $blockRenderer->render($entry['blocks'] ?? [], $lang),

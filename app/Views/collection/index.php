@@ -77,7 +77,7 @@ $buildUrl = static function (array $params) use ($urlPath): string {
                         'entry'               => $entry,
                         'collectionUrlPath' => $urlPath,
                         'lang'                => $lang,
-                    ]) ?>
+                    ], ['saveData' => false]) ?>
                 <?php endforeach; ?>
             </div>
         <?php else: ?>

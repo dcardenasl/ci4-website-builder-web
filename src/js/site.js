@@ -11,6 +11,7 @@ import { initCardsSliders } from './components/cardsSlider.js';
 import { initMetricsCounters } from './components/metricsCounter.js';
 import { initVideoPlayers } from './components/videoPlayer.js';
 import { initCollectionFilters } from './components/collectionFilters.js';
+import { initShareButtons } from './components/shareButtons.js';
 
 const boot = () => {
   initMobileDrawer();
@@ -19,6 +20,7 @@ const boot = () => {
   initMetricsCounters();
   initVideoPlayers();
   initCollectionFilters();
+  initShareButtons();
 };
 
 if (document.readyState === 'loading') {

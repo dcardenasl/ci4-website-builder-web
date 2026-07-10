@@ -19,16 +19,41 @@ if ($faviconUrl === '') {
     $faviconUrl = (string) ($settings['favicon_url'] ?? '');
 }
 $resolvedOgImage = $ogImage ?? ($siteLogoUrl !== '' ? $siteLogoUrl : null);
+$resolvedOgType = $ogType ?? 'website';
+$resolvedCanonicalUrl = $canonicalUrl ?? site_url(service('request')->getPath());
 
 $resolvedSchemaData = $schemaData ?? null;
 if (! is_array($resolvedSchemaData) || $resolvedSchemaData === []) {
-    $resolvedSchemaData = [
-        '@context' => 'https://schema.org',
-        '@type' => 'WebPage',
-        'name' => $resolvedTitle,
-        'url' => $canonicalUrl ?? site_url(service('request')->getPath()),
-        'description' => $resolvedDescription,
-    ];
+    if ($resolvedOgType === 'article') {
+        $siteName = (string) ($settings['site_name'] ?? $settings['site_title'] ?? '');
+        $publisher = $siteName !== '' || $siteLogoUrl !== ''
+            ? array_filter([
+                '@type' => 'Organization',
+                'name'  => $siteName !== '' ? $siteName : null,
+                'logo'  => $siteLogoUrl !== '' ? ['@type' => 'ImageObject', 'url' => $siteLogoUrl] : null,
+            ], static fn ($v) => $v !== null)
+            : null;
+
+        $resolvedSchemaData = array_filter([
+            '@context'         => 'https://schema.org',
+            '@type'            => 'Article',
+            'headline'         => $resolvedTitle,
+            'description'      => $resolvedDescription,
+            'image'            => $resolvedOgImage !== null ? [$resolvedOgImage] : null,
+            'datePublished'    => ! empty($articlePublishedTime) ? date('c', strtotime((string) $articlePublishedTime)) : null,
+            'dateModified'     => ! empty($articleModifiedTime) ? date('c', strtotime((string) $articleModifiedTime)) : null,
+            'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $resolvedCanonicalUrl],
+            'publisher'        => $publisher,
+        ], static fn ($v) => $v !== null);
+    } else {
+        $resolvedSchemaData = [
+            '@context' => 'https://schema.org',
+            '@type' => 'WebPage',
+            'name' => $resolvedTitle,
+            'url' => $resolvedCanonicalUrl,
+            'description' => $resolvedDescription,
+        ];
+    }
 }
 
 $analyticsProvider = $settings['analytics_provider'] ?? 'none';
@@ -63,7 +88,14 @@ $analyticsId       = $settings['analytics_id'] ?? '';
 
 <meta property="og:title" content="<?= esc($resolvedTitle) ?>">
 <meta property="og:description" content="<?= esc($resolvedDescription) ?>">
-<meta property="og:type" content="website">
+<meta property="og:type" content="<?= esc($resolvedOgType) ?>">
+
+<?php if ($resolvedOgType === 'article' && ! empty($articlePublishedTime)): ?>
+    <meta property="article:published_time" content="<?= esc(date('c', strtotime((string) $articlePublishedTime))) ?>">
+<?php endif; ?>
+<?php if ($resolvedOgType === 'article' && ! empty($articleModifiedTime)): ?>
+    <meta property="article:modified_time" content="<?= esc(date('c', strtotime((string) $articleModifiedTime))) ?>">
+<?php endif; ?>
 
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="<?= esc($resolvedTitle) ?>">

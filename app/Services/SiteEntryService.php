@@ -49,4 +49,52 @@ class SiteEntryService extends BaseSiteService
             'entries'
         );
     }
+
+    /**
+     * Entries related to the given one: same collection, preferring a shared
+     * category, always excluding the entry itself.
+     *
+     * @param array<string, mixed> $entry Current entry (needs 'slug' and optionally 'categories')
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function related(string $lang, string $collectionKey, array $entry, int $limit = 3): array
+    {
+        $currentSlug = (string) ($entry['slug'] ?? '');
+        $categories = is_array($entry['categories'] ?? null) ? $entry['categories'] : [];
+        $categorySlug = is_array($categories[0] ?? null) ? (string) ($categories[0]['slug'] ?? '') : '';
+
+        $baseQuery = [
+            'per_page'        => $limit + 1,
+            'order_by'        => 'published_at',
+            'order_direction' => 'desc',
+        ];
+
+        $entries = [];
+        if ($categorySlug !== '') {
+            $entries = $this->filteredList($lang, $collectionKey, $baseQuery + ['category' => $categorySlug], $currentSlug);
+        }
+
+        if (count($entries) < $limit) {
+            $entries = $this->filteredList($lang, $collectionKey, $baseQuery, $currentSlug);
+        }
+
+        return array_slice($entries, 0, $limit);
+    }
+
+    /**
+     * @param array<string, mixed> $query
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function filteredList(string $lang, string $collectionKey, array $query, string $excludeSlug): array
+    {
+        $result = $this->list($lang, $collectionKey, $query);
+        $entries = is_array($result['data'] ?? null) ? $result['data'] : [];
+
+        return array_values(array_filter(
+            $entries,
+            static fn ($e) => is_array($e) && (string) ($e['slug'] ?? '') !== $excludeSlug
+        ));
+    }
 }

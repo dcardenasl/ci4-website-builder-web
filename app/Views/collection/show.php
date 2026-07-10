@@ -11,6 +11,8 @@
  * @var string $collectionUrlPath
  * @var string $collectionName
  * @var string $renderedBlocks
+ * @var bool $showEntryHeading
+ * @var bool $showFeaturedImage
  */
 $isPortfolio  = ($collection['collection_key'] ?? '') === 'portafolio';
 $backLabel    = $isPortfolio
@@ -18,6 +20,11 @@ $backLabel    = $isPortfolio
     : (($lang === 'en') ? 'Back to News' : 'Volver a Noticias');
 $tagsLabel    = ($lang === 'en') ? 'Tags' : 'Etiquetas';
 $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
+$shareLabel   = ($lang === 'en') ? 'Share' : 'Compartir';
+$copyLabel    = ($lang === 'en') ? 'Copy link' : 'Copiar enlace';
+$copiedLabel  = ($lang === 'en') ? 'Copied!' : '¡Copiado!';
+$relatedLabel = ($lang === 'en') ? 'Related stories' : 'Historias relacionadas';
+$shareUrl     = $canonicalUrl ?? '';
 ?>
 
 <!-- ── Breadcrumb ─────────────────────────────────────────────────── -->
@@ -54,9 +61,11 @@ $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
                 </div>
             <?php endif; ?>
 
-            <h1 class="section-title text-3xl sm:text-4xl leading-tight mb-4">
-                <?= esc($title) ?>
-            </h1>
+            <?php if ($showEntryHeading ?? true): ?>
+                <h1 class="section-title text-3xl sm:text-4xl leading-tight mb-4">
+                    <?= esc($title) ?>
+                </h1>
+            <?php endif; ?>
 
             <div class="flex items-center gap-4 text-sm text-text-muted">
                 <?php if (!empty($published_at) && !$isPortfolio): ?>
@@ -69,7 +78,7 @@ $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
         </header>
 
         <!-- Featured image -->
-        <?php if (!empty($featured_image_url)): ?>
+        <?php if (!empty($featured_image_url) && ($showFeaturedImage ?? true)): ?>
             <figure class="mb-8 -mx-4 sm:mx-0 overflow-hidden sm:rounded-xl">
                 <img src="<?= esc($featured_image_url) ?>"
                      alt="<?= esc($title) ?>"
@@ -93,6 +102,32 @@ $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
             </div>
         <?php endif; ?>
 
+        <!-- Share -->
+        <div class="divider mb-6"></div>
+        <div data-share-buttons
+             data-share-url="<?= esc($shareUrl) ?>"
+             data-share-title="<?= esc($title) ?>"
+             data-copy-label="<?= esc($copyLabel) ?>"
+             data-copied-label="<?= esc($copiedLabel) ?>"
+             class="flex flex-wrap items-center gap-2 mb-8">
+            <span class="text-sm font-medium text-text-secondary mr-1"><?= esc($shareLabel) ?>:</span>
+            <a href="https://wa.me/?text=<?= rawurlencode($title . ' ' . $shareUrl) ?>"
+               target="_blank" rel="noopener noreferrer"
+               class="btn btn-outline btn-sm">WhatsApp</a>
+            <a href="https://twitter.com/intent/tweet?text=<?= rawurlencode($title) ?>&url=<?= rawurlencode($shareUrl) ?>"
+               target="_blank" rel="noopener noreferrer"
+               class="btn btn-outline btn-sm">X</a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=<?= rawurlencode($shareUrl) ?>"
+               target="_blank" rel="noopener noreferrer"
+               class="btn btn-outline btn-sm">Facebook</a>
+            <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?= rawurlencode($shareUrl) ?>"
+               target="_blank" rel="noopener noreferrer"
+               class="btn btn-outline btn-sm">LinkedIn</a>
+            <button type="button" data-share-copy class="btn btn-outline btn-sm">
+                <span data-share-copy-label><?= esc($copyLabel) ?></span>
+            </button>
+        </div>
+
         <!-- Back link -->
         <div class="divider mb-8"></div>
         <a href="<?= lang_url($collectionUrlPath ?? '/') ?>"
@@ -102,3 +137,21 @@ $publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
 
     </div>
 </article>
+
+<!-- ── Related entries ────────────────────────────────────────────── -->
+<?php if (!empty($relatedEntries)): ?>
+    <section class="section bg-white border-t border-slate-100">
+        <div class="container-narrow">
+            <h2 class="section-title text-2xl mb-6"><?= esc($relatedLabel) ?></h2>
+            <div class="grid gap-6 md:grid-cols-3">
+                <?php foreach ($relatedEntries as $relatedEntry): ?>
+                    <?= view('collection/partials/entry_card', [
+                        'entry'              => $relatedEntry,
+                        'collectionUrlPath'  => $collectionUrlPath,
+                        'lang'               => $lang,
+                    ], ['saveData' => false]) ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+<?php endif; ?>
