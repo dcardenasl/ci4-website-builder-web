@@ -38,7 +38,7 @@ if ($imageUrl === '') {
         </style>
         <div class="min-w-0 text-white gallery-item-text">
             <?php if ($caption !== ''): ?>
-                <p class="truncate text-sm font-bold leading-tight"><?= esc($caption) ?></p>
+                <p class="truncate text-sm font-bold leading-tight text-white"><?= esc($caption) ?></p>
             <?php endif; ?>
             <?php if ($hasLink): ?>
                 <a

@@ -19,41 +19,52 @@
 @source "../../../app/Views/**/*.php";
 @source "./app/Views/**/*.php";
 
-html {
-  scroll-behavior: smooth;
-}
+/*
+ * These element defaults must live in Tailwind's `base` layer, not as
+ * unlayered CSS. Cascade layers rank unlayered author CSS above every
+ * `@layer` (including `utilities`) regardless of selector specificity, so a
+ * plain `p { color: ... }` here would permanently beat every `text-*` color
+ * utility applied to a <p> — directly or inherited from an ancestor — on any
+ * page. `@layer base` puts these back below `utilities`, where element
+ * defaults belong.
+ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 
-body {
-  background-color: #f8fafc;
-  color: #0f172a;
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-}
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  }
 
-h1, h2, h3, h4, h5, h6 {
-  color: #0f172a;
-  font-weight: 700;
-}
+  h1, h2, h3, h4, h5, h6 {
+    color: #0f172a;
+    font-weight: 700;
+  }
 
-h1 { font-size: 2.25rem; }
-h2 { font-size: 1.875rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; }
-h5 { font-size: 1.125rem; }
-h6 { font-size: 1rem; }
+  h1 { font-size: 2.25rem; }
+  h2 { font-size: 1.875rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.25rem; }
+  h5 { font-size: 1.125rem; }
+  h6 { font-size: 1rem; }
 
-p {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #475569;
-}
+  p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #475569;
+  }
 
-a {
-  color: #0369a1;
-  transition: color 0.2s;
-}
+  a {
+    color: #0369a1;
+    transition: color 0.2s;
+  }
 
-a:hover {
-  color: #06b6d4;
+  a:hover {
+    color: #06b6d4;
+  }
 }
 
 /* Buttons */

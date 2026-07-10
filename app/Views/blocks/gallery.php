@@ -149,7 +149,7 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
 
             <!-- Caption and metadata (bottom) -->
             <div class="flex-shrink-0 mx-auto max-w-2xl space-y-2 p-2 sm:p-4 text-center text-white/90 w-full">
-                <p data-gallery-modal-caption class="text-sm sm:text-base font-medium md:text-lg truncate"></p>
+                <p data-gallery-modal-caption class="text-sm sm:text-base font-medium md:text-lg truncate text-white/90"></p>
                 <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
                     <p data-gallery-modal-counter class="text-xs text-white/50 flex-shrink-0"></p>
                     <a
