@@ -91,7 +91,6 @@ php_errors.log
 vendor/
 node_modules/
 pnpm-lock.yaml
-package-lock.json
 
 #-------------------------
 # IDE / Development Files

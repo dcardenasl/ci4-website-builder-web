@@ -1,6 +1,10 @@
 {
   "name": "ci4-website-builder-web",
   "version": "1.0.0",
+  "packageManager": "npm@10.9.4",
+  "engines": {
+    "node": "^22.22.1 || >=24"
+  },
   "description": "Public website frontend powered by ci4-website-builder-domain",
   "scripts": {
     "build:css": "tailwindcss -i ./public/assets/css/app.css -o ./public/assets/css/compiled.css --minify",
@@ -17,12 +21,12 @@
     ]
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.39.2",
     "@tailwindcss/cli": "^4.3.0",
     "@tailwindcss/postcss": "^4.3.1",
     "autoprefixer": "^10.5.0",
     "esbuild": "^0.28.1",
-    "eslint": "^10.4.0",
+    "eslint": "^9.39.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
     "postcss": "^8.5.15",
