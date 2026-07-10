@@ -176,11 +176,16 @@ const initHeroCarousel = (root) => {
       }
     }
     if (captionCard || captionTitles.length) {
-      let resolvedTextColor = slide.text_color;
-      if (!resolvedTextColor) {
-        const captionPosition = root.dataset.captionPosition || 'below';
-        resolvedTextColor = captionPosition.startsWith('overlay') ? '#ffffff' : 'rgb(15, 23, 42)';
-      }
+      // slide.text_color is authored for the OVERLAY caption, which always sits on a
+      // dark `bg-slate-950/65` card — white is safe there. The BELOW caption instead
+      // sits directly on the plain page background, so it must never reuse that
+      // overlay-tuned color: it always uses the same dark tone as the rest of the
+      // page's below-hero copy, regardless of what the slide configured.
+      const captionPosition = root.dataset.captionPosition || 'below';
+      const isOverlayCaption = captionPosition.startsWith('overlay');
+      const resolvedTextColor = isOverlayCaption
+        ? (slide.text_color || '#ffffff')
+        : 'rgb(15, 23, 42)';
       // Set color on the heading itself too, not just the wrapping card: the global
       // `h1, h2, h3, h4, h5, h6` base rule targets <h2> directly, which always wins
       // over a color merely inherited from the parent.

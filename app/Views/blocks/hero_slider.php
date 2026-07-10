@@ -25,8 +25,14 @@ if ($slides === []) {
 // directly targets <h2>, and a directly-matching rule always wins over an inherited
 // value regardless of specificity — an inline style on the parent alone is silently
 // overridden.
+//
+// $text_color is configured per-slide for the OVERLAY caption, which always sits on
+// a dark `bg-slate-950/65` card regardless of the image — white is safe there. The
+// BELOW caption instead sits directly on the plain page background (no overlay, no
+// dark card), so it must never reuse that overlay-tuned color: it always uses the
+// same dark tone as the rest of the page's below-hero copy.
 $captionTextColorOverlay = !empty($slides[0]['text_color']) ? $slides[0]['text_color'] : '#ffffff';
-$captionTextColorBelow   = !empty($slides[0]['text_color']) ? $slides[0]['text_color'] : 'rgb(15, 23, 42)';
+$captionTextColorBelow   = 'rgb(15, 23, 42)';
 ?>
 
 <section class="py-0 <?= esc($cssClass) ?>">
