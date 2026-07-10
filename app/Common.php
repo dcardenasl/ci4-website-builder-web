@@ -46,20 +46,21 @@ if (! function_exists('lang_url')) {
 if (! function_exists('current_lang_url')) {
     /**
      * Get the current URL in a different locale.
+     *
+     * @param array<string, string>|null $localizedUrls The controller-computed
+     *      per-locale URLs for the current page/entry (translated collection
+     *      prefix + slug), keyed by locale. Pass the view's own `$localized_urls`
+     *      explicitly — this can no longer be read back from `service('renderer')`
+     *      because every `view()` call in the render chain uses `saveData: false`
+     *      (required to stop page data leaking into sibling partials), which also
+     *      means the renderer never persists this data for a later lookup.
      */
-    function current_lang_url(string $locale): string
+    function current_lang_url(string $locale, ?array $localizedUrls = null): string
     {
-        // If a controller has registered specific localized URLs (e.g. for pages/entries with translated slugs)
-        try {
-            $renderer = service('renderer');
-            $localizedUrls = $renderer->getData()['localized_urls'] ?? null;
-            if (is_array($localizedUrls) && isset($localizedUrls[$locale])) {
-                $uri = service('request')->getUri();
-                $query = $uri->getQuery();
-                return $localizedUrls[$locale] . ($query !== '' ? '?' . $query : '');
-            }
-        } catch (\Throwable) {
-            // Fall back if renderer is not loaded or throws
+        if (is_array($localizedUrls) && isset($localizedUrls[$locale])) {
+            $uri = service('request')->getUri();
+            $query = $uri->getQuery();
+            return $localizedUrls[$locale] . ($query !== '' ? '?' . $query : '');
         }
 
         $uri = service('request')->getUri();

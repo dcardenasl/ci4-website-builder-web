@@ -11,7 +11,7 @@
     <?= view('layouts/partials/head', $data ?? [], ['saveData' => false]) ?>
 </head>
 <body>
-    <?= view('layouts/partials/header', ['menu' => $mainMenu ?? [], 'settings' => $settings ?? []], ['saveData' => false]) ?>
+    <?= view('layouts/partials/header', ['menu' => $mainMenu ?? [], 'settings' => $settings ?? [], 'localized_urls' => $localized_urls ?? []], ['saveData' => false]) ?>
 
     <main>
         <?= view($view, $data ?? [], ['saveData' => false]) ?>

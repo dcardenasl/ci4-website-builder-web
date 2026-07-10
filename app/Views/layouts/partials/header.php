@@ -65,7 +65,7 @@
                 
                 <div class="absolute right-0 top-full mt-1.5 w-32 bg-white/95 backdrop-blur-md border border-slate-100 rounded-xl shadow-xl shadow-slate-100/50 opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-1 group-hover:translate-y-0 transition-all duration-300 py-1.5 z-50">
                     <?php foreach (config('App')->supportedLocales as $locale): ?>
-                        <a href="<?= esc(current_lang_url($locale)) ?>" 
+                        <a href="<?= esc(current_lang_url($locale, $localized_urls ?? null)) ?>"
                            class="block px-4 py-2 text-sm font-semibold uppercase text-center transition-colors <?= $locale === service('request')->getLocale() ? 'text-primary bg-slate-50' : 'text-slate-600 hover:text-primary hover:bg-slate-50' ?>">
                             <?= esc($locale) ?>
                         </a>
@@ -135,7 +135,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-3">Idioma / Language</span>
                 <div class="grid grid-cols-3 gap-2">
                     <?php foreach (config('App')->supportedLocales as $locale): ?>
-                        <a href="<?= esc(current_lang_url($locale)) ?>" 
+                        <a href="<?= esc(current_lang_url($locale, $localized_urls ?? null)) ?>"
                            class="text-center py-2.5 rounded-lg text-sm font-semibold border uppercase transition-colors <?= $locale === service('request')->getLocale() ? 'bg-slate-900 text-white border-slate-900' : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100/50' ?>">
                             <?= esc($locale) ?>
                         </a>

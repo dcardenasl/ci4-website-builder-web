@@ -76,10 +76,10 @@ $analyticsId       = $settings['analytics_id'] ?? '';
 <?php endif; ?>
 
 <?php foreach ($supportedLocales as $locale): ?>
-    <link rel="alternate" hreflang="<?= esc($locale) ?>" href="<?= esc(current_lang_url($locale)) ?>">
+    <link rel="alternate" hreflang="<?= esc($locale) ?>" href="<?= esc(current_lang_url($locale, $localized_urls ?? null)) ?>">
 <?php endforeach; ?>
 <?php if (! empty($defaultLocale)): ?>
-    <link rel="alternate" hreflang="x-default" href="<?= esc(current_lang_url($defaultLocale)) ?>">
+    <link rel="alternate" hreflang="x-default" href="<?= esc(current_lang_url($defaultLocale, $localized_urls ?? null)) ?>">
 <?php endif; ?>
 
 <?php if (! empty($resolvedOgImage)): ?>
