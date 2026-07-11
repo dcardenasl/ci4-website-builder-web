@@ -50,13 +50,16 @@ final class MetricsGridViewModelTest extends CIUnitTestCase
         ], 'es'))->vars();
 
         $this->assertStringContainsString('bg-slate-900', $dark['sectionClass']);
-        $this->assertSame('text-violet-400', $dark['numColorClass']);
+        $this->assertSame('text-accent', $dark['numColorClass']);
+        $this->assertSame('divide-slate-800', $dark['dividerClass']);
 
         $light = (new MetricsGridViewModel([
             'children' => [['block_key' => 'metric_item', 'block_data' => ['number' => '1']]],
         ], 'es'))->vars();
 
         $this->assertStringContainsString('bg-white', $light['sectionClass']);
+        $this->assertSame('text-primary', $light['numColorClass']);
+        $this->assertSame('divide-slate-100', $light['dividerClass']);
     }
 
     public function testColumnsAreClampedBetween2And4(): void

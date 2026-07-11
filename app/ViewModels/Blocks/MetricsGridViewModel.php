@@ -12,7 +12,7 @@ class MetricsGridViewModel extends AbstractBlockViewModel
         $variant = $this->configString('variant', 'light');
         $columns = min(4, max(2, $this->configInt('columns', count($stats))));
 
-        [$sectionClass, $numColorClass, $lblColorClass, $iconColorClass] = $this->variantClasses($variant);
+        [$sectionClass, $numColorClass, $lblColorClass, $iconColorClass, $dividerClass] = $this->variantClasses($variant);
 
         return [
             'stats'          => $stats,
@@ -26,6 +26,7 @@ class MetricsGridViewModel extends AbstractBlockViewModel
             'numColorClass'  => $numColorClass,
             'lblColorClass'  => $lblColorClass,
             'iconColorClass' => $iconColorClass,
+            'dividerClass'   => $dividerClass,
         ];
     }
 
@@ -67,30 +68,33 @@ class MetricsGridViewModel extends AbstractBlockViewModel
     }
 
     /**
-     * @return array{0: string, 1: string, 2: string, 3: string} [section, number color, label color, icon color]
+     * @return array{0: string, 1: string, 2: string, 3: string, 4: string} [section, number color, label color, icon color, divider color]
      */
     private function variantClasses(string $variant): array
     {
-        $base = 'rounded-3xl py-10 px-6 md:px-12 ';
+        $base = 'rounded-2xl py-10 px-6 md:px-12 ';
 
         return match ($variant) {
             'dark' => [
-                $base . 'bg-slate-900 border border-slate-800 text-white shadow-xl',
-                'text-violet-400',
+                $base . 'bg-slate-900 border border-slate-800 text-white shadow-md',
+                'text-accent',
                 'text-slate-400',
-                'text-violet-400 bg-slate-800',
+                'text-accent bg-slate-800',
+                'divide-slate-800',
             ],
             'primary' => [
-                $base . 'bg-gradient-to-tr from-violet-600 to-indigo-700 text-white shadow-lg shadow-violet-500/20',
-                'text-amber-300',
-                'text-violet-100/90',
-                'text-amber-300 bg-violet-800/50',
+                $base . 'bg-gradient-to-tr from-primary to-accent text-white shadow-md',
+                'text-white',
+                'text-sky-100/90',
+                'text-white bg-white/15',
+                'divide-white/10',
             ],
             default => [
-                $base . 'bg-white border border-slate-100 shadow-sm',
-                'text-violet-600',
-                'text-slate-600',
-                'text-violet-500 bg-violet-50',
+                $base . 'bg-white border border-slate-100/80 shadow-sm',
+                'text-primary',
+                'text-text-secondary',
+                'text-primary bg-sky-50',
+                'divide-slate-100',
             ],
         };
     }

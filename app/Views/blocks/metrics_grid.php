@@ -10,6 +10,7 @@
  * @var string $numColorClass
  * @var string $lblColorClass
  * @var string $iconColorClass
+ * @var string $dividerClass
  */
 
 if ($stats === []) {
@@ -19,7 +20,7 @@ if ($stats === []) {
 
 <section class="py-8 <?= esc($cssClass) ?>">
     <div class="<?= esc($sectionClass) ?>">
-        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 <?= esc($columnsClass) ?> divide-y sm:divide-y-0 sm:divide-x divide-slate-100/10">
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 <?= esc($columnsClass) ?> divide-y sm:divide-y-0 sm:divide-x <?= esc($dividerClass) ?>">
             <?php foreach ($stats as $stat): ?>
                 <div class="flex flex-col items-center text-center p-4 first:pt-0 sm:first:pt-4">
                     <?php if ($stat['icon'] !== ''): ?>
@@ -29,7 +30,7 @@ if ($stats === []) {
                     <?php endif; ?>
                     
                     <span 
-                        class="text-4xl md:text-5xl font-black tracking-tight <?= esc($numColorClass) ?> mb-2"
+                        class="text-4xl md:text-5xl font-bold tracking-tight <?= esc($numColorClass) ?> mb-2"
                         data-stat-counter
                         data-target-value="<?= esc((string) $stat['num_only']) ?>"
                         data-prefix="<?= esc($stat['prefix']) ?>"
