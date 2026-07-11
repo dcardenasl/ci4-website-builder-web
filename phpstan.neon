@@ -8,6 +8,7 @@ parameters:
         - app/Libraries
         - app/Services
         - app/Filters
+        - app/ViewModels
         - app/Common.php
         - app/Config/Services.php
     excludePaths:
