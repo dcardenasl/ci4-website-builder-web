@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use CodeIgniter\Test\CIUnitTestCase;
 use CodeIgniter\Test\FeatureTestTrait;
+use Tests\Support\HermeticFeatureTestCase;
 
 /**
  * Multilingual page rendering smoke tests for the public website.
@@ -14,7 +14,7 @@ use CodeIgniter\Test\FeatureTestTrait;
  *
  * @internal
  */
-final class MultilingualPageRenderTest extends CIUnitTestCase
+final class MultilingualPageRenderTest extends HermeticFeatureTestCase
 {
     use FeatureTestTrait;
 
