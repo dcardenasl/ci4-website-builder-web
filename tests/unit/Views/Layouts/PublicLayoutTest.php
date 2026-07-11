@@ -14,7 +14,7 @@ final class PublicLayoutTest extends CIUnitTestCase
     public function testPublicLayoutRendersNestedSiteLogoInHeader(): void
     {
         $html = view('layouts/public', [
-            'view' => 'welcome_message',
+            'view' => 'page',
             'mainMenu' => ['items' => []],
             'footerMenu' => ['items' => []],
             'settings' => [

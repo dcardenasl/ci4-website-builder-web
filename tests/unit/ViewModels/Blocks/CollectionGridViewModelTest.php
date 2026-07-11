@@ -7,41 +7,51 @@ namespace Tests\Unit\ViewModels\Blocks;
 use App\Services\SiteCollectionService;
 use App\Services\SiteEntryService;
 use App\ViewModels\Blocks\CollectionGridViewModel;
+use CodeIgniter\HTTP\IncomingRequest;
+use CodeIgniter\HTTP\URI;
+use CodeIgniter\HTTP\UserAgent;
 use CodeIgniter\Test\CIUnitTestCase;
-use Config\Services;
+use Config\App;
 
 /**
+ * DEEP-WEB-02: the view model no longer calls service()/Config\Services::x()
+ * itself, so tests construct it with an explicit $context array (the same
+ * collaborators BlockRenderer resolves in production) instead of mutating
+ * global service state via Services::injectMock().
+ *
  * @internal
  */
 final class CollectionGridViewModelTest extends CIUnitTestCase
 {
-    protected function tearDown(): void
-    {
-        Services::reset(true);
-
-        parent::tearDown();
-    }
-
     /**
      * @param list<array<string, mixed>>  $collections
      * @param array<string, mixed>        $entriesResult
+     * @return array<string, mixed>
      */
-    private function mockServices(array $collections, array $entriesResult): void
+    private function context(array $collections, array $entriesResult, string $path = '/'): array
     {
         $collectionService = $this->createMock(SiteCollectionService::class);
         $collectionService->method('getAll')->willReturn($collections);
-        Services::injectMock('siteCollectionService', $collectionService);
 
         $entryService = $this->createMock(SiteEntryService::class);
         $entryService->method('list')->willReturn($entriesResult);
-        Services::injectMock('siteEntryService', $entryService);
+
+        $request = new IncomingRequest(config(App::class), new URI('http://localhost/' . ltrim($path, '/')), null, new UserAgent());
+        $request->setLocale('es');
+
+        return [
+            'request' => $request,
+            'siteCollectionService' => $collectionService,
+            'siteEntryService' => $entryService,
+        ];
     }
 
     public function testResolvesCanonicalUrlAndEntries(): void
     {
-        service('request')->setLocale('es');
-
-        $this->mockServices(
+        $vm = new CollectionGridViewModel([
+            'block_config' => ['collection_key' => 'news'],
+            'block_data'   => ['section_title' => 'Noticias'],
+        ], 'es', $this->context(
             [[
                 'collection_key' => 'news',
                 'slug'           => 'noticias',
@@ -51,12 +61,7 @@ final class CollectionGridViewModelTest extends CIUnitTestCase
                 ],
             ]],
             ['data' => [['title' => 'Post 1', 'slug' => 'post-1']], 'meta' => []]
-        );
-
-        $vm = new CollectionGridViewModel([
-            'block_config' => ['collection_key' => 'news'],
-            'block_data'   => ['section_title' => 'Noticias'],
-        ], 'es');
+        ));
 
         $vars = $vm->vars();
 
@@ -67,8 +72,6 @@ final class CollectionGridViewModelTest extends CIUnitTestCase
 
     public function testInvalidConfigFallsBackToSafeDefaults(): void
     {
-        $this->mockServices([], ['data' => [], 'meta' => []]);
-
         $vm = new CollectionGridViewModel([
             'block_config' => [
                 'collection_key'  => 'news',
@@ -78,7 +81,7 @@ final class CollectionGridViewModelTest extends CIUnitTestCase
                 'items_limit'     => 5000,
             ],
             'block_data' => ['view_all_url' => '/fallback'],
-        ], 'es');
+        ], 'es', $this->context([], ['data' => [], 'meta' => []]));
 
         $vars = $vm->vars();
 
@@ -89,7 +92,7 @@ final class CollectionGridViewModelTest extends CIUnitTestCase
 
     public function testEmptyCollectionKeySkipsServiceCalls(): void
     {
-        // No mocks injected on purpose: with an empty key no service is touched.
+        // No context passed on purpose: with an empty key no service is touched.
         $vm = new CollectionGridViewModel([], 'es');
 
         $vars = $vm->vars();
@@ -101,15 +104,26 @@ final class CollectionGridViewModelTest extends CIUnitTestCase
 
     public function testPortfolioVariantChangesLayoutClasses(): void
     {
-        $this->mockServices([], ['data' => [], 'meta' => []]);
-
         $vm = new CollectionGridViewModel([
             'block_config' => ['collection_key' => 'work', 'layout_variant' => 'portfolio'],
-        ], 'es');
+        ], 'es', $this->context([], ['data' => [], 'meta' => []]));
 
         $vars = $vm->vars();
 
         $this->assertStringContainsString('bg-slate-50/50', $vars['sectionClass']);
         $this->assertStringContainsString('lg:grid-cols-3', $vars['gridClass']);
+    }
+
+    public function testMissingContextCollaboratorsProduceSafeDefaultsInsteadOfErrors(): void
+    {
+        $vm = new CollectionGridViewModel([
+            'block_config' => ['collection_key' => 'news'],
+        ], 'es', []);
+
+        $vars = $vm->vars();
+
+        $this->assertSame('news', $vars['collectionKey']);
+        $this->assertSame([], $vars['entries']);
+        $this->assertSame('', $vars['canonicalViewAllUrl']);
     }
 }
