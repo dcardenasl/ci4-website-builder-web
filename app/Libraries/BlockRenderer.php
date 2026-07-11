@@ -86,8 +86,22 @@ class BlockRenderer
 
         if (is_string($blockKey) && isset(self::VIEW_MODELS[$blockKey])) {
             $viewModelClass = self::VIEW_MODELS[$blockKey];
-            $viewModel      = new $viewModelClass($block, $lang, ['formDefinition' => $formDefinition]);
-            $viewData       = array_merge($viewData, $viewModel->vars());
+            $context        = ['formDefinition' => $formDefinition];
+            if ($blockKey === 'collection_grid' || $blockKey === 'collection_listing') {
+                // These two view models need the current request (GET filters,
+                // preview-mode detection) and the Site*Service adapters. Resolving
+                // them here — the composition boundary — keeps the view models
+                // themselves free of service()/Config\Services::x() calls.
+                $context += [
+                    'request' => service('request'),
+                    'siteCollectionService' => \Config\Services::siteCollectionService(),
+                    'siteEntryService' => \Config\Services::siteEntryService(),
+                    'siteCategoryService' => \Config\Services::siteCategoryService(),
+                    'siteTagService' => \Config\Services::siteTagService(),
+                ];
+            }
+            $viewModel = new $viewModelClass($block, $lang, $context);
+            $viewData  = array_merge($viewData, $viewModel->vars());
         } else {
             // Safety net: automatically localize any URLs in data and config if no view model exists
             $viewData['data']   = $this->localizeUrlsInArray($data);
