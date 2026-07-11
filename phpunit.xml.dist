@@ -29,6 +29,12 @@
         <testsuite name="Feature">
             <directory>./tests/feature</directory>
         </testsuite>
+        <testsuite name="Contract">
+            <directory>./tests/contract</directory>
+        </testsuite>
+        <testsuite name="E2E">
+            <directory>./tests/e2e</directory>
+        </testsuite>
     </testsuites>
     <logging>
         <testdoxHtml outputFile="build/logs/testdox.html"/>
