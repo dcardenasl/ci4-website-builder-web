@@ -48,6 +48,28 @@ final class CacheInvalidatorTest extends CIUnitTestCase
         $this->assertNotNull($this->cache->get('web_api_v3_menus_def456'), 'Other scopes must be untouched');
     }
 
+    public function testInvalidateClearsSitemapsOnContentScopes(): void
+    {
+        $this->cache->save('sitemap_es', 'xml...', 3600);
+        $this->cache->save('sitemap_en', 'xml...', 3600);
+        $this->cache->save('web_api_v3_pages_abc123', ['ok' => true], 300);
+
+        $this->invalidator->invalidate(['pages']);
+
+        $this->assertNull($this->cache->get('sitemap_es'));
+        $this->assertNull($this->cache->get('sitemap_en'));
+    }
+
+    public function testInvalidateDoesNotClearSitemapsOnNonContentScopes(): void
+    {
+        $this->cache->save('sitemap_es', 'xml...', 3600);
+        $this->cache->save('web_api_v3_menus_abc123', ['ok' => true], 300);
+
+        $this->invalidator->invalidate(['menus']);
+
+        $this->assertNotNull($this->cache->get('sitemap_es'));
+    }
+
     public function testUnknownScopesAreIgnored(): void
     {
         $this->cache->save('web_api_v3_pages_abc123', ['ok' => true], 300);

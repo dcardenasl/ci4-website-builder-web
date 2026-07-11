@@ -44,6 +44,10 @@ class CacheInvalidator
             $invalidated[] = $scope;
 
             log_message('info', "[CacheInvalidator] Scope '{$scope}': {$deleted} cache entries deleted.");
+
+            if (in_array($scope, ['pages', 'collections', 'entries'], true)) {
+                $cache->deleteMatching('sitemap_*');
+            }
         }
 
         return ['invalidated' => $invalidated, 'deleted' => $totalDeleted];
