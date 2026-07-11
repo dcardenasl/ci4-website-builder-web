@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\ViewModels\Blocks;
 
+use App\Services\SiteCategoryService;
+use App\Services\SiteCollectionService;
+use App\Services\SiteEntryService;
+use App\Services\SiteTagService;
+
 class CollectionListingViewModel extends AbstractBlockViewModel
 {
     private const ORDER_COLUMNS = ['published_at', 'sort_order', 'created_at', 'title'];
@@ -17,7 +22,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
         $collectionId = $this->configInt('collection_id', 0);
         $collection = $this->resolveCollection($collectionId);
 
-        if ($collection === null && str_contains(service('request')->getUri()->getPath(), 'blocks/preview')) {
+        if ($collection === null && $this->isPreviewRequest()) {
             $collection = [
                 'id' => 999,
                 'name' => 'Colección de Ejemplo',
@@ -57,14 +62,13 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             ];
         }
 
-        $request = service('request');
-        $currentPage = max(1, (int) ($request->getGet('page') ?: 1));
-        $currentCategory = trim((string) ($request->getGet('category') ?? ''));
-        $currentTag = trim((string) ($request->getGet('tag') ?? ''));
-        $currentQuery = trim((string) ($request->getGet('q') ?? ''));
+        $currentPage = max(1, (int) ($this->requestGet('page') ?: 1));
+        $currentCategory = trim($this->requestGet('category'));
+        $currentTag = trim($this->requestGet('tag'));
+        $currentQuery = trim($this->requestGet('q'));
 
-        $orderBy = $this->resolveOrderBy((string) ($request->getGet('order_by') ?? ''));
-        $orderDirection = $this->resolveOrderDirection((string) ($request->getGet('order_direction') ?? ''));
+        $orderBy = $this->resolveOrderBy($this->requestGet('order_by'));
+        $orderDirection = $this->resolveOrderDirection($this->requestGet('order_direction'));
         $perPage = max(1, min(100, $this->configInt('per_page', 12)));
         $layoutVariant = $this->resolveLayoutVariant($this->configString('layout_variant', 'cards'));
         $collectionKey = (string) ($collection['collection_key'] ?? '');
@@ -87,14 +91,17 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             $query['q'] = $currentQuery;
         }
 
-        $result = [];
-        try {
-            $result = \Config\Services::siteEntryService()->list($this->lang, $collectionKey, $query);
-        } catch (\Throwable) {
-            $result = ['data' => [], 'meta' => ['pagination' => []]];
+        $entryService = $this->contextService('siteEntryService', SiteEntryService::class);
+        $result = ['data' => [], 'meta' => ['pagination' => []]];
+        if ($entryService !== null) {
+            try {
+                $result = $entryService->list($this->lang, $collectionKey, $query);
+            } catch (\Throwable) {
+                $result = ['data' => [], 'meta' => ['pagination' => []]];
+            }
         }
 
-        if ((empty($result['data']) || !is_array($result['data'])) && str_contains(service('request')->getUri()->getPath(), 'blocks/preview')) {
+        if ((empty($result['data']) || !is_array($result['data'])) && $this->isPreviewRequest()) {
             $result = [
                 'data' => [
                     [
@@ -174,7 +181,12 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             return null;
         }
 
-        foreach (\Config\Services::siteCollectionService()->getAll($this->lang) as $collection) {
+        $service = $this->contextService('siteCollectionService', SiteCollectionService::class);
+        if ($service === null) {
+            return null;
+        }
+
+        foreach ($service->getAll($this->lang) as $collection) {
             if (! is_array($collection)) {
                 continue;
             }
@@ -185,6 +197,23 @@ class CollectionListingViewModel extends AbstractBlockViewModel
         }
 
         return null;
+    }
+
+    private function isPreviewRequest(): bool
+    {
+        return str_contains($this->contextRequest()?->getUri()->getPath() ?? '', 'blocks/preview');
+    }
+
+    private function requestGet(string $key): string
+    {
+        $request = $this->contextRequest();
+        if ($request === null) {
+            return '';
+        }
+
+        $value = $request->getGet($key);
+
+        return is_scalar($value) ? (string) $value : '';
     }
 
     private function resolveOrderBy(string $value): string
@@ -207,8 +236,9 @@ class CollectionListingViewModel extends AbstractBlockViewModel
      */
     private function resolveCategories(string $collectionKey, int $currentPage, string $currentCategory, string $currentTag, string $currentQuery, string $orderBy, string $orderDirection, int $perPage): array
     {
+        $service = $this->contextService('siteCategoryService', SiteCategoryService::class);
         try {
-            $categories = \Config\Services::siteCategoryService()->list($this->lang, $collectionKey);
+            $categories = $service?->list($this->lang, $collectionKey) ?? [];
         } catch (\Throwable) {
             $categories = [];
         }
@@ -241,8 +271,9 @@ class CollectionListingViewModel extends AbstractBlockViewModel
      */
     private function resolveTags(string $collectionKey, int $currentPage, string $currentCategory, string $currentTag, string $currentQuery, string $orderBy, string $orderDirection, int $perPage): array
     {
+        $service = $this->contextService('siteTagService', SiteTagService::class);
         try {
-            $tags = \Config\Services::siteTagService()->list($this->lang, $collectionKey);
+            $tags = $service?->list($this->lang, $collectionKey) ?? [];
         } catch (\Throwable) {
             $tags = [];
         }

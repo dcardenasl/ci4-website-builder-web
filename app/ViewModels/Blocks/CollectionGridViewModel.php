@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\ViewModels\Blocks;
 
+use App\Services\SiteCollectionService;
+use App\Services\SiteEntryService;
+
 class CollectionGridViewModel extends AbstractBlockViewModel
 {
     private const ORDER_COLUMNS   = ['published_at', 'sort_order', 'created_at', 'title'];
@@ -56,8 +59,13 @@ class CollectionGridViewModel extends AbstractBlockViewModel
      */
     private function canonicalViewAllUrl(string $collectionKey, string $fallback): string
     {
+        $service = $this->contextService('siteCollectionService', SiteCollectionService::class);
+        if ($service === null) {
+            return $fallback;
+        }
+
         try {
-            foreach (\Config\Services::siteCollectionService()->getAll($this->lang) as $collection) {
+            foreach ($service->getAll($this->lang) as $collection) {
                 if (is_array($collection) && ($collection['collection_key'] ?? '') === $collectionKey) {
                     return collection_url_path($collection);
                 }
@@ -74,8 +82,13 @@ class CollectionGridViewModel extends AbstractBlockViewModel
      */
     private function entries(string $collectionKey, int $itemsLimit, string $orderBy, string $orderDirection): array
     {
+        $service = $this->contextService('siteEntryService', SiteEntryService::class);
+        if ($service === null) {
+            return [];
+        }
+
         try {
-            $result = \Config\Services::siteEntryService()->list($this->lang, $collectionKey, [
+            $result = $service->list($this->lang, $collectionKey, [
                 'per_page'        => $itemsLimit,
                 'order_by'        => $orderBy,
                 'order_direction' => $orderDirection,
@@ -101,7 +114,7 @@ class CollectionGridViewModel extends AbstractBlockViewModel
             $entries = $this->entries($collectionKey, $itemsLimit, $orderBy, $orderDirection);
         }
 
-        if ($entries === [] && str_contains(service('request')->getUri()->getPath(), 'blocks/preview')) {
+        if ($entries === [] && str_contains($this->contextRequest()?->getUri()->getPath() ?? '', 'blocks/preview')) {
             return [
                 [
                     'id' => 1,

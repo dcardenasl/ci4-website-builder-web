@@ -12,18 +12,46 @@ namespace App\ViewModels\Blocks;
  * defaults, URL building), so block views only print variables. Registered in
  * BlockRenderer::VIEW_MODELS; the returned vars() are merged into the view
  * data before rendering.
+ *
+ * `$context` also carries collaborators a specific view model needs (the
+ * current request, a Site*Service) that BlockRenderer — the legitimate
+ * composition boundary — resolves once per render pass. View models read
+ * them via contextRequest()/contextService() instead of calling
+ * `service()`/`Config\Services::x()` themselves, so they stay constructible
+ * with plain arrays in tests (DEEP-WEB-02,
+ * docs/plans/2026-07-10-plan-maestro-robustez-mantenibilidad.md).
  */
 abstract class AbstractBlockViewModel
 {
     /**
      * @param array<string, mixed> $block   Raw block payload (block_key, block_config, block_data, children)
-     * @param array<string, mixed> $context Render-pass extras (e.g. formDefinition for form_embed)
+     * @param array<string, mixed> $context Render-pass extras: formDefinition for form_embed,
+     *                                      request/site*Service collaborators for blocks that need them
      */
     public function __construct(
         protected readonly array $block,
         protected readonly string $lang,
         protected readonly array $context = [],
     ) {
+    }
+
+    protected function contextRequest(): ?\CodeIgniter\HTTP\IncomingRequest
+    {
+        $value = $this->context['request'] ?? null;
+
+        return $value instanceof \CodeIgniter\HTTP\IncomingRequest ? $value : null;
+    }
+
+    /**
+     * @template T of object
+     * @param class-string<T> $type
+     * @return T|null
+     */
+    protected function contextService(string $key, string $type): ?object
+    {
+        $value = $this->context[$key] ?? null;
+
+        return $value instanceof $type ? $value : null;
     }
 
     /**
