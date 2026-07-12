@@ -1,28 +1,14 @@
 <?php
-/** @var array<string, mixed> $block */
-/** @var array<string, mixed> $config */
-/** @var array<string, mixed> $data */
-
-$items = [];
-foreach ($block['children'] ?? [] as $child) {
-    if (($child['block_key'] ?? '') !== 'accordion_item') {
-        continue;
-    }
-    $childData = $child['block_data'] ?? [];
-    $childConfig = $child['block_config'] ?? [];
-    
-    $items[] = [
-        'title'    => (string) ($childData['title'] ?? ''),
-        'content'  => block_text_content($childData, ''),
-        'is_open'  => filter_var($childConfig['is_open'] ?? false, FILTER_VALIDATE_BOOL),
-    ];
-}
+/**
+ * accordion block — variables prepared by AccordionViewModel.
+ *
+ * @var list<array{title: string, content: string, is_open: bool}> $items List of accordion items
+ * @var string $cssClass Additional CSS classes
+ */
 
 if ($items === []) {
     return;
 }
-
-$cssClass = trim((string) ($config['css_class'] ?? ''));
 ?>
 
 <section class="py-8 <?= esc($cssClass) ?>">
