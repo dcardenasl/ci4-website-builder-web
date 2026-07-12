@@ -33,29 +33,26 @@ $cssClass = esc(trim($config['css_class'] ?? ''));
             </div>
         <?php else: ?>
             <div class="relative">
-                <!-- Step Connect Line (Desktop only) -->
-                <div class="hidden lg:block absolute left-8 right-8 top-12 h-0.5 bg-slate-200 z-0"></div>
-
-                <div class="grid gap-8 grid-cols-1 lg:grid-cols-<?= count($steps) ?> relative z-10">
+                <div class="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-<?= count($steps) ?> relative z-10">
                     <?php foreach ($steps as $idx => $step): 
                         $stepNum = esc($step['step_number'] ?? ($idx + 1));
                         $sTitle = esc($step['title'] ?? '');
                         $sDesc = esc($step['description'] ?? '');
                         if ($sTitle === '') continue;
                     ?>
-                        <div class="flex lg:flex-col gap-5 lg:gap-0 lg:text-center items-start lg:items-center bg-white lg:bg-transparent p-6 lg:p-0 rounded-2xl border border-slate-200/50 lg:border-0 shadow-sm lg:shadow-none">
+                        <div class="flex flex-row md:flex-col gap-4 md:gap-6 items-start md:items-center text-left md:text-center bg-white p-6 md:p-8 rounded-2xl border border-slate-100 hover:border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group">
                             <!-- Circle Indicator -->
-                            <div class="shrink-0 flex items-center justify-center w-12 h-12 lg:w-16 lg:h-16 rounded-full border-4 border-slate-50 lg:border-white bg-violet-600 text-white font-extrabold text-lg lg:text-xl shadow-md lg:mb-6">
+                            <div class="shrink-0 flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-full bg-violet-600 text-white font-extrabold text-base md:text-lg shadow-sm border border-violet-500">
                                 <?= $stepNum ?>
                             </div>
                             
                             <!-- Content -->
-                            <div class="min-w-0">
-                                <h3 class="text-lg font-bold text-slate-800 tracking-tight mb-2">
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-lg font-bold text-slate-800 tracking-tight mb-2 group-hover:text-violet-600 transition-colors">
                                     <?= $sTitle ?>
                                 </h3>
                                 <?php if ($sDesc !== ''): ?>
-                                    <p class="text-sm text-slate-500 leading-relaxed max-w-xs mx-auto">
+                                    <p class="text-sm text-slate-500 leading-relaxed max-w-xs md:mx-auto">
                                         <?= $sDesc ?>
                                     </p>
                                 <?php endif; ?>

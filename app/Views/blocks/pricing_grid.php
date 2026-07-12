@@ -19,14 +19,14 @@ $cssClass = esc(trim($config['css_class'] ?? ''));
                     <?= $title ?>
                 </h2>
                 <?php if ($description !== ''): ?>
-                    <p class="text-lg text-slate-600">
+                    <p class="text-lg text-slate-600 mb-12">
                         <?= $description ?>
                     </p>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
 
-        <div class="grid gap-8 gap-y-12 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center items-stretch">
+        <div class="grid gap-8 gap-y-20 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 justify-center items-stretch">
             <?= $renderedChildren ?>
         </div>
     </div>
