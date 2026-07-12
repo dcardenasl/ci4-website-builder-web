@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Analytics tracking** — automatic page view tracking to the domain CMS analytics API with user agent and referrer data
 
 ### Changed
+- **Intelligent image loading optimization** — `responsive-image.php` component now dynamically determines loading strategy based on image sequence (1st/2nd/etc.) and device type, deferring lazy-loading until after the initial above-fold images; mobile devices load 1 image eagerly while desktop loads up to 4; images from picsum.photos now include responsive srcsets and sizes for adaptive image serving.
 - **Form embed layout flexibility** — refactored `form_embed` block view to render as either a two-column layout (with optional left-column heading/description/info boxes) or a centered single-column layout when no left-content is present; improves visual presentation for form-only embeddings and reduces wasted whitespace
 - **Generic block naming normalization** — consolidated domain-specific block views (faq_accordion, contact_form, location_info, logo_showcase, etc.) into unified generic names (accordion, form_embed, contact_info, asset_showcase, etc.); updated `BlockRenderer` to reflect new block names; improves consistency across admin/web rendering
 - **Contact form migration** — replace legacy `ContactController` with new `FormController` powered by CMS forms system
