@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Dynamic social links rendering** — adapted `social_links` block to render child `social_link_item` blocks; new `SocialLinkItemViewModel` and `social_link_item.php` view for individual link presentation; `social_links` container view now delegates to `$renderedChildren` instead of hardcoded network array iteration, allowing flexible link management from Domain CMS
 - **Responsive image component and collection filters** — new `responsive-image.php` component for adaptive image rendering; progressive AJAX filtering for collection listings with `collectionFilters.js` module supporting client-side filtering, pagination, and history API integration
 - **Monorepo standardization pass** — added level-8 PHPStan quality gates, explicit PHPUnit suites, pre-commit hooks, `WebApiClientInterface`, shared service base class, block ViewModels, stale API cache fallback, POST throttling, modular JS source/build tooling, and expanded resolver/form/cache test coverage
 - **Map embed block** — new standalone `map_embed` block renderer for displaying embedded maps and iframes with configurable aspect ratio and height; complementary to `contact_info` block which now focuses on contact details only
