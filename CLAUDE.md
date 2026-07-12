@@ -117,10 +117,15 @@ Current mapped ViewModels:
 
 - `hero_slider` -> `HeroSliderViewModel`
 - `cards_slider` -> `CardsSliderViewModel`
-- `video_player` -> `VideoPlayerViewModel`
 - `form_embed` -> `FormEmbedViewModel`
+- `video_player` -> `VideoPlayerViewModel`
 - `collection_grid` -> `CollectionGridViewModel`
+- `collection_listing` -> `CollectionListingViewModel`
 - `metrics_grid` -> `MetricsGridViewModel`
+- `cta` -> `CtaViewModel`
+- `hero_banner` -> `HeroBannerViewModel`
+- `asset_showcase` -> `AssetShowcaseViewModel`
+- `social_links` -> `SocialLinksViewModel`
 
 To add one:
 
