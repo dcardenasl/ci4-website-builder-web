@@ -70,7 +70,7 @@ if ($collectionKey === '' || ($entries === [] && $sectionTitle === '')) {
                         <?php endif; ?>
                         <div class="<?= esc($bodyClass) ?>">
                             <?php if ($entryDate): ?>
-                                <p class="text-xs uppercase tracking-[0.2em] text-slate-400">
+                                <p class="text-xs uppercase tracking-[0.2em] text-slate-500">
                                     <?= esc(date('d M Y', strtotime($entryDate))) ?>
                                 </p>
                             <?php endif; ?>

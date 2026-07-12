@@ -100,7 +100,7 @@
                                 <span class="text-base font-semibold text-slate-800 hover:text-primary transition-colors">
                                     <?= esc($item['label'] ?? '') ?>
                                 </span>
-                                <button class="text-slate-400 hover:text-primary focus:outline-none pointer-events-none">
+                                <button class="text-slate-400 hover:text-primary focus:outline-none pointer-events-none" aria-hidden="true" tabindex="-1">
                                     <svg class="w-4.5 h-4.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
                                     </svg>

@@ -25,13 +25,17 @@ const initHeroCarousel = (root) => {
   const overlay = root.querySelector('[data-hero-overlay]');
   const captionCard = root.querySelector('[data-hero-caption-card]');
 
-  const dotFills = dots.map((dot) => {
+  // The button is the touch target (min 24x24 for a11y); the visual pill is a
+  // nested span so it can stay small while the button's hit area stays large.
+  const dotVisuals = dots.map((dot) => dot.querySelector('[data-hero-dot-visual]') || dot);
+
+  const dotFills = dots.map((dot, dotIndex) => {
     let fill = dot.querySelector('[data-hero-dot-fill]');
     if (!fill) {
       fill = document.createElement('span');
       fill.setAttribute('data-hero-dot-fill', '');
       fill.className = 'block h-full w-full bg-slate-900';
-      dot.appendChild(fill);
+      dotVisuals[dotIndex].appendChild(fill);
     }
     return fill;
   });
@@ -52,10 +56,11 @@ const initHeroCarousel = (root) => {
   const setActiveDot = () => {
     dots.forEach((dot, dotIndex) => {
       const active = dotIndex === current;
-      dot.classList.toggle('bg-slate-100', active);
-      dot.classList.toggle('bg-slate-200', !active);
-      dot.style.width = active ? '1rem' : '0.5rem';
-      dot.style.height = '0.5rem';
+      const visual = dotVisuals[dotIndex];
+      visual.classList.toggle('bg-slate-100', active);
+      visual.classList.toggle('bg-slate-200', !active);
+      visual.style.width = active ? '1rem' : '0.5rem';
+      visual.style.height = '0.5rem';
       dot.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
   };

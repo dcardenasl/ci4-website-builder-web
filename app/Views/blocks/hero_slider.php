@@ -133,10 +133,12 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
                                 <button
                                     type="button"
                                     data-hero-dot="<?= $index ?>"
-                                    class="flex h-2 w-2 items-stretch overflow-hidden rounded-full border border-slate-300 <?= $index === 0 ? 'bg-slate-100' : 'bg-slate-200' ?>"
+                                    class="flex h-6 w-6 items-center justify-center rounded-full"
                                     aria-label="Ir a la diapositiva <?= $index + 1 ?>"
                                 >
-                                    <span data-hero-dot-fill class="block h-full w-full bg-slate-900" style="transform-origin:left center;"></span>
+                                    <span data-hero-dot-visual class="flex h-2 w-2 items-stretch overflow-hidden rounded-full border border-slate-300 <?= $index === 0 ? 'bg-slate-100' : 'bg-slate-200' ?>">
+                                        <span data-hero-dot-fill class="block h-full w-full bg-slate-900" style="transform-origin:left center;"></span>
+                                    </span>
                                 </button>
                             <?php endforeach; ?>
                         </div>
@@ -184,10 +186,12 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
                                         <button
                                             type="button"
                                             data-hero-dot="<?= $index ?>"
-                                            class="flex h-2 w-2 items-stretch overflow-hidden rounded-full border border-slate-300 <?= $index === 0 ? 'bg-slate-100' : 'bg-slate-200' ?>"
+                                            class="flex h-6 w-6 items-center justify-center rounded-full"
                                             aria-label="Ir a la diapositiva <?= $index + 1 ?>"
                                         >
-                                            <span data-hero-dot-fill class="block h-full w-full bg-slate-900" style="transform-origin:left center;"></span>
+                                            <span data-hero-dot-visual class="flex h-2 w-2 items-stretch overflow-hidden rounded-full border border-slate-300 <?= $index === 0 ? 'bg-slate-100' : 'bg-slate-200' ?>">
+                                                <span data-hero-dot-fill class="block h-full w-full bg-slate-900" style="transform-origin:left center;"></span>
+                                            </span>
                                         </button>
                                     <?php endforeach; ?>
                                 </div>

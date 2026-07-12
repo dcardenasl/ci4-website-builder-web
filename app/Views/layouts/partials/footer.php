@@ -32,7 +32,7 @@
 
             <!-- Navigation Menu Links -->
             <div class="space-y-4">
-                <h4 class="section-eyebrow"><?= lang('Site.footer_menu_label') ?></h4>
+                <p class="section-eyebrow"><?= lang('Site.footer_menu_label') ?></p>
                 <ul class="space-y-2.5">
                     <?php foreach (($menu['items'] ?? []) as $item): ?>
                         <li>
@@ -46,7 +46,7 @@
 
             <!-- Social Links -->
             <div class="space-y-4">
-                <h4 class="section-eyebrow"><?= lang('Site.footer_social_label') ?></h4>
+                <p class="section-eyebrow"><?= lang('Site.footer_social_label') ?></p>
                 <div class="flex flex-col gap-2.5">
                     <?php if (!empty($settings['social_facebook'])): ?>
                         <a href="<?= esc($settings['social_facebook']) ?>" target="_blank" rel="noopener" class="text-sm font-medium text-slate-600 hover:text-primary transition-colors duration-150 flex items-center gap-2">
