@@ -20,13 +20,16 @@
 @source "./app/Views/**/*.php";
 
 /*
- * Safelist for CMS-configured colors (e.g. page_header's `bg_color` field).
- * These class names live only as data in the Domain CMS database, so Tailwind's
- * static source scanner never sees them in the PHP/view source and would
- * otherwise purge them. Ported from the old Tailwind v3 `safelist` pattern in
- * tailwind.config.js (that file is not read under this v4 CSS-first setup).
+ * Safelist for CMS-configured colors (only `page_header`'s free-text `bg_color`
+ * field, confirmed the sole dynamic color field in the schema — see
+ * CmsBlockTypeSeeder.php in the domain repo). This class name lives only as
+ * data in the Domain CMS database, so Tailwind's static source scanner never
+ * sees it in the PHP/view source and would otherwise purge it. Scoped to the
+ * `bg-` prefix only: every `from-`/`via-`/`to-` gradient class in this codebase
+ * is a hardcoded literal already caught by the normal scanner, so including
+ * those prefixes here only bloated the build with unused CSS.
  */
-@source inline("{bg-,from-,via-,to-}{slate,gray,stone,zinc,neutral,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");
+@source inline("bg-{slate,gray,stone,zinc,neutral,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");
 
 /*
  * These element defaults must live in Tailwind's `base` layer, not as
