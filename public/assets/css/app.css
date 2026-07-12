@@ -10,7 +10,7 @@
   
   --color-text-primary: #0f172a;
   --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
+  --color-text-muted: #64748b;
 
   --font-sans: "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif";
   --font-serif: "Merriweather", "serif";
@@ -18,6 +18,15 @@
 
 @source "../../../app/Views/**/*.php";
 @source "./app/Views/**/*.php";
+
+/*
+ * Safelist for CMS-configured colors (e.g. page_header's `bg_color` field).
+ * These class names live only as data in the Domain CMS database, so Tailwind's
+ * static source scanner never sees them in the PHP/view source and would
+ * otherwise purge them. Ported from the old Tailwind v3 `safelist` pattern in
+ * tailwind.config.js (that file is not read under this v4 CSS-first setup).
+ */
+@source inline("{bg-,from-,via-,to-}{slate,gray,stone,zinc,neutral,red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose}-{50,100,200,300,400,500,600,700,800,900,950}");
 
 /*
  * These element defaults must live in Tailwind's `base` layer, not as

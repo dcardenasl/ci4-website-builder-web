@@ -123,7 +123,7 @@ $sectionClass = trim($cssClass . ' py-8 sm:py-12');
                                 <?= esc($filterLabel) ?>
                             </button>
                         <?php endif; ?>
-                        <a href="<?= esc(lang_url($basePath)) ?>" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-605 shadow-sm transition-all hover:border-slate-350 hover:bg-slate-100">
+                        <a href="<?= esc(lang_url($basePath)) ?>" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-100">
                             <?= esc($resetLabel) ?>
                         </a>
                     </div>
@@ -136,7 +136,7 @@ $sectionClass = trim($cssClass . ' py-8 sm:py-12');
                 <!-- Horizontal Category Filter Tab-like Pills -->
                 <?php if ($showCategories && !empty($categories)): ?>
                     <div class="mt-5 pt-4 border-t border-slate-200/60">
-                        <span class="block text-xs font-bold uppercase tracking-[0.15em] text-slate-450 mb-3"><?= esc($categoriesLabel) ?></span>
+                        <span class="block text-xs font-bold uppercase tracking-[0.15em] text-slate-500 mb-3"><?= esc($categoriesLabel) ?></span>
                         <div class="flex gap-2 overflow-x-auto pb-1.5 scrollbar-none -mx-1 px-1" data-listing-pills>
                             <a href="<?= esc($buildUrl(['q' => $currentQuery !== '' ? $currentQuery : null, 'tag' => $currentTag !== '' ? $currentTag : null, 'order_by' => $orderBy, 'order_direction' => $orderDirection, 'per_page' => (int) ($pagination['per_page'] ?? 12)])) ?>"
                                class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase transition-all duration-200 border <?= $currentCategory === '' ? '!bg-primary !border-primary !text-white hover:!text-white !no-underline shadow-sm' : 'bg-white border-slate-200 !text-slate-500 hover:!text-slate-700 hover:!bg-slate-100 hover:!border-slate-300 !no-underline' ?>">
@@ -156,7 +156,7 @@ $sectionClass = trim($cssClass . ' py-8 sm:py-12');
                 <!-- Tag Cloud Filters -->
                 <?php if ($showTags && !empty($tags)): ?>
                     <div class="mt-4 pt-3 border-t border-slate-200/40">
-                        <span class="block text-xs font-bold uppercase tracking-[0.15em] text-slate-450 mb-2.5"><?= esc($tagsLabel) ?></span>
+                        <span class="block text-xs font-bold uppercase tracking-[0.15em] text-slate-500 mb-2.5"><?= esc($tagsLabel) ?></span>
                         <div class="flex flex-wrap gap-2" data-listing-pills>
                             <?php foreach ($tags as $tag): ?>
                                 <?php $active = $currentTag === (string) ($tag['slug'] ?? ''); ?>
@@ -229,7 +229,7 @@ $sectionClass = trim($cssClass . ' py-8 sm:py-12');
 
                             <!-- Entry Date -->
                             <?php if ($entryDate !== ''): ?>
-                                <time datetime="<?= esc($entryDate) ?>" class="text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-450 block mb-2">
+                                <time datetime="<?= esc($entryDate) ?>" class="text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-500 block mb-2">
                                     <?= esc(date('d M Y', strtotime($entryDate))) ?>
                                 </time>
                             <?php endif; ?>
@@ -276,7 +276,7 @@ $sectionClass = trim($cssClass . ' py-8 sm:py-12');
             <nav class="mt-12 flex flex-wrap items-center justify-center gap-3" aria-label="<?= esc(lang('Site.pagination')) ?>" data-listing-pagination>
                 <?php if ($currentPage > 1): ?>
                                     <a href="<?= esc($buildUrl(['page' => $currentPage - 1, 'category' => $currentCategory !== '' ? $currentCategory : null, 'tag' => $currentTag !== '' ? $currentTag : null, 'q' => $currentQuery !== '' ? $currentQuery : null, 'order_by' => $orderBy, 'order_direction' => $orderDirection, 'per_page' => (int) ($pagination['per_page'] ?? 12)])) ?>"
-                                       class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold !text-slate-600 shadow-sm transition-colors hover:border-slate-350 hover:!bg-slate-100 !no-underline">
+                                       class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold !text-slate-600 shadow-sm transition-colors hover:border-slate-300 hover:!bg-slate-100 !no-underline">
                                         <?= esc($previousLabel) ?>
                                     </a>
                                 <?php endif; ?>
@@ -287,7 +287,7 @@ $sectionClass = trim($cssClass . ' py-8 sm:py-12');
 
                                 <?php if ($currentPage < $totalPages): ?>
                                     <a href="<?= esc($buildUrl(['page' => $currentPage + 1, 'category' => $currentCategory !== '' ? $currentCategory : null, 'tag' => $currentTag !== '' ? $currentTag : null, 'q' => $currentQuery !== '' ? $currentQuery : null, 'order_by' => $orderBy, 'order_direction' => $orderDirection, 'per_page' => (int) ($pagination['per_page'] ?? 12)])) ?>"
-                                       class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold !text-slate-600 shadow-sm transition-colors hover:border-slate-350 hover:!bg-slate-100 !no-underline">
+                                       class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold !text-slate-600 shadow-sm transition-colors hover:border-slate-300 hover:!bg-slate-100 !no-underline">
                                         <?= esc($nextLabel) ?>
                                     </a>
                                 <?php endif; ?>

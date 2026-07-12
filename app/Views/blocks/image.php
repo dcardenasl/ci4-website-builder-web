@@ -21,7 +21,7 @@ if ($imageUrl === ''): ?>
             decoding="async"
         />
         <?php if (! empty($caption)): ?>
-            <figcaption class="mt-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-450">
+            <figcaption class="mt-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">
                 <?= esc((string) $caption) ?>
             </figcaption>
         <?php endif; ?>
