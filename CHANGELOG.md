@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Static asset caching** — added `Cache-Control`/`Expires` (1 year, immutable) and gzip compression for CSS/JS/images/fonts in the Apache vhost config; assets are already cache-busted via `?v=filemtime()` query strings
+- **CMS color safelist scoped to `bg-` only** — the safelist restore above (see Fixed) originally covered `bg-`/`from-`/`via-`/`to-` for all colors, ballooning `compiled.css` from ~69 KiB to ~284 KiB; `page_header`'s `bg_color` is the only dynamic color field in the CMS schema and every `from-`/`via-`/`to-` usage in the codebase is a hardcoded literal already caught by Tailwind's normal scanner, so the safelist now covers `bg-` only, bringing `compiled.css` back down to ~89 KiB
 
 ### Removed
 - **Legacy contact module** — removed `SiteContactService` and `ContactController` in favor of domain-driven forms system
