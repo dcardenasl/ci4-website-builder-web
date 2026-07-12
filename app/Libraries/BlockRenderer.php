@@ -24,6 +24,7 @@ class BlockRenderer
         'hero_banner'        => \App\ViewModels\Blocks\HeroBannerViewModel::class,
         'asset_showcase'     => \App\ViewModels\Blocks\AssetShowcaseViewModel::class,
         'social_links'       => \App\ViewModels\Blocks\SocialLinksViewModel::class,
+        'social_link_item'   => \App\ViewModels\Blocks\SocialLinkItemViewModel::class,
     ];
 
     /** @var array<string, array<string, mixed>|null> form definitions pre-loaded per render pass */

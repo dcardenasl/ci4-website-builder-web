@@ -99,14 +99,6 @@ class BlockPreviewController extends BasePublicWebController
             if (empty($data['heading'])) {
                 $data['heading'] = 'Conéctate con Nosotros';
             }
-            if (empty($data['links'])) {
-                $data['links'] = [
-                    ['platform' => 'facebook', 'url' => '#'],
-                    ['platform' => 'twitter', 'url' => '#'],
-                    ['platform' => 'instagram', 'url' => '#'],
-                    ['platform' => 'linkedin', 'url' => '#']
-                ];
-            }
         }
 
         if ($blockKey === 'alert') {
@@ -309,6 +301,51 @@ class BlockPreviewController extends BasePublicWebController
                         'title' => 'Caso de Éxito PDF',
                         'url' => '#',
                         'category' => 'document'
+                    ]
+                ]
+            ];
+        }
+
+        if ($blockKey === 'social_links') {
+            return [
+                [
+                    'block_key' => 'social_link_item',
+                    'block_config' => [
+                        'network' => 'facebook',
+                        'url' => 'https://facebook.com/example',
+                    ],
+                    'block_data' => [
+                        'handle' => 'facebook_handle',
+                    ]
+                ],
+                [
+                    'block_key' => 'social_link_item',
+                    'block_config' => [
+                        'network' => 'instagram',
+                        'url' => 'https://instagram.com/example',
+                    ],
+                    'block_data' => [
+                        'handle' => '@instagram_handle',
+                    ]
+                ],
+                [
+                    'block_key' => 'social_link_item',
+                    'block_config' => [
+                        'network' => 'twitter',
+                        'url' => 'https://twitter.com/example',
+                    ],
+                    'block_data' => [
+                        'handle' => '@twitter_handle',
+                    ]
+                ],
+                [
+                    'block_key' => 'social_link_item',
+                    'block_config' => [
+                        'network' => 'youtube',
+                        'url' => 'https://youtube.com/example',
+                    ],
+                    'block_data' => [
+                        'handle' => 'youtube_handle',
                     ]
                 ]
             ];
