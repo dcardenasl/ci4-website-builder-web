@@ -47,7 +47,11 @@ if ($cards === []) {
                     <div class="flex-shrink-0 px-3" style="flex-basis: <?= esc((string) $slideBasis) ?>%;">
                         <div class="h-full bg-white border border-slate-100 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col <?= $cardVariant === 'testimonial' ? 'text-center items-center' : '' ?>">
                             <?php if ($t['image_url'] !== ''): ?>
-                                <img src="<?= esc($t['image_url']) ?>" alt="<?= esc($t['title'] ?: $t['meta_title']) ?>" class="mb-5 h-36 w-full rounded-2xl object-cover" loading="lazy" />
+                                <?= view('components/responsive-image', [
+                                    'src'   => $t['image_url'],
+                                    'alt'   => $t['title'] ?: $t['meta_title'],
+                                    'class' => 'mb-5 h-36 w-full rounded-2xl object-cover',
+                                ], ['saveData' => false]) ?>
                             <?php endif; ?>
                             <?php if ($t['rating'] > 0): ?>
                                 <div class="flex gap-1 mb-4 text-amber-400">
@@ -120,7 +124,11 @@ if ($cards === []) {
             <?php foreach ($cards as $t): ?>
                 <div class="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col">
                     <?php if ($t['image_url'] !== ''): ?>
-                        <img src="<?= esc($t['image_url']) ?>" alt="<?= esc($t['title'] ?: $t['meta_title']) ?>" class="mb-4 h-32 w-full rounded-xl object-cover" loading="lazy" />
+                        <?= view('components/responsive-image', [
+                            'src'   => $t['image_url'],
+                            'alt'   => $t['title'] ?: $t['meta_title'],
+                            'class' => 'mb-4 h-32 w-full rounded-xl object-cover',
+                        ], ['saveData' => false]) ?>
                     <?php endif; ?>
                     <?php if ($t['rating'] > 0): ?>
                         <div class="flex gap-1 mb-4 text-amber-400">

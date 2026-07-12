@@ -32,7 +32,7 @@ final class VideoPlayerViewModelTest extends CIUnitTestCase
     {
         $url = VideoPlayerViewModel::embedUrl('https://youtu.be/dQw4w9WgXcQ', true, true);
 
-        $this->assertStringContainsString('youtube.com/embed/dQw4w9WgXcQ', $url);
+        $this->assertStringContainsString('youtube-nocookie.com/embed/dQw4w9WgXcQ', $url);
         $this->assertStringContainsString('mute=1', $url);
         $this->assertStringContainsString('loop=1&playlist=dQw4w9WgXcQ', $url);
 

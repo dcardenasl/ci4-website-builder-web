@@ -62,10 +62,11 @@ if ($collectionKey === '' || ($entries === [] && $sectionTitle === '')) {
                     <article class="<?= esc($articleClass) ?>">
                         <?php if ($entryImage): ?>
                             <a href="<?= esc($entryUrl) ?>" class="block overflow-hidden <?= esc($imageClass) ?>" tabindex="-1">
-                                <img src="<?= esc($entryImage) ?>"
-                                     alt="<?= esc($entryTitle) ?>"
-                                     class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                                     loading="lazy" />
+                                <?= view('components/responsive-image', [
+                                    'src'   => $entryImage,
+                                    'alt'   => $entryTitle,
+                                    'class' => 'h-full w-full object-cover transition-transform duration-300 group-hover:scale-105',
+                                ], ['saveData' => false]) ?>
                             </a>
                         <?php endif; ?>
                         <div class="<?= esc($bodyClass) ?>">

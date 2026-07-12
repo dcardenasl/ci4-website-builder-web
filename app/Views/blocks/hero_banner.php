@@ -3,7 +3,9 @@ $textColor    = ($text_color ?? '') !== '' ? $text_color : '#ffffff';
 $overlayColor = ($overlay_color ?? '') !== '' ? $overlay_color : 'transparent';
 ?>
 <section class="relative h-96 flex items-center justify-center overflow-hidden <?= esc($cssClass) ?>">
-    <?php if (!empty($image_url)): ?>
+    <?php if (!empty($image_url)): 
+        \Config\Services::blockRenderer()->incrementImageCount();
+    ?>
         <img
             src="<?= esc($image_url) ?>"
             alt="<?= esc($alt) ?>"

@@ -57,7 +57,7 @@ class VideoPlayerViewModel extends AbstractBlockViewModel
     {
         $ytId = self::getYouTubeId($videoUrl);
         if ($ytId !== null) {
-            $embedUrl = "https://www.youtube.com/embed/{$ytId}?autoplay=1";
+            $embedUrl = "https://www.youtube-nocookie.com/embed/{$ytId}?autoplay=1";
             if ($mute) {
                 $embedUrl .= '&mute=1';
             }

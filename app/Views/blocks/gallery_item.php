@@ -27,7 +27,6 @@ if ($imageUrl === '') {
         'src'   => $imageUrl,
         'alt'   => $alt,
         'class' => 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-105',
-        'loading' => 'lazy',
     ], ['saveData' => false]) ?>
 
     <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">

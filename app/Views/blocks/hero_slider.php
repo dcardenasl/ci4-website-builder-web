@@ -80,6 +80,7 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
             class="hero-shell relative overflow-hidden bg-transparent"
             style="width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);"
         >
+            <?php \Config\Services::blockRenderer()->incrementImageCount(); ?>
             <img
                 data-hero-image
                 src="<?= esc($slides[0]['image_url'] ?? '') ?>"

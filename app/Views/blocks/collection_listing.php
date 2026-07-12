@@ -197,10 +197,11 @@ $sectionClass = trim($cssClass . ' py-8 sm:py-12');
                         <!-- Image Container with Zoom effect on hover -->
                         <?php if ($entryImage !== ''): ?>
                             <a href="<?= esc($entryUrl) ?>" class="block overflow-hidden <?= esc($imageClass) ?>" tabindex="-1" aria-hidden="true">
-                                <img src="<?= esc($entryImage) ?>"
-                                     alt="<?= esc($entryTitle) ?>"
-                                     class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-103"
-                                     loading="lazy">
+                                <?= view('components/responsive-image', [
+                                    'src'   => $entryImage,
+                                    'alt'   => $entryTitle,
+                                    'class' => 'h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-103',
+                                ], ['saveData' => false]) ?>
                             </a>
                         <?php else: ?>
                             <div class="relative overflow-hidden <?= esc($imageClass) ?> bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200">

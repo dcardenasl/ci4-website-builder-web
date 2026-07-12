@@ -72,6 +72,7 @@ if ($videoUrl === '') {
                         class="w-full h-full border-0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowfullscreen
+                        title="<?= esc($heading !== '' ? $heading : 'Video Player') ?>"
                     ></iframe>
                 <?php else: ?>
                     <video 

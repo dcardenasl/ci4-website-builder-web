@@ -29,6 +29,18 @@ class BlockRenderer
     /** @var array<string, array<string, mixed>|null> form definitions pre-loaded per render pass */
     private array $formDefinitions = [];
 
+    /** @var int Counter of images rendered on the current page pass */
+    private int $imageCount = 0;
+
+    /**
+     * Increment the global image count and return the new index.
+     */
+    public function incrementImageCount(): int
+    {
+        $this->imageCount++;
+        return $this->imageCount;
+    }
+
     /**
      * Render an array of blocks to HTML.
      *
@@ -37,6 +49,7 @@ class BlockRenderer
      */
     public function render(array $blocks, string $lang = 'es'): string
     {
+        $this->imageCount = 0;
         $this->preloadFormDefinitions($blocks, $lang);
 
         $html = '';
