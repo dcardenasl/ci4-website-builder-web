@@ -134,6 +134,21 @@ class BlockPreviewController extends BasePublicWebController
             }
         }
 
+        if ($blockKey === 'document_download') {
+            if (empty($data['title'])) {
+                $data['title'] = 'Reporte Anual de Sostenibilidad 2025';
+            }
+            if (empty($data['description'])) {
+                $data['description'] = 'Documento PDF detallando nuestras iniciativas, métricas clave de impacto social y estados financieros auditados para el período 2025.';
+            }
+            if (empty($data['button_label'])) {
+                $data['button_label'] = 'Descargar PDF';
+            }
+            if (empty($data['document_url']) && empty($data['document'])) {
+                $data['document_url'] = 'http://localhost:8186/uploads/reporte_anual_2025.pdf';
+            }
+        }
+
         if ($blockKey === 'rich_text') {
             if (empty($data['content'])) {
                 $data['content'] = '<p>Este es un bloque de texto enriquecido de ejemplo. Puedes escribir párrafos, usar negritas, cursivas, listas y otros formatos directamente desde el editor de contenidos en el panel de administración.</p>';

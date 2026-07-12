@@ -25,6 +25,10 @@ class BlockRenderer
         'asset_showcase'     => \App\ViewModels\Blocks\AssetShowcaseViewModel::class,
         'social_links'       => \App\ViewModels\Blocks\SocialLinksViewModel::class,
         'social_link_item'   => \App\ViewModels\Blocks\SocialLinkItemViewModel::class,
+        'document_download'  => \App\ViewModels\Blocks\DocumentDownloadViewModel::class,
+        'video_gallery'      => \App\ViewModels\Blocks\VideoGalleryViewModel::class,
+        'document_gallery'   => \App\ViewModels\Blocks\DocumentGalleryViewModel::class,
+        'accordion'          => \App\ViewModels\Blocks\AccordionViewModel::class,
     ];
 
     /** @var array<string, array<string, mixed>|null> form definitions pre-loaded per render pass */
