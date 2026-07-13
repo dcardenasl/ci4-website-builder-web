@@ -45,7 +45,7 @@ if ($variant === 'bordered') {
 }
 ?>
 
-<section class="py-8 <?= esc($cssClass) ?>">
+<section class="section <?= esc($cssClass) ?>">
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 <?= esc($gridColsClass) ?>">
         <?php foreach ($cards as $card): ?>
             <div class="<?= esc($cardBaseClass . $cardVariantClass) ?>">

@@ -21,7 +21,7 @@ if ($videoUrl === '') {
 }
 ?>
 
-<section class="py-8 <?= esc($cssClass) ?>">
+<section class="section-sm <?= esc($cssClass) ?>">
     <div class="max-w-5xl mx-auto">
         <?php if ($heading !== ''): ?>
             <h3 class="text-xl md:text-2xl font-bold text-slate-800 mb-4 tracking-tight text-center">

@@ -36,7 +36,7 @@ foreach ($faqs as $faq) {
 }
 ?>
 
-<section id="faq" class="py-12 scroll-mt-16 <?= $cssClass ?>" data-faq-id="<?= $faqId ?>">
+<section id="faq" class="section scroll-mt-16 <?= esc($cssClass) ?>" data-faq-id="<?= $faqId ?>">
     <div class="max-w-4xl mx-auto px-4">
         <?php if ($title !== ''): ?>
             <div class="text-center max-w-2xl mx-auto mb-12">

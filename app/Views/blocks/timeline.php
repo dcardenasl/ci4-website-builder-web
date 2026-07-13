@@ -12,7 +12,7 @@ $layout = esc($config['layout'] ?? 'alternating');
 $cssClass = esc(trim($config['css_class'] ?? ''));
 ?>
 
-<section class="py-16 md:py-24 <?= $cssClass ?>">
+<section class="section-lg <?= $cssClass ?>">
     <div class="max-w-5xl mx-auto px-4">
         <?php if ($sectionTitle !== ''): ?>
             <div class="text-center max-w-2xl mx-auto mb-16">

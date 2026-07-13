@@ -29,7 +29,7 @@ $errors = (array) (session()->getFlashdata("form_errors_{$formKey}") ?? []);
 $hasLeftContent = ($heading !== '' || $description !== '' || ($showInfoBoxes && ($infoEmailLabel !== '' || $infoPhoneLabel !== '')));
 ?>
 
-<section class="py-12 sm:py-14 <?= esc($cssClass) ?>">
+<section class="section <?= esc($cssClass) ?>">
     <div class="container-base">
         <?php if ($hasLeftContent): ?>
             <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">

@@ -13,7 +13,7 @@ if ($logos === []) {
 }
 ?>
 
-<section class="py-6 overflow-hidden <?= esc($cssClass) ?>">
+<section class="section-sm overflow-hidden <?= esc($cssClass) ?>">
     <?php if ($isMarquee): ?>
         <style>
             @keyframes marquee {

@@ -1,4 +1,4 @@
-<section class="py-12 sm:py-14 <?= esc($cssClass) ?>">
+<section class="section <?= esc($cssClass) ?>">
     <div class="container-base">
         <div class="surface-default px-6 sm:px-10 lg:px-12 py-8 sm:py-10">
             <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">

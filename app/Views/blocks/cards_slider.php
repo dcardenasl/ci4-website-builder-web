@@ -22,7 +22,7 @@ if ($cards === []) {
 }
 ?>
 
-<section class="py-8 <?= esc($cssClass) ?>">
+<section class="section <?= esc($cssClass) ?>">
     <?php if ($sectionTitle !== '' || $sectionSubtitle !== ''): ?>
         <div class="container-base mb-8 text-center">
             <?php if ($sectionTitle !== ''): ?>

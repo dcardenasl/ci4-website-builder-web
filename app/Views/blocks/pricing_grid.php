@@ -11,7 +11,7 @@ $description = esc($data['description'] ?? '');
 $cssClass = esc(trim($config['css_class'] ?? ''));
 ?>
 
-<section id="pricing" class="py-16 md:py-24 scroll-mt-16 <?= $cssClass ?>">
+<section id="pricing" class="section-lg scroll-mt-16 <?= $cssClass ?>">
     <div class="max-w-5xl mx-auto px-4">
         <?php if ($title !== ''): ?>
             <div class="text-center max-w-2xl mx-auto mb-16">

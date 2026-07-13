@@ -50,7 +50,7 @@ $typeConfigs = [
 ];
 ?>
 
-<section class="py-12 <?= esc($cssClass) ?>">
+<section class="section <?= esc($cssClass) ?>">
     <div class="max-w-5xl mx-auto px-4">
         <?php if ($title !== ''): ?>
             <div class="max-w-2xl mb-8">

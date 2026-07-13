@@ -19,7 +19,7 @@ $ratioClass = match ($aspectRatio) {
     default => 'aspect-video',
 };
 ?>
-<section class="py-8 <?= esc($cssClass) ?>">
+<section class="section-sm <?= esc($cssClass) ?>">
     <div class="container-base">
         <?php if ($title !== '' || $caption !== ''): ?>
             <div class="mb-5 max-w-3xl">

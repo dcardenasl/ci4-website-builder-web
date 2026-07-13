@@ -11,7 +11,7 @@ if ($items === []) {
 }
 ?>
 
-<section class="py-8 <?= esc($cssClass) ?>">
+<section class="section <?= esc($cssClass) ?>">
     <div class="max-w-4xl mx-auto space-y-4">
         <?php foreach ($items as $item): ?>
             <details 

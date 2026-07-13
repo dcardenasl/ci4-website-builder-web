@@ -16,7 +16,7 @@ if ($pdfUrl === '') {
 }
 ?>
 
-<section class="py-8 <?= $cssClass ?>">
+<section class="section-sm <?= esc($cssClass) ?>">
     <div class="max-w-5xl mx-auto px-4">
         <?php if ($heading !== ''): ?>
             <h3 class="text-xl font-bold text-slate-800 mb-4 tracking-tight">

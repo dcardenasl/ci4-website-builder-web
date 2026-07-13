@@ -18,7 +18,7 @@ if ($stats === []) {
 }
 ?>
 
-<section class="py-8 <?= esc($cssClass) ?>">
+<section class="section <?= esc($cssClass) ?>">
     <div class="<?= esc($sectionClass) ?>">
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 <?= esc($columnsClass) ?> divide-y sm:divide-y-0 sm:divide-x <?= esc($dividerClass) ?>">
             <?php foreach ($stats as $stat): ?>

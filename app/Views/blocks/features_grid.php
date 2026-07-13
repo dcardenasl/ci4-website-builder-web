@@ -20,7 +20,7 @@ $colClasses = [
 $colClass = $colClasses[$columns] ?? $colClasses['3'];
 ?>
 
-<section id="features" class="py-16 bg-white scroll-mt-16 <?= $cssClass ?>">
+<section id="features" class="section-lg bg-white scroll-mt-16 <?= $cssClass ?>">
     <div class="max-w-5xl mx-auto px-4">
         <?php if ($title !== ''): ?>
             <div class="text-center max-w-2xl mx-auto mb-16">

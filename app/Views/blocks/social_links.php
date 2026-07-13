@@ -3,7 +3,7 @@
 /** @var string $renderedChildren */
 /** @var string $cssClass */
 ?>
-<section class="py-10 sm:py-12 <?= esc($cssClass) ?>">
+<section class="section-sm <?= esc($cssClass) ?>">
     <div class="container-base">
         <div class="space-y-5">
             <?php if ($heading): ?>

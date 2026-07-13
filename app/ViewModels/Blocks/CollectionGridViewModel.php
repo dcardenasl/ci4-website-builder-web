@@ -43,7 +43,7 @@ class CollectionGridViewModel extends AbstractBlockViewModel
             'cssClass'            => $this->configString('css_class'),
             'canonicalViewAllUrl' => $canonicalViewAllUrl,
             'entries'             => $this->resolvePreviewEntries($collectionKey, $itemsLimit, $orderBy, $orderDirection),
-            'sectionClass'        => $layoutVariant === 'portfolio' ? 'py-16 sm:py-20 bg-slate-50/50' : 'py-12 sm:py-14',
+            'sectionClass'        => $layoutVariant === 'portfolio' ? 'section-lg bg-slate-50/50' : 'section',
             'containerClass'      => $layoutVariant === 'portfolio' ? 'max-w-6xl mx-auto px-4' : 'container-base',
             'gridClass'           => match ($layoutVariant) {
                 'compact'   => 'grid gap-4 sm:grid-cols-2 lg:grid-cols-4',

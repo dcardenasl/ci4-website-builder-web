@@ -22,7 +22,7 @@ $gridClass = $layout === 'two_columns'
     ? 'grid gap-6 sm:grid-cols-2'
     : 'space-y-4';
 ?>
-<section class="py-12 sm:py-14 <?= esc($cssClass) ?>">
+<section class="section <?= esc($cssClass) ?>">
     <div class="container-base">
         <div class="max-w-4xl space-y-6">
                 <?php if ($sectionTitle): ?>

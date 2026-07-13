@@ -17,7 +17,7 @@ $colClass = $colClasses[$columns] ?? $colClasses['3'];
 $galleryId = uniqid('video_gal_');
 ?>
 
-<section id="timeline-item-videos" class="py-16 bg-slate-50/50 scroll-mt-16 <?= esc($cssClass) ?>" data-video-gallery-id="<?= $galleryId ?>">
+<section id="timeline-item-videos" class="section-lg bg-slate-50/50 scroll-mt-16 <?= esc($cssClass) ?>" data-video-gallery-id="<?= $galleryId ?>">
     <div class="max-w-5xl mx-auto px-4">
         <?php if ($title !== ''): ?>
             <div class="text-center max-w-2xl mx-auto mb-12">

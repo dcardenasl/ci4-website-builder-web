@@ -72,7 +72,7 @@ $cardClass = match ($layoutVariant) {
 
 $imageClass = $layoutVariant === 'portfolio' ? 'aspect-[4/3]' : 'aspect-video';
 $bodyClass = $layoutVariant === 'portfolio' ? 'p-7' : 'p-5';
-$sectionClass = trim($cssClass . ' py-8 sm:py-12');
+$sectionClass = trim($cssClass . ' section');
 ?>
 <section class="<?= esc($sectionClass) ?>" data-ajax-listing>
     <div class="container-base">
