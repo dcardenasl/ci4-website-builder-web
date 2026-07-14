@@ -456,4 +456,58 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
         preg_match('/<meta property="og:title" content="([^"]*)"/', $body, $ogTitleMatches);
         $this->assertNotEmpty($ogTitleMatches[1] ?? '', 'og:title must not be empty');
     }
+
+    /**
+     * Test 16: When CMS returns empty string/whitespace for SEO fields, they fall back.
+     */
+    public function testEmptySeoTagsFallback(): void
+    {
+        // 1. Mock collections (so resolving routes works)
+        $collection = [
+            'id'                       => 4,
+            'collection_key'           => 'festivales',
+            'slug'                     => 'festivales',
+            'name'                     => 'Festivales',
+            'listing_title'            => 'Festivales',
+            'listing_intro'            => '',
+            'default_meta_description' => 'Festivales de teatro',
+            'index_page'               => [
+                'localized_slugs' => [
+                    'es' => 'festivales',
+                    'en' => 'festivals',
+                ],
+            ],
+        ];
+        $this->domainAdapter->fakeGet('public/es/collections', [$collection]);
+
+        // 2. Mock a collection entry with empty/whitespace SEO fields
+        $this->domainAdapter->fakeGet('public/es/entries/festivales/animate-ix-encuentro-internacional-de-titeres', [
+            'title'              => 'Anímate, IX Encuentro Internacional De Títeres',
+            'slug'               => 'animate-ix-encuentro-internacional-de-titeres',
+            'excerpt'            => 'Excerpt de títeres',
+            'meta_title'         => '   ', // whitespace
+            'meta_description'   => '',    // empty
+            'robots'             => '',    // empty
+            'canonical_url'      => '',
+            'published_at'       => '2024-10-07 04:15:23',
+            'blocks'             => [],
+            'localized_slugs'    => ['es' => 'animate-ix-encuentro-internacional-de-titeres'],
+        ]);
+
+        // Act: GET the page
+        $result = $this->get('/es/festivales/animate-ix-encuentro-internacional-de-titeres');
+        $result->assertStatus(200);
+
+        $body = $result->response()->getBody();
+
+        // Title should fall back to entry title
+        $this->assertStringContainsString('<title>Anímate, IX Encuentro Internacional De Títeres</title>', $body);
+
+        // Description should fall back to entry excerpt
+        $this->assertStringContainsString('<meta name="description" content="Excerpt de títeres">', $body);
+
+        // Robots should fall back to \'index, follow\'
+        $this->assertStringContainsString('<meta name="robots" content="index, follow">', $body);
+    }
 }
+

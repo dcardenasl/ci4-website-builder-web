@@ -3,10 +3,14 @@ $siteConfig = config('App');
 $supportedLocales = $siteConfig->supportedLocales ?? [];
 $defaultLocale = $siteConfig->defaultLocale ?? ($supportedLocales[0] ?? service('request')->getLocale());
 
-$resolvedTitle = $pageTitle ?? $settings['site_name'] ?? $settings['site_title'] ?? 'Website';
-$resolvedDescription = $metaDescription ?? $settings['site_description'] ?? trim($resolvedTitle);
+$resolvedTitle = (isset($pageTitle) && trim((string) $pageTitle) !== '')
+    ? $pageTitle
+    : ($settings['site_name'] ?? $settings['site_title'] ?? 'Website');
+$resolvedDescription = (isset($metaDescription) && trim((string) $metaDescription) !== '')
+    ? $metaDescription
+    : ($settings['site_description'] ?? trim($resolvedTitle));
 
-if ($resolvedDescription === '') {
+if (trim((string) $resolvedDescription) === '') {
     $resolvedDescription = $resolvedTitle;
 }
 
@@ -65,7 +69,7 @@ $analyticsId       = $settings['analytics_id'] ?? '';
 <title><?= esc($resolvedTitle) ?></title>
 <meta name="description" content="<?= esc($resolvedDescription) ?>">
 
-<meta name="robots" content="<?= esc($metaRobots ?? 'index, follow') ?>">
+<meta name="robots" content="<?= esc((isset($metaRobots) && trim((string) $metaRobots) !== '') ? $metaRobots : 'index, follow') ?>">
 
 <?php if (! empty($canonicalUrl)): ?>
     <link rel="canonical" href="<?= esc($canonicalUrl) ?>">
