@@ -118,6 +118,39 @@ final class CollectionListingViewModelTest extends CIUnitTestCase
         $this->assertSame('Últimas noticias.', $vars['metaDescription']);
     }
 
+    public function testListVariantNormalizesListingContentAndVisibilityFlags(): void
+    {
+        $vm = new CollectionListingViewModel(
+            ['block_config' => [
+                'collection_id' => 1,
+                'layout_variant' => 'list',
+                'show_extra_richtext' => true,
+                'show_extra_link' => true,
+                'show_extra_image' => true,
+            ]],
+            'es',
+            $this->context([self::COLLECTION], [
+                'data' => [[
+                    'id' => 1,
+                    'listing_content' => [
+                        'rich_text' => '<script>alert(1)</script><p>Seguro</p>',
+                        'image' => ['url' => '/uploads/extra.jpg', 'alt' => 'Extra'],
+                        'secondary_action' => ['label' => 'Más información', 'url' => '/detalle'],
+                    ],
+                ]],
+                'meta' => [],
+            ])
+        );
+
+        $vars = $vm->vars();
+
+        $this->assertSame('list', $vars['layoutVariant']);
+        $this->assertTrue($vars['showExtraRichtext']);
+        $this->assertStringNotContainsString('<script>', $vars['entries'][0]['listing_content']['rich_text']);
+        $this->assertSame('/uploads/extra.jpg', $vars['entries'][0]['listing_content']['image']['url']);
+        $this->assertStringContainsString('/es/detalle', $vars['entries'][0]['listing_content']['secondary_action']['url']);
+    }
+
     public function testInvalidOrderAndDirectionFallBackToSafeDefaults(): void
     {
         $vm = new CollectionListingViewModel(

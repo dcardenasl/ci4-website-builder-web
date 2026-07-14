@@ -20,6 +20,13 @@
  * @var bool $showSearch
  * @var bool $showCategories
  * @var bool $showTags
+ * @var bool $showExcerpt
+ * @var bool $showDate
+ * @var bool $showButton
+ * @var bool $showItemCategories
+ * @var bool $showExtraRichtext
+ * @var bool $showExtraLink
+ * @var bool $showExtraImage
  * @var string $emptyMessage
  * @var string $introTitle
  * @var string $introText
@@ -60,17 +67,23 @@ $nextLabel = $lang === 'en' ? 'Next' : 'Siguiente';
 $noResultsLabel = lang('Site.collection_empty');
 
 $gridClass = match ($layoutVariant) {
+    'list' => 'space-y-6',
     'compact' => 'grid gap-4 sm:grid-cols-2 lg:grid-cols-4',
     'portfolio' => 'grid gap-8 sm:grid-cols-2 lg:grid-cols-3',
     default => 'grid gap-6 md:grid-cols-2 xl:grid-cols-3',
 };
 
 $cardClass = match ($layoutVariant) {
+    'list' => 'surface-card overflow-hidden group flex flex-col md:flex-row transition-colors hover:border-slate-300',
     'portfolio' => 'bg-white rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col group hover:shadow-lg transition-all duration-300',
     default => 'surface-card overflow-hidden transition-colors hover:border-slate-300 group flex flex-col',
 };
 
-$imageClass = $layoutVariant === 'portfolio' ? 'aspect-[4/3]' : 'aspect-video';
+$imageClass = match ($layoutVariant) {
+    'portfolio' => 'aspect-[4/3]',
+    'list' => 'aspect-video md:aspect-auto md:w-80 md:shrink-0',
+    default => 'aspect-video',
+};
 $bodyClass = $layoutVariant === 'portfolio' ? 'p-7' : 'p-5';
 $sectionClass = trim($cssClass . ' section');
 ?>
@@ -182,13 +195,17 @@ $sectionClass = trim($cssClass . ' section');
                 </div>
 
                 <!-- Grid -->
-                <div class="<?= esc($gridClass) ?> gap-y-8" data-listing-grid>
+                <div class="<?= esc($gridClass) ?> <?= $layoutVariant !== 'list' ? 'gap-y-8' : '' ?>" data-listing-grid>
                 <?php foreach ($entries as $index => $entry):
                     $entryTitle = (string) ($entry['title'] ?? '');
                     $entryExcerpt = (string) ($entry['excerpt'] ?? '');
                     $entryDate = (string) ($entry['published_at'] ?? $entry['created_at'] ?? '');
                     $entrySlug = (string) ($entry['slug'] ?? '');
                     $entryImage = (string) ($entry['featured_image_url'] ?? '');
+                    $listingContent = is_array($entry['listing_content'] ?? null) ? $entry['listing_content'] : [];
+                    $extraImage = is_array($listingContent['image'] ?? null) ? $listingContent['image'] : null;
+                    $extraAction = is_array($listingContent['secondary_action'] ?? null) ? $listingContent['secondary_action'] : null;
+                    $extraRichtext = (string) ($listingContent['rich_text'] ?? '');
                     $entryUrl = $basePath !== '' && $entrySlug !== ''
                         ? lang_url(rtrim($basePath, '/') . '/' . ltrim($entrySlug, '/'))
                         : '#';
@@ -218,7 +235,7 @@ $sectionClass = trim($cssClass . ' section');
                         <!-- Body Content Container -->
                         <div class="<?= esc($bodyClass) ?> flex flex-col flex-1">
                             <!-- Categories badges -->
-                            <?php if (!empty($entry['categories'])): ?>
+                            <?php if ($showItemCategories && !empty($entry['categories'])): ?>
                                 <div class="flex flex-wrap gap-1.5 mb-3.5">
                                     <?php foreach (array_slice($entry['categories'], 0, 2) as $cat): ?>
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-primary/10 text-primary">
@@ -229,7 +246,7 @@ $sectionClass = trim($cssClass . ' section');
                             <?php endif; ?>
 
                             <!-- Entry Date -->
-                            <?php if ($entryDate !== ''): ?>
+                            <?php if ($showDate && $entryDate !== ''): ?>
                                 <time datetime="<?= esc($entryDate) ?>" class="text-[10px] uppercase tracking-[0.2em] font-semibold text-slate-500 block mb-2">
                                     <?= esc(date('d M Y', strtotime($entryDate))) ?>
                                 </time>
@@ -243,21 +260,46 @@ $sectionClass = trim($cssClass . ' section');
                             </h3>
 
                             <!-- Excerpt -->
-                            <?php if ($entryExcerpt !== ''): ?>
+                            <?php if ($showExcerpt && $entryExcerpt !== ''): ?>
                                 <p class="mt-3 text-sm text-slate-500 leading-relaxed line-clamp-3">
                                     <?= esc($entryExcerpt) ?>
                                 </p>
                             <?php endif; ?>
 
+                            <?php if ($showExtraRichtext && $extraRichtext !== ''): ?>
+                                <div class="prose prose-sm mt-4 border-l-2 border-primary pl-3 text-slate-600 max-w-none">
+                                    <?= $extraRichtext ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if ($showExtraImage && $extraImage !== null): ?>
+                                <div class="mt-4 overflow-hidden rounded-lg">
+                                    <?= view('components/responsive-image', [
+                                        'src' => (string) $extraImage['url'],
+                                        'alt' => (string) ($extraImage['alt'] ?: $entryTitle),
+                                        'class' => 'h-32 w-full object-cover',
+                                    ], ['saveData' => false]) ?>
+                                </div>
+                            <?php endif; ?>
+
                             <!-- Call to Action Link -->
-                            <div class="mt-auto pt-5 border-t border-slate-100 flex items-center justify-between">
-                                <a href="<?= esc($entryUrl) ?>" class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider !text-primary group-hover:!text-primary-dark !no-underline">
-                                    <?= esc($collection['collection_type'] === 'news' ? lang('Site.view_article') : lang('Site.view_project')) ?>
-                                    <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
-                                    </svg>
-                                </a>
-                            </div>
+                            <?php if ($showButton || ($showExtraLink && $extraAction !== null)): ?>
+                                <div class="mt-auto pt-5 border-t border-slate-100 flex flex-wrap items-center gap-x-5 gap-y-3">
+                                    <?php if ($showButton): ?>
+                                        <a href="<?= esc($entryUrl) ?>" class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider !text-primary group-hover:!text-primary-dark !no-underline">
+                                            <?= esc($collection['collection_type'] === 'news' ? lang('Site.view_article') : lang('Site.view_project')) ?>
+                                            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                                            </svg>
+                                        </a>
+                                    <?php endif; ?>
+                                    <?php if ($showExtraLink && $extraAction !== null): ?>
+                                        <a href="<?= esc((string) $extraAction['url']) ?>" class="inline-flex items-center text-xs font-semibold !text-slate-600 hover:!text-slate-900 !no-underline">
+                                            <?= esc((string) $extraAction['label']) ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </article>
                 <?php endforeach; ?>

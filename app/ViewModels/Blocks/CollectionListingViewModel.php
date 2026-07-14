@@ -12,7 +12,7 @@ use App\Services\SiteTagService;
 class CollectionListingViewModel extends AbstractBlockViewModel
 {
     private const ORDER_COLUMNS = ['published_at', 'sort_order', 'created_at', 'title'];
-    private const LAYOUT_VARIANTS = ['cards', 'compact', 'portfolio'];
+    private const LAYOUT_VARIANTS = ['cards', 'compact', 'portfolio', 'list'];
 
     /** @var array<string, mixed>|null */
     private ?array $collection = null;
@@ -53,6 +53,13 @@ class CollectionListingViewModel extends AbstractBlockViewModel
                 'showSearch' => $this->configBool('show_search', true),
                 'showCategories' => $this->configBool('show_categories', true),
                 'showTags' => $this->configBool('show_tags', false),
+                'showExcerpt' => $this->configBool('show_excerpt', true),
+                'showDate' => $this->configBool('show_date', true),
+                'showButton' => $this->configBool('show_button', true),
+                'showItemCategories' => $this->configBool('show_item_categories', true),
+                'showExtraRichtext' => $this->configBool('show_extra_richtext', false),
+                'showExtraLink' => $this->configBool('show_extra_link', false),
+                'showExtraImage' => $this->configBool('show_extra_image', false),
                 'emptyMessage' => $this->dataString('empty_message'),
                 'introTitle' => $this->dataString('intro_title'),
                 'introText' => $this->dataString('intro_text'),
@@ -80,6 +87,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             'per_page' => $perPage,
             'order_by' => $orderBy,
             'order_direction' => $orderDirection,
+            'include' => 'listing_content',
         ];
         if ($currentCategory !== '') {
             $query['category'] = $currentCategory;
@@ -149,7 +157,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             'collectionUrlPath' => $collectionUrlPath,
             'localizedUrls' => $localizedUrls,
             'collectionKey' => $collectionKey,
-            'entries' => is_array($result['data'] ?? null) ? array_values(array_filter($result['data'], 'is_array')) : [],
+            'entries' => $this->prepareEntries($result['data'] ?? []),
             'pagination' => is_array($result['meta']['pagination'] ?? null) ? $result['meta']['pagination'] : [],
             'currentPage' => $currentPage,
             'currentCategory' => $currentCategory,
@@ -162,6 +170,13 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             'showSearch' => $this->configBool('show_search', true),
             'showCategories' => $this->configBool('show_categories', true),
             'showTags' => $this->configBool('show_tags', false),
+            'showExcerpt' => $this->configBool('show_excerpt', true),
+            'showDate' => $this->configBool('show_date', true),
+            'showButton' => $this->configBool('show_button', true),
+            'showItemCategories' => $this->configBool('show_item_categories', true),
+            'showExtraRichtext' => $this->configBool('show_extra_richtext', false),
+            'showExtraLink' => $this->configBool('show_extra_link', false),
+            'showExtraImage' => $this->configBool('show_extra_image', false),
             'emptyMessage' => $this->dataString('empty_message', $this->defaultEmptyMessage()),
             'introTitle' => $this->dataString('intro_title'),
             'introText' => $this->dataString('intro_text'),
@@ -229,6 +244,76 @@ class CollectionListingViewModel extends AbstractBlockViewModel
     private function resolveLayoutVariant(string $value): string
     {
         return in_array($value, self::LAYOUT_VARIANTS, true) ? $value : 'cards';
+    }
+
+    /**
+     * Normalize the optional Domain projection once, keeping the template free
+     * from URL policy and rich-text sanitization concerns.
+     *
+     * @param mixed $entries
+     * @return list<array<string, mixed>>
+     */
+    private function prepareEntries(mixed $entries): array
+    {
+        if (!is_array($entries)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($entries as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+
+            $content = is_array($entry['listing_content'] ?? null) ? $entry['listing_content'] : [];
+            $image = is_array($content['image'] ?? null) ? $content['image'] : null;
+            $action = is_array($content['secondary_action'] ?? null) ? $content['secondary_action'] : null;
+            $richText = is_string($content['rich_text'] ?? null) ? trim($content['rich_text']) : '';
+
+            $entry['listing_content'] = [
+                'rich_text' => $richText !== '' ? \App\Libraries\HtmlSanitizer::clean($richText) : '',
+                'image' => $this->normalizeListingImage($image),
+                'secondary_action' => $this->normalizeListingAction($action),
+            ];
+            $normalized[] = $entry;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param array<string, mixed>|null $image
+     * @return array{url: string, alt: string}|null
+     */
+    private function normalizeListingImage(?array $image): ?array
+    {
+        $url = is_string($image['url'] ?? null) ? trim($image['url']) : '';
+        if ($url === '') {
+            return null;
+        }
+
+        return [
+            'url' => $url,
+            'alt' => is_string($image['alt'] ?? null) ? trim($image['alt']) : '',
+        ];
+    }
+
+    /**
+     * @param array<string, mixed>|null $action
+     * @return array{label: string, url: string}|null
+     */
+    private function normalizeListingAction(?array $action): ?array
+    {
+        $label = is_string($action['label'] ?? null) ? trim($action['label']) : '';
+        $url = is_string($action['url'] ?? null) ? trim($action['url']) : '';
+        if ($label === '' || $url === '') {
+            return null;
+        }
+
+        return [
+            'label' => $label,
+            'url' => str_starts_with($url, '/') ? lang_url($url) : $url,
+        ];
     }
 
     /**

@@ -17,7 +17,8 @@ class DocumentGalleryViewModel extends AbstractBlockViewModel
             $title   = is_scalar($d['title'] ?? null) ? (string) $d['title'] : '';
             $desc    = is_scalar($d['description'] ?? null) ? (string) $d['description'] : '';
 
-            $ext = strtolower(pathinfo(parse_url($fileUrl, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+            $path = parse_url($fileUrl, PHP_URL_PATH);
+            $ext = strtolower(pathinfo(is_string($path) ? $path : '', PATHINFO_EXTENSION));
 
             $docType = 'generic';
             if (in_array($ext, ['pdf'], true)) {

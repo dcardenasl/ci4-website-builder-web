@@ -9,7 +9,8 @@ class DocumentDownloadViewModel extends AbstractBlockViewModel
     public function vars(): array
     {
         $url = $this->dataString('document_url');
-        $ext = strtolower(pathinfo(parse_url($url, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+        $path = parse_url($url, PHP_URL_PATH);
+        $ext = strtolower(pathinfo(is_string($path) ? $path : '', PATHINFO_EXTENSION));
 
         $docType = 'generic';
         if (in_array($ext, ['pdf'], true)) {
