@@ -12,6 +12,16 @@
  * @var string $text_color Hex color for heading/subheading text (default: #ffffff)
  * @var string $overlay_color RGBA color for the overlay (default: rgba(15, 23, 42, 0.4))
  */
+
+$image_url = $image_url ?? '';
+$alt = $alt ?? '';
+$heading = $heading ?? '';
+$subheading = $subheading ?? '';
+$cta_label = $cta_label ?? '';
+$cta_url = $cta_url ?? '';
+$cssClass = $cssClass ?? '';
+$text_color = $text_color ?? '#ffffff';
+$overlay_color = $overlay_color ?? 'rgba(15, 23, 42, 0.4)';
 ?>
 <section class="relative h-96 flex items-center justify-center overflow-hidden <?= esc($cssClass) ?>">
     <?php if (!empty($image_url)): 
