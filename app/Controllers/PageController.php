@@ -119,7 +119,13 @@ class PageController extends BasePublicWebController
                     return $this->renderPage($page, $lang);
                 }
 
-                return $this->notFound("No se encontró la página índice para la colección: {$path}");
+                // The path matched this collection's prefix (its own index page,
+                // or the collection_key fallback for collections without one) but
+                // no matching collection_index page exists. Don't 404 here: a
+                // collection lacking a dedicated index page can share its prefix
+                // with an unrelated CMS page slug — let Steps 2-5 resolve it
+                // normally instead of shadowing that page.
+                break;
             }
 
             $entry = $entryService->getBySlug($lang, $collection['collection_key'], $remainder, $preview, $previewExpires, $previewSig);

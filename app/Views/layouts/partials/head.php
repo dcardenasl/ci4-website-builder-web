@@ -5,7 +5,7 @@ $defaultLocale = $siteConfig->defaultLocale ?? ($supportedLocales[0] ?? service(
 
 $resolvedTitle = (isset($pageTitle) && trim((string) $pageTitle) !== '')
     ? $pageTitle
-    : ($settings['site_name'] ?? $settings['site_title'] ?? 'Website');
+    : ($settings['site_name'] ?? $settings['site_title'] ?? lang('Site.site_default_name'));
 $resolvedDescription = (isset($metaDescription) && trim((string) $metaDescription) !== '')
     ? $metaDescription
     : ($settings['site_description'] ?? trim($resolvedTitle));

@@ -14,7 +14,7 @@ foreach ($block['children'] ?? [] as $index => $child) {
     $childData = $child['block_data'] ?? [];
     $tabs[] = [
         'index' => $index,
-        'title' => (string) ($childData['title'] ?? 'Tab ' . ($index + 1)),
+        'title' => (string) ($childData['title'] ?? lang('Site.tab_default_label', [$index + 1])),
         'content' => block_text_content($childData, ''),
     ];
 }

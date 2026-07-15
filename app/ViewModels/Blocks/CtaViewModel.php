@@ -12,7 +12,7 @@ class CtaViewModel extends AbstractBlockViewModel
             'heading'  => $this->dataString('heading'),
             'text'     => $this->dataString('text'),
             'label'    => $this->dataString('label'),
-            'url'      => lang_url($this->dataString('url', '#')),
+            'url'      => lang_url($this->dataString('url', '#'), $this->lang),
             'cssClass' => trim($this->configString('css_class')),
         ];
     }

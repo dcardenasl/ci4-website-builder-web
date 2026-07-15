@@ -124,18 +124,18 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
             <?php if ($controlsIsOverlay): ?>
                 <div class="absolute inset-x-0 bottom-4 z-30 flex justify-center px-4">
                     <div class="control-pill surface-overlay shadow-lg shadow-slate-950/20">
-                        <button type="button" data-hero-prev class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50" aria-label="Anterior">
+                        <button type="button" data-hero-prev class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50" aria-label="<?= esc(lang('Site.carousel_previous')) ?>">
                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                             </svg>
                         </button>
-                        <div class="flex items-center gap-2" aria-label="Diapositivas">
+                        <div class="flex items-center gap-2" aria-label="<?= esc(lang('Site.carousel_slides_label')) ?>">
                             <?php foreach ($slides as $index => $slide): ?>
                                 <button
                                     type="button"
                                     data-hero-dot="<?= $index ?>"
                                     class="flex h-6 w-6 items-center justify-center rounded-full"
-                                    aria-label="Ir a la diapositiva <?= $index + 1 ?>"
+                                    aria-label="<?= esc(lang('Site.carousel_go_to_slide', [$index + 1])) ?>"
                                 >
                                     <span data-hero-dot-visual class="flex h-2 w-2 items-stretch overflow-hidden rounded-full border border-slate-300 <?= $index === 0 ? 'bg-slate-100' : 'bg-slate-200' ?>">
                                         <span data-hero-dot-fill class="block h-full w-full bg-slate-900" style="transform-origin:left center;"></span>
@@ -143,7 +143,7 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
                                 </button>
                             <?php endforeach; ?>
                         </div>
-                        <button type="button" data-hero-next class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50" aria-label="Siguiente">
+                        <button type="button" data-hero-next class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50" aria-label="<?= esc(lang('Site.carousel_next')) ?>">
                             <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                             </svg>
@@ -177,18 +177,18 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
                     <?php if (! $controlsIsOverlay): ?>
                         <div class="flex justify-center">
                             <div class="control-pill surface-default bg-white/80">
-                                <button type="button" data-hero-prev class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50" aria-label="Anterior">
+                                <button type="button" data-hero-prev class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50" aria-label="<?= esc(lang('Site.carousel_previous')) ?>">
                                     <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                                     </svg>
                                 </button>
-                                <div class="flex items-center gap-2" aria-label="Diapositivas">
+                                <div class="flex items-center gap-2" aria-label="<?= esc(lang('Site.carousel_slides_label')) ?>">
                                     <?php foreach ($slides as $index => $slide): ?>
                                         <button
                                             type="button"
                                             data-hero-dot="<?= $index ?>"
                                             class="flex h-6 w-6 items-center justify-center rounded-full"
-                                            aria-label="Ir a la diapositiva <?= $index + 1 ?>"
+                                            aria-label="<?= esc(lang('Site.carousel_go_to_slide', [$index + 1])) ?>"
                                         >
                                             <span data-hero-dot-visual class="flex h-2 w-2 items-stretch overflow-hidden rounded-full border border-slate-300 <?= $index === 0 ? 'bg-slate-100' : 'bg-slate-200' ?>">
                                                 <span data-hero-dot-fill class="block h-full w-full bg-slate-900" style="transform-origin:left center;"></span>
@@ -196,7 +196,7 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
                                         </button>
                                     <?php endforeach; ?>
                                 </div>
-                                <button type="button" data-hero-next class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50" aria-label="Siguiente">
+                                <button type="button" data-hero-next class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-colors hover:bg-slate-50" aria-label="<?= esc(lang('Site.carousel_next')) ?>">
                                     <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                                     </svg>

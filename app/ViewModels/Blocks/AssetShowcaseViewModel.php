@@ -54,7 +54,7 @@ class AssetShowcaseViewModel extends AbstractBlockViewModel
             $logos[] = [
                 'logo_url' => $string('logo_url'),
                 'name'     => $string('name'),
-                'link_url' => lang_url($string('link_url')),
+                'link_url' => lang_url($string('link_url'), $this->lang),
             ];
         }
 

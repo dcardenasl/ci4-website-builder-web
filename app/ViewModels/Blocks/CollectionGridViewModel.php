@@ -55,7 +55,13 @@ class CollectionGridViewModel extends AbstractBlockViewModel
 
     /**
      * Canonical URL of the collection index, falling back to the manually
-     * configured view_all_url when the collection is not resolvable.
+     * configured view_all_url when the collection isn't resolvable at all
+     * (service unavailable, unknown key, or a transport error). Delegates
+     * lookup + URL resolution to AbstractBlockViewModel::findCollection() and
+     * the global localized_collection_url_path() — the same single source of
+     * truth CollectionListingViewModel uses, so the two block types can't
+     * drift out of sync on how a collection's URL is built (see the
+     * 2026-07-15 dead-link fix for what that drift cost in practice).
      */
     private function canonicalViewAllUrl(string $collectionKey, string $fallback): string
     {
@@ -65,48 +71,21 @@ class CollectionGridViewModel extends AbstractBlockViewModel
         }
 
         try {
-            foreach ($service->getAll($this->lang) as $collection) {
-                if (is_array($collection) && ($collection['collection_key'] ?? '') === $collectionKey) {
-                    $collectionUrlPath = collection_url_path($collection);
-                    if ($collectionUrlPath !== '') {
-                        return $collectionUrlPath;
-                    }
-
-                    $requestPath = $this->currentPagePath();
-                    if ($requestPath !== '') {
-                        return $requestPath;
-                    }
-
-                    return '';
-                }
-            }
+            $collection = $this->findCollection(
+                $service->getAll($this->lang),
+                static fn (array $c): bool => ($c['collection_key'] ?? '') === $collectionKey
+            );
         } catch (\Throwable) {
-            // Fall through to the manual fallback.
+            return $fallback;
         }
 
-        return $fallback;
-    }
-
-    private function currentPagePath(): string
-    {
-        $request = $this->contextRequest();
-        if ($request === null) {
-            return '';
+        if ($collection === null) {
+            return $fallback;
         }
 
-        $path = trim((string) $request->getUri()->getPath(), '/');
-        if ($path === '') {
-            return '';
-        }
+        $urlPath = localized_collection_url_path($collection, $this->lang);
 
-        $segments = explode('/', $path);
-        if ($segments !== [] && in_array($segments[0], config('App')->supportedLocales, true)) {
-            array_shift($segments);
-        }
-
-        $fallbackPath = trim(implode('/', $segments), '/');
-
-        return $fallbackPath !== '' ? '/' . $fallbackPath : '';
+        return $urlPath !== '' ? $urlPath : $fallback;
     }
 
     /**
@@ -146,7 +125,7 @@ class CollectionGridViewModel extends AbstractBlockViewModel
             $entries = $this->entries($collectionKey, $itemsLimit, $orderBy, $orderDirection);
         }
 
-        if ($entries === [] && str_contains($this->contextRequest()?->getUri()->getPath() ?? '', 'blocks/preview')) {
+        if ($entries === [] && $this->isPreviewRequest()) {
             return [
                 [
                     'id' => 1,

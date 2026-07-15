@@ -19,7 +19,7 @@ class TeamMemberViewModel extends AbstractBlockViewModel
             'photo'    => $photo,
             'position' => $position,
             'bio'      => $bio,
-            'linkedin' => lang_url($linkedin),
+            'linkedin' => lang_url($linkedin, $this->lang),
         ];
     }
 }

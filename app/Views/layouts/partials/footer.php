@@ -42,14 +42,14 @@
                 <div class="flex items-center gap-2">
                     <?php if ($siteFooterLogoUrl !== ''): ?>
                         <img src="<?= esc($siteFooterLogoUrl) ?>"
-                             alt="<?= esc($settings['site_name'] ?? 'Logo') ?>"
+                             alt="<?= esc($settings['site_name'] ?? lang('Site.site_logo_alt')) ?>"
                              class="h-10 w-auto" />
                     <?php else: ?>
-                        <span class="text-lg font-bold text-primary"><?= esc($settings['site_name'] ?? 'Site') ?></span>
+                        <span class="text-lg font-bold text-primary"><?= esc($settings['site_name'] ?? lang('Site.site_default_name')) ?></span>
                     <?php endif; ?>
                 </div>
                 <p class="section-copy text-sm max-w-sm">
-                    <?= esc($settings['site_tagline'] ?? 'Website powered by CI4.') ?>
+                    <?= esc($settings['site_tagline'] ?? lang('Site.footer_default_tagline')) ?>
                 </p>
             </div>
 
@@ -72,7 +72,7 @@
             <?php if ($isLegalVertical): ?>
                 <!-- Legal Menu Links (Vertical Layout) -->
                 <div class="space-y-4">
-                    <p class="section-eyebrow"><?= esc($legalMenu['name'] ?? 'Legal') ?></p>
+                    <p class="section-eyebrow"><?= esc($legalMenu['name'] ?? lang('Site.footer_legal_label')) ?></p>
                     <ul class="space-y-2.5">
                         <?php foreach (($legalMenu['items'] ?? []) as $item): ?>
                             <li>
@@ -123,7 +123,7 @@
                 <!-- Horizontal Layout for Legal Menu -->
                 <div class="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div class="text-xs text-slate-400 order-2 md:order-1 text-center md:text-left">
-                        <p><?= esc($settings['site_copyright'] ?? '© ' . date('Y') . ' ' . ($settings['site_title'] ?? 'Website') . '. Todos los derechos reservados.') ?></p>
+                        <p><?= esc($settings['site_copyright'] ?? lang('Site.footer_default_copyright', [date('Y'), $settings['site_title'] ?? lang('Site.site_default_name')])) ?></p>
                     </div>
                     <div class="flex flex-wrap justify-center items-center text-xs order-1 md:order-2">
                         <?php foreach ($legalMenu['items'] as $idx => $item): ?>
@@ -138,7 +138,7 @@
                 </div>
             <?php else: ?>
                 <div class="text-center text-xs text-slate-400">
-                    <p><?= esc($settings['site_copyright'] ?? '© ' . date('Y') . ' ' . ($settings['site_title'] ?? 'Website') . '. Todos los derechos reservados.') ?></p>
+                    <p><?= esc($settings['site_copyright'] ?? lang('Site.footer_default_copyright', [date('Y'), $settings['site_title'] ?? lang('Site.site_default_name')])) ?></p>
                 </div>
             <?php endif; ?>
         </div>

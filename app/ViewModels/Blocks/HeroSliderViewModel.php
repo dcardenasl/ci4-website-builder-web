@@ -61,7 +61,7 @@ class HeroSliderViewModel extends AbstractBlockViewModel
                 'heading'        => $heading,
                 'subtitle'       => $this->childString($childData, 'subtitle'),
                 'cta_label'      => $this->childString($childData, 'cta_label'),
-                'cta_url'        => lang_url($this->childString($childData, 'cta_url', '#')),
+                'cta_url'        => lang_url($this->childString($childData, 'cta_url', '#'), $this->lang),
                 'text_color'     => $textColor,
                 'overlay_color'  => $overlayColor,
             ];

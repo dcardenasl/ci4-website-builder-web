@@ -45,16 +45,34 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
         $this->assertSame('welcome-to-our-news', $info['remainder']);
     }
 
-    public function testCanonicalPathReturnsNullWithoutSlug(): void
+    public function testCanonicalPathFallsBackToCollectionKeyWithoutIndexPage(): void
     {
         service('request')->setLocale('en');
 
+        // Without a dedicated index page, entry links must still resolve to a
+        // stable, collection-derived prefix — not depend on whichever page
+        // happens to embed the listing block (see PageController::resolve()
+        // Step 1, which relies on this prefix being routable).
         $collection = [
             'collection_key' => 'noticias',
         ];
 
+        $this->assertSame('/noticias', collection_url_path($collection));
+
+        $info = collection_url_path_info($collection, 'noticias/bienvenidos-a-nuestras-noticias');
+        $this->assertNotNull($info);
+        $this->assertSame('/noticias', $info['prefix']);
+        $this->assertSame('bienvenidos-a-nuestras-noticias', $info['remainder']);
+    }
+
+    public function testCanonicalPathReturnsEmptyWithoutSlugOrCollectionKey(): void
+    {
+        service('request')->setLocale('en');
+
+        $collection = [];
+
         $this->assertSame('', collection_url_path($collection));
-        $this->assertNull(collection_url_path_info($collection, 'noticias/bienvenidos-a-nuestras-noticias'));
+        $this->assertNull(collection_url_path_info($collection, 'anything'));
     }
 
     public function testLocalizedCollectionUrlPathUsesTranslatedSlug(): void

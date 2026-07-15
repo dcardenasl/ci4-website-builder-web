@@ -93,14 +93,14 @@ if ($cards === []) {
                 <button 
                     data-slider-prev
                     class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-700 w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:scale-105 border border-slate-100 transition-all focus:outline-none opacity-0 group-hover/slider:opacity-100"
-                    aria-label="Anterior"
+                    aria-label="<?= esc(lang('Site.carousel_previous')) ?>"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 </button>
                 <button 
                     data-slider-next
                     class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-700 w-10 h-10 rounded-full flex items-center justify-center shadow-md hover:scale-105 border border-slate-100 transition-all focus:outline-none opacity-0 group-hover/slider:opacity-100"
-                    aria-label="Siguiente"
+                    aria-label="<?= esc(lang('Site.carousel_next')) ?>"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                 </button>
@@ -110,7 +110,7 @@ if ($cards === []) {
                         <button 
                             data-dot="<?= $index ?>"
                             class="w-2.5 h-2.5 rounded-full transition-all duration-300 <?= $index === 0 ? 'bg-violet-600 w-6' : 'bg-slate-300 hover:bg-slate-400' ?>"
-                            aria-label="Ir a diapositiva <?= $index + 1 ?>"
+                            aria-label="<?= esc(lang('Site.carousel_go_to_slide', [$index + 1])) ?>"
                         ></button>
                     <?php endfor; ?>
                 </div>

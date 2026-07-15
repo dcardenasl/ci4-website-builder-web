@@ -74,7 +74,7 @@ class SocialLinkItemViewModel extends AbstractBlockViewModel
         }
 
         return [
-            'url'    => lang_url($url),
+            'url'    => lang_url($url, $this->lang),
             'label'  => $label,
             'handle' => $handle,
             'color'  => $color,

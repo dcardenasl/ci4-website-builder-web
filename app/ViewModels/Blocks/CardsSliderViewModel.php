@@ -51,7 +51,7 @@ class CardsSliderViewModel extends AbstractBlockViewModel
                 'meta_description' => $string('meta_description'),
                 'image_url'        => $string('image_url'),
                 'rating'           => is_numeric($childData['rating'] ?? null) ? (int) $childData['rating'] : 0,
-                'link_url'         => lang_url($string('link_url')),
+                'link_url'         => lang_url($string('link_url'), $this->lang),
                 'link_label'       => $string('link_label'),
             ];
         }

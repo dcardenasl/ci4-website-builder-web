@@ -18,7 +18,7 @@ if (! function_exists('lang_url')) {
     /**
      * Generate localized base URL.
      */
-    function lang_url(?string $url = ''): string
+    function lang_url(?string $url = '', ?string $locale = null): string
     {
         if (empty($url) || $url === '#') {
             return '#';
@@ -29,7 +29,9 @@ if (! function_exists('lang_url')) {
             return $url;
         }
 
-        $currentLocale = service('request')->getLocale();
+        $currentLocale = $locale !== null && $locale !== ''
+            ? $locale
+            : service('request')->getLocale();
         $url = '/' . ltrim($url, '/');
 
         // Check if URL already has a valid locale prefix
@@ -194,8 +196,16 @@ if (! function_exists('localized_collection_url_path')) {
     /**
      * Resolve the canonical public path for a collection in a given locale.
      *
-     * Returns an empty string when the collection has no explicit index page
-     * for the requested locale.
+     * Prefers the collection's dedicated index page slug when one is
+     * published. Falls back to `/{collection_key}` when there is no index
+     * page — `collection_key` is a required, URL-safe field (see
+     * `CollectionModel::$validationRules`), so this always yields a stable
+     * path that `PageController::resolve()`'s Step 1 (collection prefix
+     * match) can route back to, regardless of which page(s) happen to embed
+     * a collection_listing/collection_grid block for this collection. Do not
+     * fall back to the *current request path* instead — that makes entry
+     * URLs depend on which page rendered them, producing different links for
+     * the same entry when two pages embed the same collection.
      *
      * @param array<string, mixed> $collection
      */
@@ -212,7 +222,9 @@ if (! function_exists('localized_collection_url_path')) {
             }
         }
 
-        return '';
+        $collectionKey = trim((string) ($collection['collection_key'] ?? ''), '/');
+
+        return $collectionKey !== '' ? '/' . $collectionKey : '';
     }
 }
 

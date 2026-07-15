@@ -10,7 +10,7 @@ $price = esc($data['price'] ?? '');
 $period = esc($data['period'] ?? '');
 $description = esc($data['description'] ?? '');
 $features = $data['features'] ?? ''; // rich text
-$ctaLabel = esc($data['cta_label'] ?? 'Comenzar');
+$ctaLabel = esc($data['cta_label'] ?? lang('Site.pricing_plan_cta_default'));
 $ctaUrl = esc($data['cta_url'] ?? '#');
 $featured = (bool) ($config['featured'] ?? false);
 ?>
@@ -18,7 +18,7 @@ $featured = (bool) ($config['featured'] ?? false);
 <div class="flex flex-col rounded-3xl border <?= $featured ? 'border-violet-500 ring-4 ring-violet-500/5 bg-white relative' : 'border-slate-200 bg-white' ?> p-8 shadow-sm hover:shadow-md transition-all duration-300">
     <?php if ($featured): ?>
         <span class="absolute top-0 right-8 -translate-y-1/2 rounded-full bg-violet-600 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white shadow-sm">
-            Destacado
+            <?= esc(lang('Site.pricing_plan_featured')) ?>
         </span>
     <?php endif; ?>
 

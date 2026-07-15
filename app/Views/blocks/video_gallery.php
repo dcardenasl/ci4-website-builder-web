@@ -34,7 +34,7 @@ $galleryId = uniqid('video_gal_');
 
         <?php if ($videos === []): ?>
             <div class="rounded-3xl border border-dashed border-slate-200 bg-white p-8 text-center text-sm text-slate-400">
-                No hay videos cargados en la galería.
+                <?= esc(lang('Site.video_gallery_empty')) ?>
             </div>
         <?php else: ?>
             <div class="grid gap-6 <?= $colClass ?>">
@@ -91,7 +91,7 @@ $galleryId = uniqid('video_gal_');
             <button type="button"
                     data-video-close
                     class="rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors focus:outline-none"
-                    aria-label="Cerrar modal">
+                    aria-label="<?= esc(lang('Site.video_modal_close')) ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                 </svg>
@@ -113,7 +113,7 @@ $galleryId = uniqid('video_gal_');
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
                 </svg>
-                <span>Anterior</span>
+                <span><?= esc(lang('Site.video_modal_previous')) ?></span>
             </button>
 
             <span data-video-modal-counter class="text-xs text-slate-400"></span>
@@ -121,7 +121,7 @@ $galleryId = uniqid('video_gal_');
             <button type="button"
                     data-video-next
                     class="flex items-center gap-1 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-sm font-semibold transition-colors disabled:opacity-30 disabled:pointer-events-none">
-                <span>Siguiente</span>
+                <span><?= esc(lang('Site.video_modal_next')) ?></span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
                 </svg>

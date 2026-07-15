@@ -207,22 +207,10 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             return null;
         }
 
-        foreach ($service->getAll($this->lang) as $collection) {
-            if (! is_array($collection)) {
-                continue;
-            }
-
-            if ((int) ($collection['id'] ?? 0) === $collectionId) {
-                return $collection;
-            }
-        }
-
-        return null;
-    }
-
-    private function isPreviewRequest(): bool
-    {
-        return str_contains($this->contextRequest()?->getUri()->getPath() ?? '', 'blocks/preview');
+        return $this->findCollection(
+            $service->getAll($this->lang),
+            static fn (array $collection): bool => (int) ($collection['id'] ?? 0) === $collectionId
+        );
     }
 
     private function requestGet(string $key): string
@@ -318,7 +306,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
 
         return [
             'label' => $label,
-            'url' => str_starts_with($url, '/') ? lang_url($url) : $url,
+            'url' => str_starts_with($url, '/') ? lang_url($url, $this->lang) : $url,
         ];
     }
 
@@ -417,7 +405,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
         $query = http_build_query(array_filter($params, static fn ($value) => $value !== null && $value !== ''));
 
         return $path !== ''
-            ? lang_url($path) . ($query !== '' ? '?' . $query : '')
+            ? lang_url($path, $this->lang) . ($query !== '' ? '?' . $query : '')
             : '#';
     }
 
@@ -429,36 +417,16 @@ class CollectionListingViewModel extends AbstractBlockViewModel
     /**
      * Resolve the base path used for filter links and entry cards.
      *
-     * Prefer the collection's canonical URL path; if the collection has no
-     * published index page yet, fall back to the current page slug so CMS
-     * pages that host a collection_listing block still produce working links.
+     * Delegates to `localized_collection_url_path()`, the single source of
+     * truth for a collection's canonical URL (index page slug, or the
+     * `collection_key` fallback when there is none) — do not reintroduce a
+     * page-derived fallback here; that made entry links depend on which page
+     * happened to render the block (see the 2026-07-15 dead-link fix).
      *
      * @param array<string, mixed> $collection
      */
     private function resolvedCollectionUrlPath(array $collection): string
     {
-        $collectionUrlPath = localized_collection_url_path($collection, $this->lang);
-        if ($collectionUrlPath !== '') {
-            return $collectionUrlPath;
-        }
-
-        $request = $this->contextRequest();
-        if ($request === null) {
-            return '';
-        }
-
-        $path = trim((string) $request->getUri()->getPath(), '/');
-        if ($path === '') {
-            return '';
-        }
-
-        $segments = explode('/', $path);
-        if ($segments !== [] && in_array($segments[0], config('App')->supportedLocales, true)) {
-            array_shift($segments);
-        }
-
-        $fallbackPath = trim(implode('/', $segments), '/');
-
-        return $fallbackPath !== '' ? '/' . $fallbackPath : '';
+        return localized_collection_url_path($collection, $this->lang);
     }
 }

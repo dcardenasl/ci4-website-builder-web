@@ -118,4 +118,38 @@ abstract class AbstractBlockViewModel
 
         return is_numeric($value) ? (int) $value : $default;
     }
+
+    /**
+     * True while rendering the isolated block-preview page (`/blocks/preview`),
+     * which entry-driven blocks use to substitute mock data when there's
+     * nothing real to show yet.
+     */
+    protected function isPreviewRequest(): bool
+    {
+        return str_contains($this->contextRequest()?->getUri()->getPath() ?? '', 'blocks/preview');
+    }
+
+    /**
+     * Find the first collection matching a predicate in an already-fetched
+     * collections list. Both collection_grid and collection_listing need to
+     * look a collection up (by key or by id, respectively) before resolving
+     * its canonical URL via the global `localized_collection_url_path()`
+     * helper — sharing the lookup here keeps that a single source of truth
+     * instead of two independently-maintained copies (see the 2026-07-15
+     * dead-link fix for what letting those drift apart costs in practice).
+     *
+     * @param array<array<string, mixed>> $collections
+     * @param callable(array<string, mixed>): bool $matcher
+     * @return array<string, mixed>|null
+     */
+    protected function findCollection(array $collections, callable $matcher): ?array
+    {
+        foreach ($collections as $collection) {
+            if (is_array($collection) && $matcher($collection)) {
+                return $collection;
+            }
+        }
+
+        return null;
+    }
 }

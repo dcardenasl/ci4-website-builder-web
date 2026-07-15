@@ -12,11 +12,11 @@
         <a href="<?= esc(lang_url('/')) ?>" class="flex items-center gap-3 text-slate-900 transition-colors hover:text-primary">
             <?php if ($siteLogoUrl !== ''): ?>
                 <img src="<?= esc($siteLogoUrl) ?>"
-                     alt="<?= esc($settings['site_name'] ?? 'Logo') ?>"
+                     alt="<?= esc($settings['site_name'] ?? lang('Site.site_logo_alt')) ?>"
                      class="h-8 w-auto sm:h-10" />
-                <span class="text-xl font-bold text-primary"><?= esc($settings['site_name'] ?? 'Site') ?></span>
+                <span class="text-xl font-bold text-primary"><?= esc($settings['site_name'] ?? lang('Site.site_default_name')) ?></span>
             <?php else: ?>
-                <span class="text-xl font-bold text-primary"><?= esc($settings['site_name'] ?? 'Site') ?></span>
+                <span class="text-xl font-bold text-primary"><?= esc($settings['site_name'] ?? lang('Site.site_default_name')) ?></span>
             <?php endif; ?>
         </a>
 
@@ -79,7 +79,7 @@
             id="mobile-menu-toggle"
             data-mobile-menu-toggle
             class="md:hidden rounded-lg p-2 text-slate-600 transition-all hover:bg-slate-50 hover:text-primary focus:outline-none"
-            aria-label="Toggle Menu"
+            aria-label="<?= esc(lang('Site.menu_toggle')) ?>"
             aria-expanded="false"
         >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
