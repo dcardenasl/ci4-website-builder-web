@@ -249,7 +249,7 @@ colors: {
 }
 ```
 
-Para agregar nuevos componentes, edita `app/public/assets/css/app.css`:
+Para agregar nuevos componentes, edita `public/assets/css/app.css`:
 
 ```css
 @layer components {
