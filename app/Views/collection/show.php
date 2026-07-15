@@ -6,6 +6,7 @@
  * @var string $excerpt
  * @var string $published_at
  * @var string $featured_image_url
+ * @var array<string, mixed> $collection
  * @var array<int, array<string, mixed>> $categories
  * @var array<int, array<string, mixed>> $tags
  * @var string $collectionUrlPath
@@ -14,16 +15,21 @@
  * @var bool $showEntryHeading
  * @var bool $showFeaturedImage
  */
+$collectionLabel = collection_display_title($collection ?? []);
+$collectionBreadcrumbLabel = $collectionLabel !== ''
+    ? $collectionLabel
+    : (trim((string) ($collectionName ?? '')) !== '' ? trim((string) ($collectionName ?? '')) : lang('Site.collection_index_label'));
 $isPortfolio  = ($collection['collection_key'] ?? '') === 'portafolio';
-$backLabel    = $isPortfolio
-    ? (($lang === 'en') ? 'Back to Portfolio' : 'Volver a Portafolio')
-    : (($lang === 'en') ? 'Back to News' : 'Volver a Noticias');
-$tagsLabel    = ($lang === 'en') ? 'Tags' : 'Etiquetas';
-$publishedLabel = ($lang === 'en') ? 'Published' : 'Publicado';
-$shareLabel   = ($lang === 'en') ? 'Share' : 'Compartir';
-$copyLabel    = ($lang === 'en') ? 'Copy link' : 'Copiar enlace';
-$copiedLabel  = ($lang === 'en') ? 'Copied!' : '¡Copiado!';
-$relatedLabel = ($lang === 'en') ? 'Related stories' : 'Historias relacionadas';
+$backLabel    = $collectionLabel !== ''
+    ? lang('Site.back_to_collection', [$collectionLabel])
+    : lang('Site.back_to_list');
+$homeLabel    = lang('Site.breadcrumb_home');
+$tagsLabel    = lang('Site.tags_label');
+$publishedLabel = lang('Site.published_label');
+$shareLabel   = lang('Site.share_label');
+$copyLabel    = lang('Site.copy_link');
+$copiedLabel  = lang('Site.copied_label');
+$relatedLabel = lang('Site.related_stories');
 $shareUrl     = $canonicalUrl ?? '';
 ?>
 
@@ -32,12 +38,12 @@ $shareUrl     = $canonicalUrl ?? '';
     <div class="container-narrow py-3">
         <nav class="flex items-center gap-2 text-sm text-text-muted" aria-label="Breadcrumb">
             <a href="<?= lang_url('/') ?>" class="hover:text-primary transition-colors">
-                <?= ($lang === 'en') ? 'Home' : 'Inicio' ?>
+                <?= esc($homeLabel) ?>
             </a>
             <span aria-hidden="true">/</span>
             <a href="<?= lang_url($collectionUrlPath ?? '/') ?>"
                class="hover:text-primary transition-colors">
-                <?= esc($collectionName ?? (($lang === 'en') ? 'News' : 'Noticias')) ?>
+                <?= esc($collectionBreadcrumbLabel) ?>
             </a>
             <span aria-hidden="true">/</span>
             <span class="text-text-primary line-clamp-1 max-w-xs" aria-current="page">

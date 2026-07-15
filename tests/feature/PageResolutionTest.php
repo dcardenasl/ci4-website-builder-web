@@ -77,6 +77,41 @@ final class PageResolutionTest extends HermeticFeatureTestCase
         $result->assertSee('Noticias');
     }
 
+    public function testResolvesCollectionEntryWithEmptyListingTitleFallsBackToName(): void
+    {
+        $this->domainAdapter->fakeGet('public/es/collections', [[
+            'id'                       => 4,
+            'collection_key'           => 'festivales',
+            'slug'                     => 'festivales',
+            'name'                     => 'Festivales',
+            'listing_title'            => '',
+            'listing_intro'            => '',
+            'default_meta_description' => 'Festivales de teatro',
+            'index_page'               => [
+                'localized_slugs' => [
+                    'es' => 'festivales',
+                    'en' => 'festivals',
+                ],
+            ],
+        ]]);
+        $this->domainAdapter->fakeGet('public/es/entries/festivales/primer-post', [
+            'title'            => 'Primer post',
+            'slug'             => 'primer-post',
+            'excerpt'          => 'Entrada publicada',
+            'meta_description' => 'Meta entry',
+            'canonical_url'    => '',
+            'published_at'     => '2026-07-06 12:00:00',
+            'blocks'           => [],
+            'localized_slugs'  => ['es' => 'primer-post'],
+        ]);
+
+        $result = $this->get('es/festivales/primer-post');
+
+        $result->assertStatus(200);
+        $result->assertSee('Primer post');
+        $result->assertSee('Festivales');
+    }
+
     public function testResolvesEntryFromCmsPageWithCollectionListingBlock(): void
     {
         $this->domainAdapter->fakeGet('public/es/collections', [$this->collection()]);

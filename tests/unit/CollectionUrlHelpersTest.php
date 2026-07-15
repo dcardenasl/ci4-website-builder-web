@@ -100,4 +100,41 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
         $this->assertSame('/es/noticias/bienvenidos-a-nuestras-noticias', $esPath);
         $this->assertSame('/en/news/welcome-to-our-news', $enPath);
     }
+
+    public function testCollectionDisplayTitleFallsBackToNameSlugThenKey(): void
+    {
+        $this->assertSame('Festivales de Títeres', collection_display_title([
+            'listing_title' => '',
+            'name' => 'Festivales de Títeres',
+            'slug' => 'festivales-de-titeres',
+            'collection_key' => 'festivales',
+        ]));
+
+        $this->assertSame('Festivales De Titeres', collection_display_title([
+            'listing_title' => '',
+            'name' => '',
+            'slug' => 'festivales-de-titeres',
+            'collection_key' => 'festivales',
+        ]));
+
+        $this->assertSame('Festivales', collection_display_title([
+            'listing_title' => '',
+            'name' => '',
+            'slug' => '',
+            'collection_key' => 'festivales',
+        ]));
+    }
+
+    public function testCollectionDisplayIntroFallsBackToDescription(): void
+    {
+        $this->assertSame('Descripción principal', collection_display_intro([
+            'listing_intro' => '',
+            'description' => 'Descripción principal',
+        ]));
+
+        $this->assertSame('', collection_display_intro([
+            'listing_intro' => '',
+            'description' => '',
+        ]));
+    }
 }

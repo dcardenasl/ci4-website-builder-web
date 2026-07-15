@@ -314,10 +314,11 @@ class PageController extends BasePublicWebController
             'excerpt'             => $translation['excerpt'] ?? '',
             'published_at'        => $entry['published_at'] ?? '',
             'featured_image_url'  => $entry['featured_image_url'] ?? '',
+            'collection'          => $collection,
             'author_id'           => $entry['author_id'] ?? null,
             'categories'          => $entry['categories'] ?? [],
             'tags'                => $entry['tags'] ?? [],
-            'collectionName'      => $collection['listing_title'] ?? $collection['name'] ?? '',
+            'collectionName'      => collection_display_title($collection),
             'collectionUrlPath'   => $collectionUrlPath,
             'relatedEntries'      => $relatedEntries,
             'showEntryHeading'    => ! $hasHeroHeading,
@@ -513,4 +514,5 @@ class PageController extends BasePublicWebController
 
         return $localizedUrls;
     }
+
 }

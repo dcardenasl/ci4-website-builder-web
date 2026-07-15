@@ -62,9 +62,11 @@ $resetLabel = lang('Site.collection_reset');
 $allLabel = lang('Site.collection_all');
 $categoriesLabel = lang('Site.collection_categories');
 $tagsLabel = lang('Site.collection_tags');
-$previousLabel = $lang === 'en' ? 'Previous' : 'Anterior';
-$nextLabel = $lang === 'en' ? 'Next' : 'Siguiente';
+$previousLabel = lang('Site.collection_previous');
+$nextLabel = lang('Site.collection_next');
 $noResultsLabel = lang('Site.collection_empty');
+$headerTitle = $introTitle !== '' ? $introTitle : collection_display_title($collection ?? []);
+$headerIntro = $introText !== '' ? $introText : collection_display_intro($collection ?? []);
 
 $gridClass = match ($layoutVariant) {
     'list' => 'space-y-6',
@@ -91,21 +93,17 @@ $sectionClass = trim($cssClass . ' section');
     <div class="container-base">
         
         <!-- ── 1. Block Header ────────────────────────────────────────────── -->
-        <?php if ($introTitle !== '' || $introText !== '' || ! empty($collection['listing_intro'])): ?>
+        <?php if ($headerTitle !== '' || $headerIntro !== ''): ?>
             <header class="max-w-4xl mb-8">
                 <p class="text-xs font-bold uppercase tracking-[0.24em] text-primary mb-2">
                     <?= esc(lang('Site.collection_index_label')) ?>
                 </p>
                 <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
-                    <?= esc($introTitle !== '' ? $introTitle : ($collection['listing_title'] ?? $collection['name'] ?? '')) ?>
+                    <?= esc($headerTitle !== '' ? $headerTitle : lang('Site.collection_index_label')) ?>
                 </h2>
-                <?php if ($introText !== ''): ?>
+                <?php if ($headerIntro !== ''): ?>
                     <div class="mt-4 text-slate-500 max-w-2xl leading-relaxed text-base">
-                        <?= $introText ?>
-                    </div>
-                <?php elseif (! empty($collection['listing_intro'])): ?>
-                    <div class="mt-4 text-slate-500 max-w-2xl leading-relaxed text-base">
-                        <?= $collection['listing_intro'] ?>
+                        <?= $headerIntro ?>
                     </div>
                 <?php endif; ?>
             </header>

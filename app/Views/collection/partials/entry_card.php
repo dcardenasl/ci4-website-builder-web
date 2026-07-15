@@ -13,7 +13,7 @@ $date       = $entry['published_at'] ?? $entry['created_at'] ?? '';
 $imageUrl   = $entry['featured_image_url'] ?? '';
 $categories = array_slice($entry['categories'] ?? [], 0, 2);
 $entryUrl   = lang_url($collectionUrlPath . '/' . $slug);
-$readMore   = ($lang === 'en') ? 'Read more' : 'Leer más';
+$readMore   = lang('Site.read_more');
 ?>
 <article class="surface-card overflow-hidden flex flex-col group transition-shadow hover:shadow-md">
 

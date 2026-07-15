@@ -150,6 +150,8 @@ class CollectionListingViewModel extends AbstractBlockViewModel
         $tags = $this->configBool('show_tags', false)
             ? $this->resolveTags($collectionKey, $currentPage, $currentCategory, $currentTag, $currentQuery, $orderBy, $orderDirection, $perPage)
             : [];
+        $displayTitle = collection_display_title($collection);
+        $displayIntro = collection_display_intro($collection);
 
         return [
             'isValid' => true,
@@ -182,8 +184,12 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             'introText' => $this->dataString('intro_text'),
             'categories' => $categories,
             'tags' => $tags,
-            'pageTitle' => (string) ($collection['listing_title'] ?? $collection['name'] ?? ''),
-            'metaDescription' => (string) ($collection['default_meta_description'] ?? ''),
+            'pageTitle' => $displayTitle !== ''
+                ? $displayTitle
+                : lang('Site.collection_index_label'),
+            'metaDescription' => $displayIntro !== ''
+                ? $displayIntro
+                : (string) ($collection['default_meta_description'] ?? ''),
         ];
     }
 
@@ -417,9 +423,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
 
     private function defaultEmptyMessage(): string
     {
-        return $this->lang === 'en'
-            ? 'No items available at the moment.'
-            : 'No hay contenido disponible por el momento.';
+        return lang('Site.collection_empty');
     }
 
     /**

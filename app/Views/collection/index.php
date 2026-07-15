@@ -12,15 +12,14 @@
  * @var string $lang
  */
 $urlPath         = $collectionUrlPath ?? collection_url_path($collection);
-$listingTitle    = $collection['listing_title'] ?? $collection['name'] ?? '';
-$listingIntro    = $collection['listing_intro'] ?? '';
+$listingTitle    = collection_display_title($collection);
+$listingIntro    = collection_display_intro($collection);
 $pagination      = $pagination ?? $meta['pagination'] ?? [];
 $totalPages      = (int) ($pagination['total_pages'] ?? 1);
-$allLabel        = ($lang === 'en') ? 'All' : 'Todos';
-$prevLabel       = ($lang === 'en') ? '← Previous' : '← Anterior';
-$nextLabel       = ($lang === 'en') ? 'Next →' : 'Siguiente →';
-$emptyMsg        = ($lang === 'en') ? 'No news available yet.' : 'No hay noticias disponibles aún.';
-$moreNewsLabel   = ($lang === 'en') ? 'More news' : 'Más noticias';
+$allLabel        = lang('Site.collection_all');
+$prevLabel       = lang('Site.collection_previous');
+$nextLabel       = lang('Site.collection_next');
+$emptyMsg        = lang('Site.collection_empty');
 
 // Build query string helper
 $buildUrl = static function (array $params) use ($urlPath): string {
@@ -33,7 +32,7 @@ $buildUrl = static function (array $params) use ($urlPath): string {
 <section class="section-sm bg-white border-b border-slate-100">
     <div class="container-base">
         <h1 class="section-title text-3xl sm:text-4xl">
-            <?= esc($listingTitle) ?>
+            <?= esc($listingTitle !== '' ? $listingTitle : lang('Site.collection_index_label')) ?>
         </h1>
         <?php if ($listingIntro): ?>
             <div class="section-copy mt-3 prose max-w-none">
@@ -102,7 +101,7 @@ $buildUrl = static function (array $params) use ($urlPath): string {
                 <?php endif; ?>
 
                 <span class="text-sm text-text-muted">
-                    <?= ($lang === 'en') ? "Page {$currentPage} of {$totalPages}" : "Página {$currentPage} de {$totalPages}" ?>
+                    <?= esc(lang('Site.pagination_page_of', [$currentPage, $totalPages])) ?>
                 </span>
 
                 <?php if ($currentPage < $totalPages): ?>

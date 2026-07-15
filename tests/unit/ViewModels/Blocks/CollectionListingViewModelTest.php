@@ -118,6 +118,26 @@ final class CollectionListingViewModelTest extends CIUnitTestCase
         $this->assertSame('Últimas noticias.', $vars['metaDescription']);
     }
 
+    public function testResolvedCollectionFallsBackToNameWhenListingTitleIsEmpty(): void
+    {
+        $collection = self::COLLECTION;
+        $collection['listing_title'] = '';
+        $collection['name'] = 'Festivales';
+
+        $vm = new CollectionListingViewModel(
+            ['block_config' => ['collection_id' => 1]],
+            'es',
+            $this->context(
+                [$collection],
+                ['data' => [['title' => 'Post 1', 'slug' => 'post-1']], 'meta' => ['pagination' => ['total' => 1]]]
+            )
+        );
+
+        $vars = $vm->vars();
+
+        $this->assertSame('Festivales', $vars['pageTitle']);
+    }
+
     public function testCollectionPathFallsBackToCurrentPageWhenIndexPageIsMissing(): void
     {
         $collection = self::COLLECTION;
