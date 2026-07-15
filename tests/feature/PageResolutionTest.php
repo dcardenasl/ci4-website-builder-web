@@ -77,6 +77,44 @@ final class PageResolutionTest extends HermeticFeatureTestCase
         $result->assertSee('Noticias');
     }
 
+    public function testResolvesEntryFromCmsPageWithCollectionListingBlock(): void
+    {
+        $this->domainAdapter->fakeGet('public/es/collections', [$this->collection()]);
+        $this->domainAdapter->fakeGet('public/es/pages/festivales', [
+            'title'           => 'Festivales',
+            'slug'            => 'festivales',
+            'excerpt'         => 'Pagina de Festivales',
+            'meta_description' => 'Meta festivales',
+            'canonical_url'   => '',
+            'blocks'          => [
+                [
+                    'block_key' => 'collection_listing',
+                    'block_config' => [
+                        'collection_id' => 1,
+                    ],
+                    'children' => [],
+                ],
+            ],
+            'localized_slugs' => ['es' => 'festivales'],
+        ]);
+        $this->domainAdapter->fakeGet('public/es/entries/news/primer-post', [
+            'title'            => 'Primer post',
+            'slug'             => 'primer-post',
+            'excerpt'          => 'Entrada publicada',
+            'meta_description' => 'Meta entry',
+            'canonical_url'    => '',
+            'published_at'     => '2026-07-06 12:00:00',
+            'blocks'           => [],
+            'localized_slugs'  => ['es' => 'primer-post'],
+        ]);
+
+        $result = $this->get('es/festivales/primer-post');
+
+        $result->assertStatus(200);
+        $result->assertSee('Primer post');
+        $result->assertSee('Volver a Noticias');
+    }
+
     public function testResolvesPermanentRedirect(): void
     {
         $this->domainAdapter->fakeGet('public/es/collections', []);

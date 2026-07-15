@@ -118,6 +118,29 @@ final class CollectionListingViewModelTest extends CIUnitTestCase
         $this->assertSame('Últimas noticias.', $vars['metaDescription']);
     }
 
+    public function testCollectionPathFallsBackToCurrentPageWhenIndexPageIsMissing(): void
+    {
+        $collection = self::COLLECTION;
+        unset($collection['index_page']);
+
+        $vm = new CollectionListingViewModel(
+            ['block_config' => ['collection_id' => 1]],
+            'es',
+            $this->context(
+                [$collection],
+                ['data' => [['title' => 'Post 1', 'slug' => 'post-1']], 'meta' => ['pagination' => ['total' => 1]]],
+                [],
+                [],
+                [],
+                '/es/festivales'
+            )
+        );
+
+        $vars = $vm->vars();
+
+        $this->assertSame('/festivales', $vars['collectionUrlPath']);
+    }
+
     public function testListVariantNormalizesListingContentAndVisibilityFlags(): void
     {
         $vm = new CollectionListingViewModel(
