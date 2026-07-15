@@ -138,11 +138,18 @@ final class CollectionListingViewModelTest extends CIUnitTestCase
         $this->assertSame('Festivales', $vars['pageTitle']);
     }
 
-    public function testCollectionPathFallsBackToCurrentPageWhenIndexPageIsMissing(): void
+    public function testCollectionPathFallsBackToCollectionKeyWhenIndexPageIsMissing(): void
     {
         $collection = self::COLLECTION;
         unset($collection['index_page']);
 
+        // The listing block is embedded on an unrelated page (path below) —
+        // the resolved URL must still be derived from the collection itself
+        // (`collection_key`), not from whatever page happens to host the
+        // block. Otherwise the same entry would resolve to a different URL
+        // depending on which page rendered it, and entries embedded on the
+        // homepage (empty path beyond the locale) would get no working link
+        // at all.
         $vm = new CollectionListingViewModel(
             ['block_config' => ['collection_id' => 1]],
             'es',
@@ -158,7 +165,35 @@ final class CollectionListingViewModelTest extends CIUnitTestCase
 
         $vars = $vm->vars();
 
-        $this->assertSame('/festivales', $vars['collectionUrlPath']);
+        $this->assertSame('/news', $vars['collectionUrlPath']);
+    }
+
+    public function testCollectionPathFallsBackToCollectionKeyWhenEmbeddedOnHomepage(): void
+    {
+        $collection = self::COLLECTION;
+        unset($collection['index_page']);
+
+        // Regression test: embedding the block on the homepage means the
+        // request path is just the locale prefix (nothing left after
+        // stripping it) — the old "fall back to the current page path"
+        // strategy resolved to an empty base path there, turning every
+        // entry link into a dead `href="#"`.
+        $vm = new CollectionListingViewModel(
+            ['block_config' => ['collection_id' => 1]],
+            'es',
+            $this->context(
+                [$collection],
+                ['data' => [['title' => 'Post 1', 'slug' => 'post-1']], 'meta' => ['pagination' => ['total' => 1]]],
+                [],
+                [],
+                [],
+                '/es'
+            )
+        );
+
+        $vars = $vm->vars();
+
+        $this->assertSame('/news', $vars['collectionUrlPath']);
     }
 
     public function testListVariantNormalizesListingContentAndVisibilityFlags(): void
