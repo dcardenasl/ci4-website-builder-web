@@ -510,4 +510,3 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
         $this->assertStringContainsString('<meta name="robots" content="index, follow">', $body);
     }
 }
-

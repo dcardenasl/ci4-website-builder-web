@@ -17,6 +17,7 @@ use App\Services\SitePageService;
 use App\Services\SiteRedirectService;
 use App\Services\SiteSettingsService;
 use App\Services\SiteTagService;
+use App\Services\SocialLinksService;
 use CodeIgniter\Config\BaseService;
 
 class Services extends BaseService
@@ -146,5 +147,15 @@ class Services extends BaseService
         }
 
         return new SiteFormService(static::webApiClient());
+    }
+
+    public static function socialLinksService(bool $getShared = true): SocialLinksService
+    {
+        if ($getShared) {
+            /** @var SocialLinksService */
+            return static::getSharedInstance('socialLinksService');
+        }
+
+        return new SocialLinksService(static::webApiClient());
     }
 }

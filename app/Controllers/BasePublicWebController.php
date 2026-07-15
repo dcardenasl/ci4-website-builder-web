@@ -34,6 +34,14 @@ abstract class BasePublicWebController extends BaseController
             }
         }
 
+        if (! isset($data['legalMenu'])) {
+            try {
+                $data['legalMenu'] = \Config\Services::siteMenuService()->getMenu('legal');
+            } catch (\Throwable) {
+                $data['legalMenu'] = ['items' => []];
+            }
+        }
+
         if (! isset($data['settings'])) {
             try {
                 $data['settings'] = \Config\Services::siteSettingsService()->getAll();
