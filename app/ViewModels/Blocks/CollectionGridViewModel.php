@@ -67,7 +67,17 @@ class CollectionGridViewModel extends AbstractBlockViewModel
         try {
             foreach ($service->getAll($this->lang) as $collection) {
                 if (is_array($collection) && ($collection['collection_key'] ?? '') === $collectionKey) {
-                    return collection_url_path($collection);
+                    $collectionUrlPath = collection_url_path($collection);
+                    if ($collectionUrlPath !== '') {
+                        return $collectionUrlPath;
+                    }
+
+                    $requestPath = $this->currentPagePath();
+                    if ($requestPath !== '') {
+                        return $requestPath;
+                    }
+
+                    return '';
                 }
             }
         } catch (\Throwable) {
@@ -75,6 +85,28 @@ class CollectionGridViewModel extends AbstractBlockViewModel
         }
 
         return $fallback;
+    }
+
+    private function currentPagePath(): string
+    {
+        $request = $this->contextRequest();
+        if ($request === null) {
+            return '';
+        }
+
+        $path = trim((string) $request->getUri()->getPath(), '/');
+        if ($path === '') {
+            return '';
+        }
+
+        $segments = explode('/', $path);
+        if ($segments !== [] && in_array($segments[0], config('App')->supportedLocales, true)) {
+            array_shift($segments);
+        }
+
+        $fallbackPath = trim(implode('/', $segments), '/');
+
+        return $fallbackPath !== '' ? '/' . $fallbackPath : '';
     }
 
     /**

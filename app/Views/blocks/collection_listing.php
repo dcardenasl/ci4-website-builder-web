@@ -201,6 +201,18 @@ $sectionClass = trim($cssClass . ' section');
                     $entryExcerpt = (string) ($entry['excerpt'] ?? '');
                     $entryDate = (string) ($entry['published_at'] ?? $entry['created_at'] ?? '');
                     $entrySlug = (string) ($entry['slug'] ?? '');
+                    if ($entrySlug === '' && is_array($entry['localized_slugs'] ?? null)) {
+                        $entrySlug = (string) ($entry['localized_slugs'][$lang] ?? '');
+                        if ($entrySlug === '') {
+                            foreach ($entry['localized_slugs'] as $candidateSlug) {
+                                $candidateSlug = trim((string) $candidateSlug);
+                                if ($candidateSlug !== '') {
+                                    $entrySlug = $candidateSlug;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     $entryImage = (string) ($entry['featured_image_url'] ?? '');
                     $listingContent = is_array($entry['listing_content'] ?? null) ? $entry['listing_content'] : [];
                     $extraImage = is_array($listingContent['image'] ?? null) ? $listingContent['image'] : null;

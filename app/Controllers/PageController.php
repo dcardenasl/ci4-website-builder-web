@@ -129,14 +129,48 @@ class PageController extends BasePublicWebController
             }
         }
 
-        // Step 2: Try CMS page by slug only when the path is not a collection route.
+        // Step 2: Support CMS pages that host collection listings directly
+        // under their own slug, e.g. /es/festivales/{slug}. If the first
+        // segment resolves to a page and that page contains a collection
+        // listing block, treat the remainder as an entry slug.
+        $pathSegments = array_values(array_filter(explode('/', $path), static fn ($segment) => $segment !== ''));
+        if (count($pathSegments) > 1) {
+            $pageSlug = array_shift($pathSegments);
+            $entrySlug = implode('/', $pathSegments);
+
+            if ($pageSlug !== '' && $entrySlug !== '') {
+                $page = $pageService->getBySlug($lang, $pageSlug, $preview, $previewExpires, $previewSig);
+                if ($page) {
+                    $collectionId = $this->resolveCollectionIdFromBlocks($page['blocks'] ?? []);
+                    if ($collectionId > 0) {
+                        $collection = $this->resolveCollectionById($collectionId, $lang);
+                        if ($collection !== null) {
+                            $entry = $entryService->getBySlug(
+                                $lang,
+                                (string) ($collection['collection_key'] ?? ''),
+                                $entrySlug,
+                                $preview,
+                                $previewExpires,
+                                $previewSig
+                            );
+
+                            if ($entry) {
+                                return $this->renderEntry($entry, $collection, $lang);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Step 3: Try CMS page by slug only when the path is not a collection route.
         $page = $pageService->getBySlug($lang, $path, $preview, $previewExpires, $previewSig);
 
         if ($page) {
             return $this->renderPage($page, $lang);
         }
 
-        // Step 3: Try redirect
+        // Step 4: Try redirect
         $redirectService = Services::siteRedirectService();
         $redirect = $redirectService->resolve($path);
 
@@ -150,7 +184,7 @@ class PageController extends BasePublicWebController
             return redirect()->to((string) $redirect['new_url'])->setStatusCode($statusCode);
         }
 
-        // Step 4: 404
+        // Step 5: 404
         return $this->notFound("No se encontró la página: {$path}");
     }
 
@@ -218,11 +252,28 @@ class PageController extends BasePublicWebController
 
         // Get the translation for the current language
         $translation = $this->getEntryTranslation($entry, $lang);
+        $resolvedSlug = trim((string) ($translation['slug'] ?? ''));
+        if ($resolvedSlug === '') {
+            $localizedSlugs = is_array($entry['localized_slugs'] ?? null) ? $entry['localized_slugs'] : [];
+            $resolvedSlug = (string) ($localizedSlugs[$lang] ?? '');
+            if ($resolvedSlug === '') {
+                foreach ($localizedSlugs as $candidateSlug) {
+                    $candidateSlug = trim((string) $candidateSlug);
+                    if ($candidateSlug !== '') {
+                        $resolvedSlug = $candidateSlug;
+                        break;
+                    }
+                }
+            }
+        }
 
         $collectionUrlPath = collection_url_path($collection);
+        if ($collectionUrlPath === '') {
+            $collectionUrlPath = $this->currentCollectionPathFromRequest();
+        }
         $canonicalUrl = ($translation['canonical_url'] ?? '') !== ''
             ? $translation['canonical_url']
-            : site_url('/' . $lang . $collectionUrlPath . '/' . ltrim((string) ($translation['slug'] ?? ''), '/'));
+            : site_url('/' . $lang . $collectionUrlPath . '/' . ltrim($resolvedSlug, '/'));
 
         $allowedOgTypes = ['article', 'website'];
         $ogType = in_array($translation['og_type'] ?? '', $allowedOgTypes, true) ? $translation['og_type'] : 'article';
@@ -237,7 +288,7 @@ class PageController extends BasePublicWebController
             $relatedEntries = Services::siteEntryService()->related(
                 $lang,
                 $collection['collection_key'],
-                ['slug' => $translation['slug'] ?? '', 'categories' => $entry['categories'] ?? []],
+                ['slug' => $resolvedSlug, 'categories' => $entry['categories'] ?? []],
                 3
             );
         } catch (\Throwable) {
@@ -282,7 +333,7 @@ class PageController extends BasePublicWebController
             'metaRobots'          => (isset($translation['robots']) && trim((string) $translation['robots']) !== '') ? $translation['robots'] : 'index, follow',
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'      => $blockRenderer->render($entry['blocks'] ?? [], $lang),
-            'localized_urls'      => localized_entry_urls($collection, $entry),
+            'localized_urls'      => $this->resolveEntryLocalizedUrls($collection, $entry, $lang, $resolvedSlug),
         ];
 
         return $this->render('collection/show', $data);
@@ -354,5 +405,112 @@ class PageController extends BasePublicWebController
 
         // Fallback to first translation
         return $translations[0] ?? [];
+    }
+
+    /**
+     * @param array<array<string, mixed>>|mixed $blocks
+     */
+    private function resolveCollectionIdFromBlocks(mixed $blocks): int
+    {
+        if (! is_array($blocks)) {
+            return 0;
+        }
+
+        foreach ($blocks as $block) {
+            if (! is_array($block)) {
+                continue;
+            }
+
+            $blockKey = (string) ($block['block_key'] ?? '');
+            if (in_array($blockKey, ['collection_listing', 'collection_grid'], true)) {
+                $collectionId = (int) (($block['block_config'] ?? [])['collection_id'] ?? 0);
+                if ($collectionId > 0) {
+                    return $collectionId;
+                }
+            }
+
+            $childCollectionId = $this->resolveCollectionIdFromBlocks($block['children'] ?? []);
+            if ($childCollectionId > 0) {
+                return $childCollectionId;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function resolveCollectionById(int $collectionId, string $lang): ?array
+    {
+        $collectionService = Services::siteCollectionService();
+
+        foreach ($collectionService->getAll($lang) as $collection) {
+            if (is_array($collection) && (int) ($collection['id'] ?? 0) === $collectionId) {
+                return $collection;
+            }
+        }
+
+        return null;
+    }
+
+    private function currentCollectionPathFromRequest(): string
+    {
+        $request = service('request');
+        $path = trim((string) $request->getUri()->getPath(), '/');
+        if ($path === '') {
+            return '';
+        }
+
+        $segments = explode('/', $path);
+        $supportedLocales = config('App')->supportedLocales;
+        if ($segments !== [] && in_array($segments[0], $supportedLocales, true)) {
+            array_shift($segments);
+        }
+
+        if (count($segments) > 1) {
+            array_pop($segments);
+        }
+
+        $fallbackPath = trim(implode('/', $segments), '/');
+
+        return $fallbackPath !== '' ? '/' . $fallbackPath : '';
+    }
+
+    /**
+     * @param array<string, mixed> $collection
+     * @param array<string, mixed> $entry
+     * @return array<string, string>
+     */
+    private function resolveEntryLocalizedUrls(array $collection, array $entry, string $currentLang, string $resolvedSlug): array
+    {
+        $localizedUrls = localized_entry_urls($collection, $entry);
+        if ($localizedUrls !== []) {
+            return $localizedUrls;
+        }
+
+        $collectionSlugs = is_array($collection['localized_slugs'] ?? null) ? $collection['localized_slugs'] : [];
+        $entrySlugs = is_array($entry['localized_slugs'] ?? null) ? $entry['localized_slugs'] : [];
+        $fallbackCollectionPath = trim($this->currentCollectionPathFromRequest(), '/');
+        $fallbackEntrySlug = trim($resolvedSlug, '/');
+
+        foreach (config('App')->supportedLocales as $locale) {
+            $collectionPath = trim((string) ($collectionSlugs[$locale] ?? ''), '/');
+            if ($collectionPath === '' && $locale === $currentLang) {
+                $collectionPath = $fallbackCollectionPath;
+            }
+            if ($collectionPath === '') {
+                continue;
+            }
+
+            $entrySlug = trim((string) ($entrySlugs[$locale] ?? $fallbackEntrySlug), '/');
+            if ($entrySlug === '') {
+                continue;
+            }
+
+            $localizedUrls[$locale] = site_url('/' . $locale . '/' . $collectionPath . '/' . $entrySlug);
+        }
+
+        return $localizedUrls;
     }
 }

@@ -79,7 +79,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
         $perPage = max(1, min(100, $this->configInt('per_page', 12)));
         $layoutVariant = $this->resolveLayoutVariant($this->configString('layout_variant', 'cards'));
         $collectionKey = (string) ($collection['collection_key'] ?? '');
-        $collectionUrlPath = localized_collection_url_path($collection, $this->lang);
+        $collectionUrlPath = $this->resolvedCollectionUrlPath($collection);
         $localizedUrls = localized_collection_urls($collection);
 
         $query = [
@@ -407,7 +407,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
      */
     private function buildUrl(array $params): string
     {
-        $path = localized_collection_url_path($this->collection ?? [], $this->lang);
+        $path = $this->resolvedCollectionUrlPath($this->collection ?? []);
         $query = http_build_query(array_filter($params, static fn ($value) => $value !== null && $value !== ''));
 
         return $path !== ''
@@ -420,5 +420,41 @@ class CollectionListingViewModel extends AbstractBlockViewModel
         return $this->lang === 'en'
             ? 'No items available at the moment.'
             : 'No hay contenido disponible por el momento.';
+    }
+
+    /**
+     * Resolve the base path used for filter links and entry cards.
+     *
+     * Prefer the collection's canonical URL path; if the collection has no
+     * published index page yet, fall back to the current page slug so CMS
+     * pages that host a collection_listing block still produce working links.
+     *
+     * @param array<string, mixed> $collection
+     */
+    private function resolvedCollectionUrlPath(array $collection): string
+    {
+        $collectionUrlPath = localized_collection_url_path($collection, $this->lang);
+        if ($collectionUrlPath !== '') {
+            return $collectionUrlPath;
+        }
+
+        $request = $this->contextRequest();
+        if ($request === null) {
+            return '';
+        }
+
+        $path = trim((string) $request->getUri()->getPath(), '/');
+        if ($path === '') {
+            return '';
+        }
+
+        $segments = explode('/', $path);
+        if ($segments !== [] && in_array($segments[0], config('App')->supportedLocales, true)) {
+            array_shift($segments);
+        }
+
+        $fallbackPath = trim(implode('/', $segments), '/');
+
+        return $fallbackPath !== '' ? '/' . $fallbackPath : '';
     }
 }
