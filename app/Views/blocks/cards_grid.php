@@ -9,9 +9,14 @@ foreach ($block['children'] ?? [] as $child) {
         continue;
     }
     $childData = $child['block_data'] ?? [];
+    $image = is_array($childData['image'] ?? null) ? $childData['image'] : [];
     
     $cards[] = [
-        'image_url'  => (string) ($childData['image_url'] ?? ''),
+        'image'      => [
+            'source_kind' => (string) ($image['source_kind'] ?? 'external_url'),
+            'file_id'     => is_numeric($image['file_id'] ?? null) ? (int) $image['file_id'] : null,
+            'url'         => (string) ($image['url'] ?? ''),
+        ],
         'title'      => (string) ($childData['title'] ?? ''),
         'description'=> (string) ($childData['description'] ?? ''),
         'link_url'   => (string) ($childData['link_url'] ?? ''),
@@ -48,11 +53,11 @@ if ($variant === 'bordered') {
 <section class="section <?= esc($cssClass) ?>">
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 <?= esc($gridColsClass) ?>">
         <?php foreach ($cards as $card): ?>
-            <div class="<?= esc($cardBaseClass . $cardVariantClass) ?>">
-                <?php if ($card['image_url'] !== ''): ?>
+        <div class="<?= esc($cardBaseClass . $cardVariantClass) ?>">
+                <?php if (($card['image']['url'] ?? '') !== ''): ?>
                     <div class="mb-4 flex items-center justify-start h-12 w-12 rounded-xl bg-violet-50 text-violet-600 overflow-hidden p-2.5">
                         <img 
-                            src="<?= esc($card['image_url']) ?>" 
+                            src="<?= esc($card['image']['url']) ?>" 
                             alt="<?= esc($card['title']) ?>" 
                             class="h-full w-full object-contain"
                             loading="lazy"

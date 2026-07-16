@@ -29,7 +29,7 @@ class CardsSliderViewModel extends AbstractBlockViewModel
     }
 
     /**
-     * @return list<array{eyebrow: string, title: string, body: string, meta_title: string, meta_description: string, image_url: string, rating: int, link_url: string, link_label: string}>
+     * @return list<array{eyebrow: string, title: string, body: string, meta_title: string, meta_description: string, image: array{source_kind: string, file_id: int|null, url: string}, rating: int, link_url: string, link_label: string}>
      */
     public function cards(): array
     {
@@ -49,7 +49,7 @@ class CardsSliderViewModel extends AbstractBlockViewModel
                 'body'             => $string('body'),
                 'meta_title'       => $string('meta_title'),
                 'meta_description' => $string('meta_description'),
-                'image_url'        => $string('image_url'),
+                'image'            => $this->normalizeMediaReference($childData['image'] ?? []),
                 'rating'           => is_numeric($childData['rating'] ?? null) ? (int) $childData['rating'] : 0,
                 'link_url'         => lang_url($string('link_url'), $this->lang),
                 'link_label'       => $string('link_label'),

@@ -170,6 +170,9 @@ class BlockRenderer
     {
         foreach ($array as $key => $value) {
             if (is_array($value)) {
+                if ($this->looksLikeMediaReference($value)) {
+                    continue;
+                }
                 $array[$key] = $this->localizeUrlsInArray($value);
             } elseif (is_string($value) && $value !== '') {
                 $isUrlKey = ($key === 'url' || str_ends_with($key, '_url') || str_ends_with($key, '_path'));
@@ -182,6 +185,19 @@ class BlockRenderer
         }
 
         return $array;
+    }
+
+    /**
+     * Media reference payloads are canonical data and must not be rewritten by
+     * URL localization. Their `url` value can be an external URL or a Hub
+     * preview URL that should be preserved as stored.
+     *
+     * @param array<string, mixed> $value
+     */
+    private function looksLikeMediaReference(array $value): bool
+    {
+        return array_key_exists('source_kind', $value)
+            && (array_key_exists('file_id', $value) || array_key_exists('url', $value) || array_key_exists('external_url', $value));
     }
 }
 

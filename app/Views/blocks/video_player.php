@@ -4,7 +4,7 @@
  * (registered in BlockRenderer::VIEW_MODELS).
  *
  * @var string $videoUrl
- * @var string $posterUrl
+ * @var array{source_kind: string, file_id: int|null, url: string} $poster
  * @var string $heading
  * @var bool   $autoplay
  * @var bool   $mute
@@ -40,11 +40,11 @@ if ($videoUrl === '') {
             data-mute="<?= $mute ? '1' : '0' ?>"
             data-loop="<?= $loop ? '1' : '0' ?>"
         >
-            <?php if ($posterUrl !== ''): ?>
+            <?php if (($poster['url'] ?? '') !== ''): ?>
                 <!-- Lazy Load Poster View -->
                 <div class="absolute inset-0 z-10 cursor-pointer flex items-center justify-center transition-all duration-300" data-poster-overlay>
                     <img 
-                        src="<?= esc($posterUrl) ?>" 
+                        src="<?= esc($poster['url']) ?>" 
                         alt="<?= esc($heading !== '' ? $heading : 'Video Poster') ?>"
                         class="absolute inset-0 w-full h-full object-cover group-hover/video:scale-[1.01] transition-transform duration-500"
                     />
@@ -65,7 +65,7 @@ if ($videoUrl === '') {
             <?php endif; ?>
 
             <!-- Fallback Content placeholder when poster is not present (renders iframe instantly) -->
-            <?php if ($posterUrl === ''): ?>
+            <?php if (($poster['url'] ?? '') === ''): ?>
                 <?php if ($isIframe): ?>
                     <iframe 
                         src="<?= esc(str_replace('autoplay=1', 'autoplay=' . ($autoplay ? '1' : '0'), $embedUrl)) ?>"

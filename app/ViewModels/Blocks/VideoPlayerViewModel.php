@@ -17,7 +17,7 @@ class VideoPlayerViewModel extends AbstractBlockViewModel
 
         return [
             'videoUrl'         => $videoUrl,
-            'posterUrl'        => $this->dataString('poster_url'),
+            'poster'           => $this->dataMediaReference('poster'),
             'heading'          => $heading,
             'autoplay'         => $this->configBool('autoplay', false),
             'mute'             => $mute,

@@ -8,7 +8,7 @@
 $dateLabel = esc($data['date_label'] ?? '');
 $title = esc($data['title'] ?? '');
 $description = $data['description'] ?? ''; // rich text
-$imageUrl = esc($data['image_url'] ?? $data['image'] ?? '');
+$image = is_array($config['image'] ?? null) ? $config['image'] : [];
 $linkUrl = esc($data['link_url'] ?? '');
 $linkLabel = esc($data['link_label'] ?? '');
 ?>
@@ -45,9 +45,9 @@ $linkLabel = esc($data['link_label'] ?? '');
                 <?= $description ?>
             </div>
             
-            <?php if ($imageUrl !== ''): ?>
+            <?php if (! empty($image['url'])): ?>
                 <div class="mt-4 overflow-hidden rounded-2xl border border-slate-100">
-                    <img src="<?= $imageUrl ?>" alt="<?= $title ?>" class="w-full h-auto object-cover max-h-60 hover:scale-[1.02] transition-transform duration-500" loading="lazy" />
+                    <img src="<?= esc($image['url']) ?>" alt="<?= $title ?>" class="w-full h-auto object-cover max-h-60 hover:scale-[1.02] transition-transform duration-500" loading="lazy" />
                 </div>
             <?php endif; ?>
             

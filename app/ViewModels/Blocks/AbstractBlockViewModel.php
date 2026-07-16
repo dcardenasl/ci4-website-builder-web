@@ -101,6 +101,43 @@ abstract class AbstractBlockViewModel
         return is_scalar($value) ? (string) $value : $default;
     }
 
+    /**
+     * @return array{source_kind: string, file_id: int|null, url: string}
+     */
+    protected function dataMediaReference(string $key): array
+    {
+        return $this->normalizeMediaReference($this->data()[$key] ?? []);
+    }
+
+    /**
+     * @return array{source_kind: string, file_id: int|null, url: string}
+     */
+    protected function configMediaReference(string $key): array
+    {
+        return $this->normalizeMediaReference($this->config()[$key] ?? []);
+    }
+
+    /**
+     * @param mixed $value
+     * @return array{source_kind: string, file_id: int|null, url: string}
+     */
+    protected function normalizeMediaReference(mixed $value): array
+    {
+        if (! is_array($value)) {
+            $value = [];
+        }
+
+        $sourceKind = strtolower(trim((string) ($value['source_kind'] ?? '')));
+        $fileId = is_numeric($value['file_id'] ?? null) ? (int) $value['file_id'] : null;
+        $url = is_scalar($value['url'] ?? null) ? trim((string) $value['url']) : '';
+
+        return [
+            'source_kind' => $sourceKind !== '' ? $sourceKind : ($fileId !== null ? 'hub_file' : 'external_url'),
+            'file_id' => $fileId,
+            'url' => $url,
+        ];
+    }
+
     protected function configBool(string $key, bool $default): bool
     {
         if (! array_key_exists($key, $this->config())) {

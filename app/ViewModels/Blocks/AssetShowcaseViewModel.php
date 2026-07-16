@@ -39,7 +39,7 @@ class AssetShowcaseViewModel extends AbstractBlockViewModel
     }
 
     /**
-     * @return list<array{logo_url: string, name: string, link_url: string}>
+     * @return list<array{logo: array{source_kind: string, file_id: int|null, url: string}, name: string, link_url: string}>
      */
     public function logos(): array
     {
@@ -52,7 +52,7 @@ class AssetShowcaseViewModel extends AbstractBlockViewModel
             $string    = static fn (string $key): string => is_scalar($childData[$key] ?? null) ? (string) $childData[$key] : '';
 
             $logos[] = [
-                'logo_url' => $string('logo_url'),
+                'logo'     => $this->normalizeMediaReference($childData['logo'] ?? []),
                 'name'     => $string('name'),
                 'link_url' => lang_url($string('link_url'), $this->lang),
             ];

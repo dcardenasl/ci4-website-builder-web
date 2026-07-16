@@ -118,7 +118,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
                         'title' => 'Caso de Éxito de Ejemplo 1',
                         'summary' => 'Esta es una descripción corta para la primera entrada de ejemplo en la lista.',
                         'published_at' => date('Y-m-d H:i:s'),
-                        'featured_image_url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
+                        'featured_image' => $this->normalizeMediaReference(['url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80']),
                         'categories' => [['title' => 'Casos', 'slug' => 'casos']],
                         'tags' => [['title' => 'Tag 1', 'slug' => 'tag-1']],
                     ],
@@ -128,7 +128,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
                         'title' => 'Lanzamiento de Producto Especial',
                         'summary' => 'Esta es una descripción corta para la segunda entrada de ejemplo en la lista.',
                         'published_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
-                        'featured_image_url' => 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80',
+                        'featured_image' => $this->normalizeMediaReference(['url' => 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80']),
                         'categories' => [['title' => 'Productos', 'slug' => 'productos']],
                         'tags' => [['title' => 'Tag 2', 'slug' => 'tag-2']],
                     ]
@@ -263,12 +263,16 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             $image = is_array($content['image'] ?? null) ? $content['image'] : null;
             $action = is_array($content['secondary_action'] ?? null) ? $content['secondary_action'] : null;
             $richText = is_string($content['rich_text'] ?? null) ? trim($content['rich_text']) : '';
+            $featuredImageUrl = is_string($entry['featured_image_url'] ?? null) ? trim((string) $entry['featured_image_url']) : '';
 
             $entry['listing_content'] = [
                 'rich_text' => $richText !== '' ? \App\Libraries\HtmlSanitizer::clean($richText) : '',
                 'image' => $this->normalizeListingImage($image),
                 'secondary_action' => $this->normalizeListingAction($action),
             ];
+            $entry['featured_image'] = $featuredImageUrl !== ''
+                ? $this->normalizeMediaReference(['url' => $featuredImageUrl])
+                : null;
             $normalized[] = $entry;
         }
 

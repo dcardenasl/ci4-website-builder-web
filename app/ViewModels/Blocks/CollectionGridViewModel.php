@@ -106,8 +106,25 @@ class CollectionGridViewModel extends AbstractBlockViewModel
             ]);
 
             $entries = $result['data'] ?? [];
+            if (! is_array($entries)) {
+                return [];
+            }
 
-            return is_array($entries) ? array_values(array_filter($entries, 'is_array')) : [];
+            $normalized = [];
+            foreach ($entries as $entry) {
+                if (! is_array($entry)) {
+                    continue;
+                }
+
+                $entryImage = is_string($entry['featured_image_url'] ?? null) ? trim((string) $entry['featured_image_url']) : '';
+                if ($entryImage !== '') {
+                    $entry['featured_image'] = $this->normalizeMediaReference(['url' => $entryImage]);
+                }
+
+                $normalized[] = $entry;
+            }
+
+            return $normalized;
         } catch (\Throwable) {
             return [];
         }
@@ -133,7 +150,7 @@ class CollectionGridViewModel extends AbstractBlockViewModel
                     'title' => 'Caso de Éxito de Ejemplo',
                     'summary' => 'Resumen breve de la historia de éxito que ilustra la efectividad de nuestra metodología en proyectos reales.',
                     'published_at' => date('Y-m-d H:i:s'),
-                    'featured_image_url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
+                    'featured_image' => $this->normalizeMediaReference(['url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80']),
                     'categories' => [['title' => 'Casos de Éxito', 'slug' => 'casos']],
                     'tags' => [['title' => 'Negocios', 'slug' => 'negocios']],
                 ],
@@ -143,7 +160,7 @@ class CollectionGridViewModel extends AbstractBlockViewModel
                     'title' => 'Lanzamiento de Nueva Solución',
                     'summary' => 'Una descripción detallada de las ventajas y el impacto de nuestra última innovación tecnológica en el sector.',
                     'published_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
-                    'featured_image_url' => 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80',
+                    'featured_image' => $this->normalizeMediaReference(['url' => 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80']),
                     'categories' => [['title' => 'Innovación', 'slug' => 'innovacion']],
                     'tags' => [['title' => 'Tecnología', 'slug' => 'tecnologia']],
                 ],
@@ -153,7 +170,7 @@ class CollectionGridViewModel extends AbstractBlockViewModel
                     'title' => 'Mejores Prácticas en el Sector',
                     'summary' => 'Una guía completa de las tendencias actuales y recomendaciones clave para optimizar procesos y flujos de trabajo.',
                     'published_at' => date('Y-m-d H:i:s', strtotime('-2 days')),
-                    'featured_image_url' => 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=600&q=80',
+                    'featured_image' => $this->normalizeMediaReference(['url' => 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=600&q=80']),
                     'categories' => [['title' => 'Educación', 'slug' => 'educacion']],
                     'tags' => [['title' => 'Guías', 'slug' => 'guias']],
                 ]

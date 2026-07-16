@@ -13,7 +13,8 @@ class DocumentGalleryViewModel extends AbstractBlockViewModel
 
         $documents = [];
         foreach ($rawDocs as $d) {
-            $fileUrl = is_scalar($d['file_url'] ?? null) ? (string) $d['file_url'] : '';
+            $file    = $this->normalizeMediaReference($d['file'] ?? []);
+            $fileUrl = $file['url'];
             $title   = is_scalar($d['title'] ?? null) ? (string) $d['title'] : '';
             $desc    = is_scalar($d['description'] ?? null) ? (string) $d['description'] : '';
 

@@ -211,7 +211,7 @@ $sectionClass = trim($cssClass . ' section');
                             }
                         }
                     }
-                    $entryImage = (string) ($entry['featured_image_url'] ?? '');
+                    $entryImage = is_array($entry['featured_image'] ?? null) ? (string) ($entry['featured_image']['url'] ?? '') : '';
                     $listingContent = is_array($entry['listing_content'] ?? null) ? $entry['listing_content'] : [];
                     $extraImage = is_array($listingContent['image'] ?? null) ? $listingContent['image'] : null;
                     $extraAction = is_array($listingContent['secondary_action'] ?? null) ? $listingContent['secondary_action'] : null;

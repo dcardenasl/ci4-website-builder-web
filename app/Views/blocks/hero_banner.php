@@ -2,7 +2,7 @@
 /**
  * hero_banner block — variables prepared by HeroBannerViewModel.
  *
- * @var string $image_url The background image URL
+ * @var array{source_kind: string, file_id: int|null, url: string} $image The background image reference
  * @var string $alt Alt text for the background image
  * @var string $heading Primary heading text
  * @var string $subheading Secondary heading text
@@ -13,7 +13,7 @@
  * @var string $overlay_color RGBA color for the overlay (default: rgba(15, 23, 42, 0.4))
  */
 
-$image_url = $image_url ?? '';
+$image = is_array($image ?? null) ? $image : ['source_kind' => 'external_url', 'file_id' => null, 'url' => ''];
 $alt = $alt ?? '';
 $heading = $heading ?? '';
 $subheading = $subheading ?? '';
@@ -24,11 +24,11 @@ $text_color = $text_color ?? '#ffffff';
 $overlay_color = $overlay_color ?? 'rgba(15, 23, 42, 0.4)';
 ?>
 <section class="relative h-96 flex items-center justify-center overflow-hidden <?= esc($cssClass) ?>">
-    <?php if (!empty($image_url)): 
+    <?php if (!empty($image['url'])): 
         \Config\Services::blockRenderer()->incrementImageCount();
     ?>
         <img
-            src="<?= esc($image_url) ?>"
+            src="<?= esc($image['url']) ?>"
             alt="<?= esc($alt) ?>"
             class="absolute inset-0 w-full h-full object-cover"
         />

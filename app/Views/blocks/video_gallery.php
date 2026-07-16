@@ -39,7 +39,7 @@ $galleryId = uniqid('video_gal_');
         <?php else: ?>
             <div class="grid gap-6 <?= $colClass ?>">
                 <?php foreach ($videos as $idx => $video): 
-                    $poster = $video['posterUrl'] !== '' ? $video['posterUrl'] : 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&auto=format&fit=crop&q=60';
+                    $poster = ($video['poster']['url'] ?? '') !== '' ? $video['poster']['url'] : 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=600&auto=format&fit=crop&q=60';
                 ?>
                     <div class="group cursor-pointer rounded-2xl border border-slate-200/60 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
                          data-video-index="<?= $idx ?>"

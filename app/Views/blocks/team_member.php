@@ -1,7 +1,7 @@
 <?php
 /**
  * @var string $name
- * @var string $photo
+ * @var array{source_kind: string, file_id: int|null, url: string} $photo
  * @var string $position
  * @var string $bio
  * @var string $linkedin
@@ -12,8 +12,8 @@ if (!empty($name)):
     <div class="flex flex-col items-center text-center p-6 rounded-3xl border border-slate-200/50 bg-white hover:border-violet-200 hover:shadow-md transition-all duration-300 group">
         <!-- Photo Wrapper -->
         <div class="relative w-28 h-28 rounded-full overflow-hidden bg-slate-50 border border-slate-200 mb-5 group-hover:scale-105 transition-transform duration-300">
-            <?php if (!empty($photo)): ?>
-                <img src="<?= esc($photo) ?>" alt="<?= esc($name) ?>" class="w-full h-full object-cover" loading="lazy" />
+            <?php if (!empty($photo['url'])): ?>
+                <img src="<?= esc($photo['url']) ?>" alt="<?= esc($name) ?>" class="w-full h-full object-cover" loading="lazy" />
             <?php else: ?>
                 <!-- Initials fallback -->
                 <div class="flex items-center justify-center w-full h-full bg-gradient-to-br from-violet-100 to-violet-50 text-violet-600 font-extrabold text-2xl">

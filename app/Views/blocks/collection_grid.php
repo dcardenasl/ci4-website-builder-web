@@ -49,7 +49,7 @@ if ($collectionKey === '' || ($entries === [] && $sectionTitle === '')) {
                     $entryExcerpt = $entry['excerpt'] ?? '';
                     $entryDate    = $entry['published_at'] ?? $entry['created_at'] ?? '';
                     $entrySlug    = $entry['slug'] ?? '';
-                    $entryImage   = $entry['featured_image_url'] ?? '';
+                    $entryImage   = is_array($entry['featured_image'] ?? null) ? ($entry['featured_image']['url'] ?? '') : '';
                     $entryUrl     = $canonicalViewAllUrl !== '' && $entrySlug !== ''
                         ? lang_url(rtrim($canonicalViewAllUrl, '/') . '/' . $entrySlug)
                         : '#';

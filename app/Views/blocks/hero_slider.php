@@ -3,7 +3,7 @@
  * hero_slider block — all variables prepared by HeroSliderViewModel
  * (registered in BlockRenderer::VIEW_MODELS).
  *
- * @var list<array{image_url: string, image_alt_text: string, heading: string, subtitle: string, cta_label: string, cta_url: string}> $slides
+ * @var list<array{image: array{source_kind: string, file_id: int|null, url: string}, image_alt_text: string, heading: string, subtitle: string, cta_label: string, cta_url: string}> $slides
  * @var string $captionPosition
  * @var string $controlsPosition
  * @var string $cssClass
@@ -83,7 +83,7 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
             <?php \Config\Services::blockRenderer()->incrementImageCount(); ?>
             <img
                 data-hero-image
-                src="<?= esc($slides[0]['image_url'] ?? '') ?>"
+                src="<?= esc($slides[0]['image']['url'] ?? '') ?>"
                 alt="<?= esc($slides[0]['image_alt_text'] ?? $slides[0]['heading'] ?? '') ?>"
                 class="absolute inset-0 h-full w-full"
             />

@@ -9,7 +9,7 @@ class TeamMemberViewModel extends AbstractBlockViewModel
     public function vars(): array
     {
         $name = $this->dataString('name');
-        $photo = $this->dataString('photo_url');
+        $photo = $this->dataMediaReference('photo');
         $position = $this->dataString('position');
         $bio = $this->dataString('bio');
         $linkedin = $this->dataString('linkedin_url');

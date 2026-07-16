@@ -1,5 +1,5 @@
 <?php
-/** @var list<array{logo_url: string, name: string, link_url: string}> $logos */
+/** @var list<array{logo: array{source_kind: string, file_id: int|null, url: string}, name: string, link_url: string}> $logos */
 /** @var string $layout */
 /** @var string $speed */
 /** @var bool $grayscale */
@@ -46,9 +46,9 @@ if ($logos === []) {
                             <a href="<?= esc($logo['link_url']) ?>" target="_blank" rel="noopener noreferrer" class="block">
                         <?php endif; ?>
                         
-                        <?php if ($logo['logo_url'] !== ''): ?>
+                        <?php if (($logo['logo']['url'] ?? '') !== ''): ?>
                             <img
-                                src="<?= esc($logo['logo_url']) ?>"
+                                src="<?= esc($logo['logo']['url']) ?>"
                                 alt="<?= esc($logo['name']) ?>"
                                 title="<?= esc($logo['name']) ?>"
                                 class="max-h-full max-w-full object-contain <?= $logoStyleClass ?>"
@@ -75,9 +75,9 @@ if ($logos === []) {
                         <a href="<?= esc($logo['link_url']) ?>" target="_blank" rel="noopener noreferrer" class="block">
                     <?php endif; ?>
                     
-                    <?php if ($logo['logo_url'] !== ''): ?>
+                    <?php if (($logo['logo']['url'] ?? '') !== ''): ?>
                         <img
-                            src="<?= esc($logo['logo_url']) ?>"
+                            src="<?= esc($logo['logo']['url']) ?>"
                             alt="<?= esc($logo['name']) ?>"
                             title="<?= esc($logo['name']) ?>"
                             class="max-h-full max-w-full object-contain <?= $logoStyleClass ?>"

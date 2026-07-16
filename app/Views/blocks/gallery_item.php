@@ -2,7 +2,8 @@
 /** @var array<string, mixed> $block */
 /** @var array<string, mixed> $data */
 
-$imageUrl = (string) ($data['image_url'] ?? '');
+$image = is_array($data['image'] ?? null) ? $data['image'] : [];
+$imageUrl = (string) ($image['url'] ?? '');
 $alt = (string) ($data['alt'] ?? '');
 $caption = (string) ($data['caption'] ?? '');
 $linkUrl = (string) ($data['link_url'] ?? '');

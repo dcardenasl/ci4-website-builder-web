@@ -8,7 +8,8 @@ class HeroBannerViewModel extends AbstractBlockViewModel
 {
     public function vars(): array
     {
-        $imageUrl = $this->dataString('image_url');
+        $image = $this->dataMediaReference('image');
+        $imageUrl = $image['url'];
 
         // White is only a safe default while the dark overlay over the
         // background image is actually rendered. Without an image there is no
@@ -17,7 +18,7 @@ class HeroBannerViewModel extends AbstractBlockViewModel
         $defaultTextColor = $imageUrl !== '' ? '#ffffff' : '#0f172a';
 
         return [
-            'image_url'   => $imageUrl,
+            'image'       => $image,
             'alt'         => $this->dataString('alt'),
             'heading'     => $this->dataString('heading'),
             'subheading'  => $this->dataString('subheading'),

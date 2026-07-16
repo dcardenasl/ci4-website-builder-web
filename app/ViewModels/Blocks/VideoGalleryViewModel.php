@@ -16,7 +16,7 @@ class VideoGalleryViewModel extends AbstractBlockViewModel
             $videoUrl = is_scalar($v['video_url'] ?? null) ? (string) $v['video_url'] : '';
             $title    = is_scalar($v['title'] ?? null) ? (string) $v['title'] : '';
             $desc     = is_scalar($v['description'] ?? null) ? (string) $v['description'] : '';
-            $poster   = is_scalar($v['poster_url'] ?? null) ? (string) $v['poster_url'] : '';
+            $poster   = $this->normalizeMediaReference($v['poster'] ?? []);
 
             $embedUrl = VideoPlayerViewModel::embedUrl($videoUrl, false, false);
 
@@ -24,7 +24,7 @@ class VideoGalleryViewModel extends AbstractBlockViewModel
                 'videoUrl'    => $videoUrl,
                 'title'       => $title,
                 'description' => $desc,
-                'posterUrl'   => $poster,
+                'poster'      => $poster,
                 'embedUrl'    => $embedUrl,
                 'isIframe'    => $embedUrl !== '',
             ];

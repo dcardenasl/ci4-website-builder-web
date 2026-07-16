@@ -1,5 +1,6 @@
 <?php
-$imageUrl = (string) ($data['image_url'] ?? $data['url'] ?? '');
+$image = is_array($config['image'] ?? null) ? $config['image'] : [];
+$imageUrl = (string) ($image['url'] ?? '');
 $alt = (string) ($data['image_alt_text'] ?? $data['alt'] ?? '');
 $caption = $data['image_caption'] ?? $data['caption'] ?? null;
 $figureClass = trim((string) ($config['css_class'] ?? ''));
