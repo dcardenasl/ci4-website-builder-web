@@ -28,27 +28,21 @@ class WebApiClient implements WebApiClientInterface
     private int $staleTtl;
 
     public function __construct(
-        string $baseUrl = '',
-        string $apiKey = '',
+        string $baseUrl,
+        string $apiKey,
         int $timeout = 15,
         int $staleTtl = 86400
     ) {
-        if (! $baseUrl) {
-            $baseUrl = (string) env('WEB_API_BASE_URL', '');
-        }
         if (trim($baseUrl) === '') {
             throw new \LogicException(
-                'Missing WEB_API_BASE_URL. Pass it to constructor or set in .env. '
+                'Missing WEB_API_BASE_URL. Set it in .env. '
                 . 'Example: WEB_API_BASE_URL=http://localhost:8190'
             );
         }
 
-        if (! $apiKey) {
-            $apiKey = (string) env('WEB_API_KEY', '');
-        }
         if (trim($apiKey) === '') {
             throw new \LogicException(
-                'Missing WEB_API_KEY. Pass it to constructor or set in .env. '
+                'Missing WEB_API_KEY. Set it in .env. '
                 . 'This should be a registered API key from your domain API.'
             );
         }

@@ -35,6 +35,50 @@ final class PageResolutionTest extends HermeticFeatureTestCase
         $result->assertSee('Nosotros');
     }
 
+    public function testResolvesLocalizedLegalDataRightsPageInSpanish(): void
+    {
+        $this->domainAdapter->fakeGet('public/es/collections', []);
+        $this->domainAdapter->fakeGet('public/es/pages/derechos-datos', [
+            'title'           => 'Derechos de Datos',
+            'slug'            => 'derechos-datos',
+            'excerpt'         => 'Formulario y preguntas frecuentes para ejercer sus derechos ARCO/RGPD.',
+            'meta_description'=> 'Ejercite sus derechos de Acceso, Rectificación, Supresión u Oposición sobre sus datos.',
+            'canonical_url'   => '',
+            'blocks'          => [],
+            'localized_slugs' => [
+                'es' => 'derechos-datos',
+                'en' => 'data-rights',
+            ],
+        ]);
+
+        $result = $this->get('es/derechos-datos');
+
+        $result->assertStatus(200);
+        $result->assertSee('Derechos de Datos');
+    }
+
+    public function testResolvesLocalizedLegalDataRightsPageInEnglish(): void
+    {
+        $this->domainAdapter->fakeGet('public/en/collections', []);
+        $this->domainAdapter->fakeGet('public/en/pages/data-rights', [
+            'title'           => 'Data Rights',
+            'slug'            => 'data-rights',
+            'excerpt'         => 'Form and FAQs to exercise your GDPR rights over your personal data.',
+            'meta_description'=> 'Exercise your rights of Access, Rectification, Erasure, or Objection.',
+            'canonical_url'   => '',
+            'blocks'          => [],
+            'localized_slugs' => [
+                'es' => 'derechos-datos',
+                'en' => 'data-rights',
+            ],
+        ]);
+
+        $result = $this->get('en/data-rights');
+
+        $result->assertStatus(200);
+        $result->assertSee('Data Rights');
+    }
+
     public function testResolvesCollectionPrefixAsIndexBeforeCmsPage(): void
     {
         $this->domainAdapter->fakeGet('public/es/collections', [$this->collection()]);
