@@ -106,7 +106,7 @@ abstract class AbstractBlockViewModel
      */
     protected function dataMediaReference(string $key): array
     {
-        return $this->normalizeMediaReference($this->data()[$key] ?? []);
+        return $this->mediaReferenceFromPayload($this->data(), $key);
     }
 
     /**
@@ -114,7 +114,23 @@ abstract class AbstractBlockViewModel
      */
     protected function configMediaReference(string $key): array
     {
-        return $this->normalizeMediaReference($this->config()[$key] ?? []);
+        return $this->mediaReferenceFromPayload($this->config(), $key);
+    }
+
+    /**
+     * @return string
+     */
+    protected function dataMediaReferenceUrl(string $key): string
+    {
+        return $this->dataMediaReference($key)['url'];
+    }
+
+    /**
+     * @return string
+     */
+    protected function configMediaReferenceUrl(string $key): string
+    {
+        return $this->configMediaReference($key)['url'];
     }
 
     /**
@@ -127,14 +143,124 @@ abstract class AbstractBlockViewModel
             $value = [];
         }
 
-        $sourceKind = strtolower(trim((string) ($value['source_kind'] ?? '')));
-        $fileId = is_numeric($value['file_id'] ?? null) ? (int) $value['file_id'] : null;
-        $url = is_scalar($value['url'] ?? null) ? trim((string) $value['url']) : '';
+        $sourceKind = strtolower(trim((string) (
+            $value['source_kind']
+            ?? $value['sourceKind']
+            ?? $value['source']
+            ?? ''
+        )));
+        $fileId = is_numeric($value['file_id'] ?? $value['fileId'] ?? null) ? (int) ($value['file_id'] ?? $value['fileId']) : null;
+        $url = '';
+        foreach (['url', 'external_url', 'externalUrl', 'file_url', 'fileUrl'] as $urlKey) {
+            if (is_scalar($value[$urlKey] ?? null) && trim((string) $value[$urlKey]) !== '') {
+                $url = trim((string) $value[$urlKey]);
+                break;
+            }
+        }
+
+        if ($fileId === null && $url !== '' && preg_match('~/files/(\d+)/(?:view|download)(?:\?.*)?$~', $url, $matches) === 1) {
+            $fileId = (int) $matches[1];
+            $sourceKind = 'hub_file';
+        }
+
+        if ($sourceKind === '') {
+            $sourceKind = $fileId !== null ? 'hub_file' : 'external_url';
+        }
+
+        if ($url === '' && $fileId !== null) {
+            $url = '/files/' . $fileId . '/view';
+        }
 
         return [
-            'source_kind' => $sourceKind !== '' ? $sourceKind : ($fileId !== null ? 'hub_file' : 'external_url'),
+            'source_kind' => $sourceKind,
             'file_id' => $fileId,
             'url' => $url,
+        ];
+    }
+
+    /**
+     * Resolve a media reference from a payload, accepting both canonical nested
+     * references and legacy flat sibling keys like `poster_url` or
+     * `document_file_id`.
+     *
+     * @param array<string, mixed> $payload
+     * @return array{source_kind: string, file_id: int|null, url: string}
+     */
+    protected function mediaReferenceFromPayload(array $payload, string $key): array
+    {
+        $value = $payload[$key] ?? null;
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed !== '') {
+                return $this->normalizeMediaReference([
+                    'url' => ctype_digit($trimmed) ? '' : $trimmed,
+                    'file_id' => ctype_digit($trimmed) ? (int) $trimmed : null,
+                ]);
+            }
+        } elseif (is_numeric($value)) {
+            return $this->normalizeMediaReference(['file_id' => (int) $value]);
+        } elseif (is_array($value)) {
+            $normalized = $this->normalizeMediaReference($value);
+            if ($normalized['url'] !== '' || $normalized['file_id'] !== null) {
+                return $normalized;
+            }
+        }
+
+        $legacyReference = [];
+        foreach ([
+            'source_kind' => ['source_kind', 'sourceKind', 'source'],
+            'file_id' => ['file_id', 'fileId'],
+            'url' => ['url', 'external_url', 'externalUrl', 'file_url', 'fileUrl'],
+        ] as $targetKey => $aliases) {
+            foreach ($aliases as $alias) {
+                $siblingKey = $key . '_' . $alias;
+                if (! array_key_exists($siblingKey, $payload)) {
+                    continue;
+                }
+
+                $legacyReference[$targetKey] = $payload[$siblingKey];
+                break;
+            }
+        }
+
+        return $this->normalizeMediaReference($legacyReference);
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return string
+     */
+    protected function mediaReferenceUrlFromPayload(array $payload, string $key): string
+    {
+        return $this->mediaReferenceFromPayload($payload, $key)['url'];
+    }
+
+    /**
+     * Infer a document type from a resolved URL.
+     *
+     * @return array{docType: string, ext: string}
+     */
+    protected function documentTypeFromUrl(string $url): array
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+        $ext = strtolower(pathinfo(is_string($path) ? $path : '', PATHINFO_EXTENSION));
+
+        $docType = 'generic';
+        if (in_array($ext, ['pdf'], true)) {
+            $docType = 'pdf';
+        } elseif (in_array($ext, ['doc', 'docx', 'odt', 'rtf'], true)) {
+            $docType = 'word';
+        } elseif (in_array($ext, ['xls', 'xlsx', 'ods', 'csv'], true)) {
+            $docType = 'excel';
+        } elseif (in_array($ext, ['ppt', 'pptx', 'odp'], true)) {
+            $docType = 'powerpoint';
+        } elseif (in_array($ext, ['zip', 'rar', 'tar', 'gz', '7z'], true)) {
+            $docType = 'archive';
+        }
+
+        return [
+            'docType' => $docType,
+            'ext' => $ext !== '' ? strtoupper($ext) : 'DOC',
         ];
     }
 

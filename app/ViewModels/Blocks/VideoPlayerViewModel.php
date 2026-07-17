@@ -12,12 +12,16 @@ class VideoPlayerViewModel extends AbstractBlockViewModel
         $heading  = $this->dataString('heading');
         $mute     = $this->configBool('mute', false);
         $loop     = $this->configBool('loop', false);
+        $poster   = $this->configMediaReference('poster');
+        if ($poster['url'] === '') {
+            $poster = $this->dataMediaReference('poster');
+        }
 
         $embedUrl = self::embedUrl($videoUrl, $mute, $loop);
 
         return [
             'videoUrl'         => $videoUrl,
-            'poster'           => $this->dataMediaReference('poster'),
+            'poster'           => $poster,
             'heading'          => $heading,
             'autoplay'         => $this->configBool('autoplay', false),
             'mute'             => $mute,

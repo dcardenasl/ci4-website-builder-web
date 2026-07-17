@@ -79,4 +79,21 @@ final class VideoPlayerViewModelTest extends CIUnitTestCase
         $this->assertSame('', $vars['videoUrl']);
         $this->assertFalse($vars['isIframe']);
     }
+
+    public function testConfigPosterStringIsNormalized(): void
+    {
+        $vm = new VideoPlayerViewModel([
+            'block_config' => [
+                'poster' => 'https://cdn.test/poster.jpg',
+            ],
+            'block_data' => [
+                'video_url' => 'https://youtu.be/dQw4w9WgXcQ',
+            ],
+        ], 'es');
+
+        $vars = $vm->vars();
+
+        $this->assertSame('https://cdn.test/poster.jpg', $vars['poster']['url']);
+        $this->assertTrue($vars['isIframe']);
+    }
 }

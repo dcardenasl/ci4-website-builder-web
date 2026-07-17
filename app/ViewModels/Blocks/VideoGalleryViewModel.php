@@ -13,10 +13,11 @@ class VideoGalleryViewModel extends AbstractBlockViewModel
 
         $videos = [];
         foreach ($rawVideos as $v) {
-            $videoUrl = is_scalar($v['video_url'] ?? null) ? (string) $v['video_url'] : '';
-            $title    = is_scalar($v['title'] ?? null) ? (string) $v['title'] : '';
-            $desc     = is_scalar($v['description'] ?? null) ? (string) $v['description'] : '';
-            $poster   = $this->normalizeMediaReference($v['poster'] ?? []);
+            $video = is_array($v) ? $v : [];
+            $videoUrl = is_scalar($video['video_url'] ?? null) ? (string) $video['video_url'] : '';
+            $title    = is_scalar($video['title'] ?? null) ? (string) $video['title'] : '';
+            $desc     = is_scalar($video['description'] ?? null) ? (string) $video['description'] : '';
+            $poster   = $this->mediaReferenceFromPayload($video, 'poster');
 
             $embedUrl = VideoPlayerViewModel::embedUrl($videoUrl, false, false);
 

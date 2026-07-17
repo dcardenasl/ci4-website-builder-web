@@ -83,7 +83,7 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
             <?php \Config\Services::blockRenderer()->incrementImageCount(); ?>
             <img
                 data-hero-image
-                src="<?= esc($slides[0]['image']['url'] ?? '') ?>"
+                src="<?= esc($slides[0]['image_url'] ?? $slides[0]['image']['url'] ?? '') ?>"
                 alt="<?= esc($slides[0]['image_alt_text'] ?? $slides[0]['heading'] ?? '') ?>"
                 class="absolute inset-0 h-full w-full"
             />

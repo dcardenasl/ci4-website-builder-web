@@ -19,18 +19,30 @@ class BlockPreviewController extends BasePublicWebController
         $blockKeyRaw = $this->request->getPost('block_key');
         $configRaw   = $this->request->getPost('block_config');
         $dataRaw     = $this->request->getPost('block_data');
+        $previewModeRaw = $this->request->getPost('preview_mode');
         $blockKey    = is_scalar($blockKeyRaw) ? (string) $blockKeyRaw : '';
         $configRaw   = is_scalar($configRaw) ? (string) $configRaw : '';
         $dataRaw     = is_scalar($dataRaw) ? (string) $dataRaw : '';
+        $previewMode = is_scalar($previewModeRaw) ? strtolower(trim((string) $previewModeRaw)) : 'sample';
 
         $config = json_decode($configRaw ?: '{}', true) ?? [];
         $data   = json_decode($dataRaw ?: '{}', true) ?? [];
 
-        // Build container block mock children if empty
-        $children = $this->getMockChildren($blockKey);
+        if (! in_array($previewMode, ['sample', 'live'], true)) {
+            $previewMode = 'sample';
+        }
 
-        // Populate placeholders for block_data and block_config if empty
-        $data = $this->getMockData($blockKey, $data, $config);
+        $children = $previewMode === 'sample'
+            ? $this->getMockChildren($blockKey)
+            : [];
+
+        if ($previewMode === 'sample') {
+            // Populate placeholders when the caller explicitly wants a sample
+            // preview or when no real block payload is available.
+            $data = $this->getMockData($blockKey, $data, $config);
+        }
+
+        // Preserve the canonical media_reference payload used by live image blocks.
         $data = $this->applyMediaReferencePreview($blockKey, $data, $config);
 
         $block = [
@@ -92,8 +104,8 @@ class BlockPreviewController extends BasePublicWebController
             if (empty($data['video_url'])) {
                 $data['video_url'] = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
             }
-            if (! is_array($data['poster'] ?? null) || empty($data['poster']['url'])) {
-                $data['poster'] = $this->mediaReference('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80');
+            if (! is_array($config['poster'] ?? null) || empty($config['poster']['url'])) {
+                $config['poster'] = $this->mediaReference('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80');
             }
         }
 
@@ -104,8 +116,14 @@ class BlockPreviewController extends BasePublicWebController
         }
 
         if ($blockKey === 'document_download') {
-            if (empty($data['document_url']) && empty($data['document'])) {
-                $data['document_url'] = 'http://localhost:8186/uploads/reporte_anual_2025.pdf';
+            if (! is_array($config['document'] ?? null) || empty($config['document']['url'])) {
+                $config['document'] = $this->mediaReference('http://localhost:8186/uploads/reporte_anual_2025.pdf');
+            }
+        }
+
+        if ($blockKey === 'pdf_viewer') {
+            if (! is_array($config['pdf_file'] ?? null) || empty($config['pdf_file']['url'])) {
+                $config['pdf_file'] = $this->mediaReference('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
             }
         }
 
@@ -141,6 +159,10 @@ class BlockPreviewController extends BasePublicWebController
      */
     private function getMockChildren(string $blockKey): array
     {
+        if ($blockKey === '') {
+            return [];
+        }
+
         if ($blockKey === 'accordion') {
             $item = cms_block_preview_sample('accordion_item');
             return [

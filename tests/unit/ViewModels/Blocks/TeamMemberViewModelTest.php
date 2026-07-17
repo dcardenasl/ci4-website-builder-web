@@ -36,7 +36,7 @@ final class TeamMemberViewModelTest extends CIUnitTestCase
         $this->assertSame('John Doe', $vars['name']);
         $this->assertSame('Developer', $vars['position']);
         $this->assertSame('Short bio', $vars['bio']);
-        $this->assertSame('https://cdn.test/john.jpg', $vars['photo']);
+        $this->assertSame('https://cdn.test/john.jpg', $vars['photo']['url']);
         $this->assertSame('https://linkedin.com/in/johndoe', $vars['linkedin']);
     }
 

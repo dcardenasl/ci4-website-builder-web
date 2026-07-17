@@ -22,6 +22,7 @@ final class BlockPreviewControllerTest extends CIUnitTestCase
             'block_key'    => 'hero_banner',
             'block_config' => json_encode(['css_class' => 'custom-hero']),
             'block_data'   => json_encode(['heading' => 'Hello World', 'subheading' => 'This is a test banner']),
+            'preview_mode' => 'live',
         ];
 
         $result = $this->post('blocks/preview', $payload);
@@ -35,6 +36,30 @@ final class BlockPreviewControllerTest extends CIUnitTestCase
         $this->assertStringContainsString('Hello World', $json['html']);
         $this->assertStringContainsString('This is a test banner', $json['html']);
         $this->assertStringContainsString('custom-hero', $json['html']);
+    }
+
+    public function testBlockPreviewUsesLiveModeWithoutMockContent(): void
+    {
+        $payload = [
+            'block_key'    => 'hero_banner',
+            'block_config' => json_encode(['css_class' => 'custom-hero']),
+            'block_data'   => json_encode([
+                'heading' => 'Live Hero Title',
+                'subheading' => 'Live hero subtitle',
+            ]),
+            'preview_mode' => 'live',
+        ];
+
+        $result = $this->post('blocks/preview', $payload);
+
+        $result->assertStatus(200);
+
+        $json = json_decode($result->getJSON(), true);
+        $this->assertIsArray($json);
+        $this->assertStringContainsString('Live Hero Title', $json['html']);
+        $this->assertStringContainsString('Live hero subtitle', $json['html']);
+        $this->assertStringNotContainsString('Previsualización de Banner', $json['html']);
+        $this->assertStringNotContainsString('photo-1507525428034-b723cf961d3e', $json['html']);
     }
 
     public function testBlockPreviewMocksEmptyHeroBanner(): void

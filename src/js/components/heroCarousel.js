@@ -152,7 +152,7 @@ const initHeroCarousel = (root) => {
     if (!slide) return;
 
     if (image) {
-      image.src = slide.image_url || '';
+      image.src = slide.image_url || slide.image?.url || slide.image?.external_url || '';
       image.alt = slide.image_alt_text || slide.heading || '';
     }
     if (link) {

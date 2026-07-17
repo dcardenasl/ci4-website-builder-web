@@ -13,33 +13,19 @@ class DocumentGalleryViewModel extends AbstractBlockViewModel
 
         $documents = [];
         foreach ($rawDocs as $d) {
-            $file    = $this->normalizeMediaReference($d['file'] ?? []);
+            $doc = is_array($d) ? $d : [];
+            $file = $this->mediaReferenceFromPayload($doc, 'file');
             $fileUrl = $file['url'];
-            $title   = is_scalar($d['title'] ?? null) ? (string) $d['title'] : '';
-            $desc    = is_scalar($d['description'] ?? null) ? (string) $d['description'] : '';
-
-            $path = parse_url($fileUrl, PHP_URL_PATH);
-            $ext = strtolower(pathinfo(is_string($path) ? $path : '', PATHINFO_EXTENSION));
-
-            $docType = 'generic';
-            if (in_array($ext, ['pdf'], true)) {
-                $docType = 'pdf';
-            } elseif (in_array($ext, ['doc', 'docx', 'odt', 'rtf'], true)) {
-                $docType = 'word';
-            } elseif (in_array($ext, ['xls', 'xlsx', 'ods', 'csv'], true)) {
-                $docType = 'excel';
-            } elseif (in_array($ext, ['ppt', 'pptx', 'odp'], true)) {
-                $docType = 'powerpoint';
-            } elseif (in_array($ext, ['zip', 'rar', 'tar', 'gz', '7z'], true)) {
-                $docType = 'archive';
-            }
+            $title   = is_scalar($doc['title'] ?? null) ? (string) $doc['title'] : '';
+            $desc    = is_scalar($doc['description'] ?? null) ? (string) $doc['description'] : '';
+            $meta = $this->documentTypeFromUrl($fileUrl);
 
             $documents[] = [
                 'fileUrl'     => $fileUrl,
                 'title'       => $title,
                 'description' => $desc,
-                'docType'     => $docType,
-                'ext'         => $ext !== '' ? strtoupper($ext) : 'DOC',
+                'docType'     => $meta['docType'],
+                'ext'         => $meta['ext'],
             ];
         }
 

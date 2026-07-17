@@ -28,6 +28,7 @@ class BlockRenderer
         'document_download'  => \App\ViewModels\Blocks\DocumentDownloadViewModel::class,
         'video_gallery'      => \App\ViewModels\Blocks\VideoGalleryViewModel::class,
         'document_gallery'   => \App\ViewModels\Blocks\DocumentGalleryViewModel::class,
+        'pdf_viewer'         => \App\ViewModels\Blocks\PdfViewerViewModel::class,
         'accordion'          => \App\ViewModels\Blocks\AccordionViewModel::class,
         'team_member'        => \App\ViewModels\Blocks\TeamMemberViewModel::class,
     ];
