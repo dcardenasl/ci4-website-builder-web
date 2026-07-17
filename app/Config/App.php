@@ -225,6 +225,40 @@ class App extends BaseConfig
      */
     public bool $CSPEnabled = ENVIRONMENT === 'production';
 
+    /**
+     * --------------------------------------------------------------------------
+     * Content-Security-Policy source allowlists (SecurityHeadersFilter)
+     * --------------------------------------------------------------------------
+     *
+     * Space/comma-separated source lists for the custom CSP header built in
+     * App\Filters\SecurityHeadersFilter (kept separate from CI4's native CSP,
+     * see that filter's docblock). Override via CSP_OBJECT_SRC / CSP_IMAGE_SRC /
+     * CSP_FRAME_SRC / CSP_MEDIA_SRC in .env to tighten the allowlist for
+     * production; defaults stay permissive to keep the starter working with
+     * seeded remote media out of the box.
+     *
+     * @var list<string>
+     */
+    public array $cspObjectSrc = ['self', 'http:', 'https:'];
+
+    /** @var list<string> */
+    public array $cspImageSrc = ['self', 'http:', 'https:', 'data:'];
+
+    /** @var list<string> */
+    public array $cspFrameSrc = ['self', 'http:', 'https:'];
+
+    /** @var list<string> */
+    public array $cspMediaSrc = ['self', 'http:', 'https:'];
+
+    /**
+     * Opt-in flag so ThrottleFilterTest can exercise real throttling behavior
+     * (throttling is otherwise bypassed under ENVIRONMENT=testing so feature
+     * tests hitting controllers directly are never penalized). Read fresh via
+     * `new Config\App()` in ThrottleFilter rather than the shared `config('App')`
+     * instance, since tests toggle WEB_THROTTLE_IN_TESTS per-test at runtime.
+     */
+    public bool $throttleInTestsEnabled = false;
+
     public function __construct()
     {
         parent::__construct();
@@ -272,5 +306,28 @@ class App extends BaseConfig
         if (is_numeric($webApiStaleTtl) && (int) $webApiStaleTtl >= 0) {
             $this->webApiStaleTtl = (int) $webApiStaleTtl;
         }
+
+        $this->cspObjectSrc = $this->parseCspSources(env('CSP_OBJECT_SRC'), $this->cspObjectSrc);
+        $this->cspImageSrc  = $this->parseCspSources(env('CSP_IMAGE_SRC'), $this->cspImageSrc);
+        $this->cspFrameSrc  = $this->parseCspSources(env('CSP_FRAME_SRC'), $this->cspFrameSrc);
+        $this->cspMediaSrc  = $this->parseCspSources(env('CSP_MEDIA_SRC'), $this->cspMediaSrc);
+
+        $throttleInTests = env('WEB_THROTTLE_IN_TESTS');
+        $this->throttleInTestsEnabled = $throttleInTests === true || $throttleInTests === 'true';
+    }
+
+    /**
+     * @param list<string> $default
+     * @return list<string>
+     */
+    private function parseCspSources(mixed $raw, array $default): array
+    {
+        if (! is_string($raw) || trim($raw) === '') {
+            return $default;
+        }
+
+        $sources = preg_split('/[\s,]+/', trim($raw)) ?: [];
+
+        return $sources !== [] ? $sources : $default;
     }
 }

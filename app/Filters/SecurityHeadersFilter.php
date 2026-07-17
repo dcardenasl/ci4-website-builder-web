@@ -37,14 +37,16 @@ class SecurityHeadersFilter implements FilterInterface
 
         // Keep the starter flexible for seeded remote media while still
         // constraining the dangerous surfaces that do not need broad access.
-        // The allowlist can be tightened later via .env without touching code.
+        // The allowlist can be tightened later via .env (Config\App::$csp*)
+        // without touching code.
+        $appConfig = config('App');
         $csp = implode('; ', [
-            'object-src ' . $this->cspSources('CSP_OBJECT_SRC', ['self', 'http:', 'https:']),
+            'object-src ' . $this->cspSources($appConfig->cspObjectSrc),
             "base-uri 'self'",
             "frame-ancestors 'none'",
-            'img-src ' . $this->cspSources('CSP_IMAGE_SRC', ['self', 'http:', 'https:', 'data:']),
-            'frame-src ' . $this->cspSources('CSP_FRAME_SRC', ['self', 'http:', 'https:']),
-            'media-src ' . $this->cspSources('CSP_MEDIA_SRC', ['self', 'http:', 'https:']),
+            'img-src ' . $this->cspSources($appConfig->cspImageSrc),
+            'frame-src ' . $this->cspSources($appConfig->cspFrameSrc),
+            'media-src ' . $this->cspSources($appConfig->cspMediaSrc),
         ]);
         $response->setHeader('Content-Security-Policy', $csp);
 
@@ -56,21 +58,10 @@ class SecurityHeadersFilter implements FilterInterface
     }
 
     /**
-     * @param list<string> $defaultSources
+     * @param list<string> $sources
      */
-    private function cspSources(string $envKey, array $defaultSources): string
+    private function cspSources(array $sources): string
     {
-        $raw = env($envKey);
-        $sources = [];
-
-        if (is_string($raw) && trim($raw) !== '') {
-            $sources = preg_split('/[\s,]+/', trim($raw)) ?: [];
-        }
-
-        if ($sources === []) {
-            $sources = $defaultSources;
-        }
-
         $sources = array_values(array_filter(array_map([$this, 'normalizeCspSourceToken'], $sources), static fn(string $value): bool => $value !== ''));
 
         return implode(' ', $sources);

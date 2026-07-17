@@ -28,10 +28,11 @@ class ThrottleFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         // Feature tests exercise controllers directly; dedicated throttle tests
-        // opt back in through the WEB_THROTTLE_IN_TESTS flag. Note: CI4's env()
-        // converts the string 'true' to a boolean.
-        $optIn = env('WEB_THROTTLE_IN_TESTS') === true || env('WEB_THROTTLE_IN_TESTS') === 'true';
-        if (ENVIRONMENT === 'testing' && ! $optIn) {
+        // opt back in through Config\App::$throttleInTestsEnabled (WEB_THROTTLE_IN_TESTS).
+        // Read a fresh, unshared Config\App instance — tests toggle the env var
+        // per-test at runtime and the shared config() instance would not
+        // re-read it.
+        if (ENVIRONMENT === 'testing' && ! (new \Config\App())->throttleInTestsEnabled) {
             return null;
         }
 
