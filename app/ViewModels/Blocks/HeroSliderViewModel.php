@@ -39,7 +39,7 @@ class HeroSliderViewModel extends AbstractBlockViewModel
     }
 
     /**
-     * @return list<array{image: array{source_kind: string, file_id: int|null, url: string}, image_url: string, image_alt_text: string, heading: string, subtitle: string, cta_label: string, cta_url: string, text_color: string, overlay_color: string}>
+     * @return list<array{image: array{source_kind: string, file_id: int|null, url: string}, image_alt_text: string, heading: string, subtitle: string, cta_label: string, cta_url: string, text_color: string, overlay_color: string}>
      */
     public function slides(): array
     {
@@ -49,7 +49,7 @@ class HeroSliderViewModel extends AbstractBlockViewModel
             $childData    = is_array($child['block_data'] ?? null) ? $child['block_data'] : [];
             $heading      = $this->childString($childData, 'heading');
             $image        = $this->mediaReferenceFromPayload($childData, 'image');
-            $imageUrl     = $this->mediaReferenceUrlFromPayload($childData, 'image');
+            $imageUrl = $this->mediaReferenceUrlFromPayload($childData, 'image');
             $displayImageUrl = $imageUrl !== ''
                 ? $imageUrl
                 : self::placeholderImage($heading !== '' ? $heading : ('Slide ' . ($index + 1)));
@@ -65,7 +65,6 @@ class HeroSliderViewModel extends AbstractBlockViewModel
                         'file_id' => null,
                         'url' => $displayImageUrl,
                     ],
-                'image_url'      => $displayImageUrl,
                 'image_alt_text' => $this->childString($childData, 'image_alt_text', $heading),
                 'heading'        => $heading,
                 'subtitle'       => $this->childString($childData, 'subtitle'),

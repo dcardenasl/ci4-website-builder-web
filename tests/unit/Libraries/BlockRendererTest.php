@@ -48,6 +48,30 @@ final class BlockRendererTest extends CIUnitTestCase
         $this->assertStringContainsString('my-container', $html);
     }
 
+    public function testRendersGalleryItemWithCanonicalImageReference(): void
+    {
+        $html = $this->renderer->render([
+            [
+                'block_key'    => 'gallery_item',
+                'block_config' => [],
+                'block_data'   => [
+                    'image' => [
+                        'source_kind' => 'external_url',
+                        'file_id'     => null,
+                        'url'         => 'https://picsum.photos/id/1040/1200/900',
+                    ],
+                    'alt'       => 'Gallery image',
+                    'caption'   => 'Canonical caption',
+                ],
+                'children'     => [],
+            ],
+        ]);
+
+        $this->assertStringContainsString('https://picsum.photos/id/1040/1200/900', $html);
+        $this->assertStringContainsString('Gallery image', $html);
+        $this->assertStringContainsString('Canonical caption', $html);
+    }
+
     public function testRichTextFallsBackToLegacyBodyField(): void
     {
         $html = $this->renderer->render([

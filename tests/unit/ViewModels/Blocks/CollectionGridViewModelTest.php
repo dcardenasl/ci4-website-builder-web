@@ -60,13 +60,21 @@ final class CollectionGridViewModelTest extends CIUnitTestCase
                     'localized_slugs' => ['es' => 'noticias', 'en' => 'news'],
                 ],
             ]],
-            ['data' => [['title' => 'Post 1', 'slug' => 'post-1']], 'meta' => []]
+            ['data' => [[
+                'title' => 'Post 1',
+                'slug' => 'post-1',
+                'featured_image' => [
+                    'source_kind' => 'external_url',
+                    'url' => 'https://cdn.example.com/post-1.jpg',
+                ],
+            ]], 'meta' => []]
         ));
 
         $vars = $vm->vars();
 
         $this->assertSame('news', $vars['collectionKey']);
         $this->assertCount(1, $vars['entries']);
+        $this->assertSame('https://cdn.example.com/post-1.jpg', $vars['entries'][0]['featured_image']['url']);
         $this->assertNotSame('', $vars['canonicalViewAllUrl']);
     }
 

@@ -236,7 +236,9 @@ class PageController extends BasePublicWebController
             'canonicalUrl'       => ($translation['canonical_url'] ?? '') !== ''
                 ? $translation['canonical_url']
                 : site_url('/' . $lang . '/' . ltrim((string) ($translation['slug'] ?? ''), '/')),
-            'ogImage'            => $translation['og_image_url'] ?? '',
+            'ogImage'            => is_array($translation['og_image'] ?? null)
+                ? (string) ($translation['og_image']['url'] ?? '')
+                : '',
             'metaRobots'         => (isset($translation['robots']) && trim((string) $translation['robots']) !== '') ? $translation['robots'] : 'index, follow',
             'schemaData'         => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'     => $blockRenderer->render($blocks, $lang),
@@ -315,11 +317,19 @@ class PageController extends BasePublicWebController
             }
         }
 
+        $featuredImage = is_array($entry['featured_image'] ?? null) ? $entry['featured_image'] : [];
+        $featuredImageUrl = is_string($featuredImage['url'] ?? null) ? trim((string) $featuredImage['url']) : '';
+        $ogImage = is_array($translation['og_image'] ?? null) ? $translation['og_image'] : [];
+        $ogImageUrl = is_string($ogImage['url'] ?? null) ? trim((string) $ogImage['url']) : '';
+        if ($ogImageUrl === '') {
+            $ogImageUrl = $featuredImageUrl;
+        }
+
         $data = [
             'title'               => $translation['title'] ?? '',
             'excerpt'             => $translation['excerpt'] ?? '',
             'published_at'        => $entry['published_at'] ?? '',
-            'featured_image_url'  => $entry['featured_image_url'] ?? '',
+            'featured_image'      => $featuredImage,
             'collection'          => $collection,
             'author_id'           => $entry['author_id'] ?? null,
             'categories'          => $entry['categories'] ?? [],
@@ -333,7 +343,7 @@ class PageController extends BasePublicWebController
             'pageTitle'           => (isset($translation['meta_title']) && trim((string) $translation['meta_title']) !== '') ? $translation['meta_title'] : ($translation['title'] ?? ''),
             'metaDescription'     => (isset($translation['meta_description']) && trim((string) $translation['meta_description']) !== '') ? $translation['meta_description'] : ($translation['excerpt'] ?? ''),
             'canonicalUrl'        => $canonicalUrl,
-            'ogImage'             => $translation['og_image_url'] ?? ($entry['featured_image_url'] ?? ''),
+            'ogImage'             => $ogImageUrl,
             'ogType'              => $ogType,
             'articlePublishedTime' => $entry['published_at'] ?? null,
             'articleModifiedTime'  => $articleModifiedTime,
@@ -356,7 +366,7 @@ class PageController extends BasePublicWebController
     {
         if (isset($page['title'])) {
             $translation = $page;
-            if (! isset($translation['og_image_url']) && isset($page['translations']) && is_array($page['translations'])) {
+            if (! isset($translation['og_image']) && isset($page['translations']) && is_array($page['translations'])) {
                 foreach ($page['translations'] as $trans) {
                     if (($trans['language_id'] ?? null) === $lang || ($trans['language_code'] ?? null) === $lang) {
                         $translation = array_merge($translation, $trans);
@@ -390,7 +400,7 @@ class PageController extends BasePublicWebController
     {
         if (isset($entry['title'])) {
             $translation = $entry;
-            if ((! isset($translation['og_image_url']) || ! isset($translation['featured_image_url'])) && isset($entry['translations']) && is_array($entry['translations'])) {
+            if ((! isset($translation['og_image']) || ! isset($translation['featured_image'])) && isset($entry['translations']) && is_array($entry['translations'])) {
                 foreach ($entry['translations'] as $trans) {
                     if (($trans['language_id'] ?? null) === $lang || ($trans['language_code'] ?? null) === $lang) {
                         $translation = array_merge($translation, $trans);

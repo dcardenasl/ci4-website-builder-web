@@ -263,16 +263,14 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             $image = is_array($content['image'] ?? null) ? $content['image'] : null;
             $action = is_array($content['secondary_action'] ?? null) ? $content['secondary_action'] : null;
             $richText = is_string($content['rich_text'] ?? null) ? trim($content['rich_text']) : '';
-            $featuredImageUrl = is_string($entry['featured_image_url'] ?? null) ? trim((string) $entry['featured_image_url']) : '';
+            $featuredImage = $this->mediaReferenceFromPayload($entry, 'featured_image');
 
             $entry['listing_content'] = [
                 'rich_text' => $richText !== '' ? \App\Libraries\HtmlSanitizer::clean($richText) : '',
                 'image' => $this->normalizeListingImage($image),
                 'secondary_action' => $this->normalizeListingAction($action),
             ];
-            $entry['featured_image'] = $featuredImageUrl !== ''
-                ? $this->normalizeMediaReference(['url' => $featuredImageUrl])
-                : null;
+            $entry['featured_image'] = $featuredImage['url'] !== '' ? $featuredImage : null;
             $normalized[] = $entry;
         }
 

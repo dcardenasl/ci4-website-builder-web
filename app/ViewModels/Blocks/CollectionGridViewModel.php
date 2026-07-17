@@ -116,10 +116,8 @@ class CollectionGridViewModel extends AbstractBlockViewModel
                     continue;
                 }
 
-                $entryImage = is_string($entry['featured_image_url'] ?? null) ? trim((string) $entry['featured_image_url']) : '';
-                if ($entryImage !== '') {
-                    $entry['featured_image'] = $this->normalizeMediaReference(['url' => $entryImage]);
-                }
+                $featuredImage = $this->mediaReferenceFromPayload($entry, 'featured_image');
+                $entry['featured_image'] = $featuredImage['url'] !== '' ? $featuredImage : null;
 
                 $normalized[] = $entry;
             }

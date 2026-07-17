@@ -102,7 +102,14 @@ final class CollectionListingViewModelTest extends CIUnitTestCase
             'es',
             $this->context(
                 [self::COLLECTION],
-                ['data' => [['title' => 'Post 1', 'slug' => 'post-1']], 'meta' => ['pagination' => ['total' => 1]]]
+                ['data' => [[
+                    'title' => 'Post 1',
+                    'slug' => 'post-1',
+                    'featured_image' => [
+                        'source_kind' => 'external_url',
+                        'url' => 'https://cdn.example.com/post-1.jpg',
+                    ],
+                ]], 'meta' => ['pagination' => ['total' => 1]]]
             )
         );
 
@@ -111,6 +118,7 @@ final class CollectionListingViewModelTest extends CIUnitTestCase
         $this->assertTrue($vars['isValid']);
         $this->assertSame('news', $vars['collectionKey']);
         $this->assertCount(1, $vars['entries']);
+        $this->assertSame('https://cdn.example.com/post-1.jpg', $vars['entries'][0]['featured_image']['url']);
         $this->assertSame('published_at', $vars['orderBy']);
         $this->assertSame('desc', $vars['orderDirection']);
         $this->assertSame(1, $vars['currentPage']);

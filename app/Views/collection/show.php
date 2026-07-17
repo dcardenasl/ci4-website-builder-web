@@ -5,7 +5,7 @@
  * @var string $title
  * @var string $excerpt
  * @var string $published_at
- * @var string $featured_image_url
+ * @var array<string, mixed> $featured_image
  * @var array<string, mixed> $collection
  * @var array<int, array<string, mixed>> $categories
  * @var array<int, array<string, mixed>> $tags
@@ -31,6 +31,8 @@ $copyLabel    = lang('Site.copy_link');
 $copiedLabel  = lang('Site.copied_label');
 $relatedLabel = lang('Site.related_stories');
 $shareUrl     = $canonicalUrl ?? '';
+$featuredImage = is_array($featured_image ?? null) ? $featured_image : [];
+$featuredImageUrl = is_string($featuredImage['url'] ?? null) ? trim((string) $featuredImage['url']) : '';
 ?>
 
 <!-- ── Breadcrumb ─────────────────────────────────────────────────── -->
@@ -84,9 +86,9 @@ $shareUrl     = $canonicalUrl ?? '';
         </header>
 
         <!-- Featured image -->
-        <?php if (!empty($featured_image_url) && ($showFeaturedImage ?? true)): ?>
+        <?php if ($featuredImageUrl !== '' && ($showFeaturedImage ?? true)): ?>
             <figure class="mb-8 -mx-4 sm:mx-0 overflow-hidden sm:rounded-xl">
-                <img src="<?= esc($featured_image_url) ?>"
+                <img src="<?= esc($featuredImageUrl) ?>"
                      alt="<?= esc($title) ?>"
                      class="w-full aspect-video object-cover">
             </figure>

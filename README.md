@@ -53,12 +53,21 @@ WEB_API_BASE_URL=http://localhost:8190
 WEB_API_KEY=web_api_test_key
 WEB_API_TIMEOUT=15
 WEB_API_STALE_TTL=86400
+CSP_IMAGE_SRC="self http: https: data:"
+CSP_FRAME_SRC="self http: https:"
+CSP_MEDIA_SRC="self http: https:"
+CSP_OBJECT_SRC="self http: https:"
 CACHE_INVALIDATE_KEY=change-me
 cache.handler=file
 ```
 
 `CACHE_INVALIDATE_KEY` debe estar configurado en producción. El webhook de
 invalidación rechaza claves vacías o incorrectas.
+
+`CSP_*` se deja abierto por defecto en el starter para que los seeders puedan
+cargar imágenes, documentos y embeds remotos durante la puesta en marcha. Si
+quieres endurecer la política después, cambia esos valores a `self` o a una
+lista de hosts concretos en `.env`.
 
 ## Arquitectura
 

@@ -35,20 +35,57 @@ class SecurityHeadersFilter implements FilterInterface
             'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()'
         );
 
-        // Conservative CSP: hardens against plugin/base-tag/clickjacking vectors
-        // without locking down script/style sources (which would require nonces
-        // and break inline Tailwind/Alpine/JSON-LD on this server-rendered site).
-        if (! $response->hasHeader('Content-Security-Policy')) {
-            $response->setHeader(
-                'Content-Security-Policy',
-                "object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
-            );
-        }
+        // Keep the starter flexible for seeded remote media while still
+        // constraining the dangerous surfaces that do not need broad access.
+        // The allowlist can be tightened later via .env without touching code.
+        $csp = implode('; ', [
+            'object-src ' . $this->cspSources('CSP_OBJECT_SRC', ['self', 'http:', 'https:']),
+            "base-uri 'self'",
+            "frame-ancestors 'none'",
+            'img-src ' . $this->cspSources('CSP_IMAGE_SRC', ['self', 'http:', 'https:', 'data:']),
+            'frame-src ' . $this->cspSources('CSP_FRAME_SRC', ['self', 'http:', 'https:']),
+            'media-src ' . $this->cspSources('CSP_MEDIA_SRC', ['self', 'http:', 'https:']),
+        ]);
+        $response->setHeader('Content-Security-Policy', $csp);
 
         if (ENVIRONMENT === 'production') {
             $response->setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
         return $response;
+    }
+
+    /**
+     * @param list<string> $defaultSources
+     */
+    private function cspSources(string $envKey, array $defaultSources): string
+    {
+        $raw = env($envKey);
+        $sources = [];
+
+        if (is_string($raw) && trim($raw) !== '') {
+            $sources = preg_split('/[\s,]+/', trim($raw)) ?: [];
+        }
+
+        if ($sources === []) {
+            $sources = $defaultSources;
+        }
+
+        $sources = array_values(array_filter(array_map([$this, 'normalizeCspSourceToken'], $sources), static fn(string $value): bool => $value !== ''));
+
+        return implode(' ', $sources);
+    }
+
+    private function normalizeCspSourceToken(string $token): string
+    {
+        $token = trim($token);
+        if ($token === '') {
+            return '';
+        }
+
+        return match (strtolower($token)) {
+            'self', 'none', 'unsafe-inline', 'unsafe-eval', 'strict-dynamic', 'report-sample' => "'{$token}'",
+            default => $token,
+        };
     }
 }

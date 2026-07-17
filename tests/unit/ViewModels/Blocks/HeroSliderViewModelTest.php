@@ -25,7 +25,11 @@ final class HeroSliderViewModelTest extends CIUnitTestCase
             'children' => [
                 [
                     'block_data' => [
-                        'image_url' => 'https://cdn.test/a.jpg',
+                        'image' => [
+                            'source_kind' => 'external_url',
+                            'file_id'     => null,
+                            'url'         => 'https://cdn.test/a.jpg',
+                        ],
                         'heading'   => 'First',
                         'subtitle'  => 'Sub',
                         'cta_label' => 'Go',
@@ -38,7 +42,7 @@ final class HeroSliderViewModelTest extends CIUnitTestCase
         $vars = $vm->vars();
 
         $this->assertCount(1, $vars['slides']);
-        $this->assertSame('https://cdn.test/a.jpg', $vars['slides'][0]['image_url']);
+        $this->assertSame('https://cdn.test/a.jpg', $vars['slides'][0]['image']['url']);
         $this->assertSame('First', $vars['slides'][0]['heading']);
         $this->assertStringContainsString('/es/contacto', $vars['slides'][0]['cta_url']);
         $this->assertStringContainsString('First', $vars['jsonSlides']);
@@ -54,8 +58,8 @@ final class HeroSliderViewModelTest extends CIUnitTestCase
 
         $slides = $vm->vars()['slides'];
 
-        $this->assertStringStartsWith('data:image/svg+xml', $slides[0]['image_url']);
-        $this->assertStringContainsString(rawurlencode('No image slide'), $slides[0]['image_url']);
+        $this->assertStringStartsWith('data:image/svg+xml', $slides[0]['image']['url']);
+        $this->assertStringContainsString(rawurlencode('No image slide'), $slides[0]['image']['url']);
     }
 
     public function testInvalidPositionsFallBackToDefaults(): void

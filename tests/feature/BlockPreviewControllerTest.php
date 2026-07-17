@@ -114,6 +114,23 @@ final class BlockPreviewControllerTest extends CIUnitTestCase
         $this->assertStringContainsString('photo-1618005182384-a83a8bd57fbe', $json['html']); // Unsplash poster ID in mock
     }
 
+    public function testBlockPreviewMocksEmptyPdfViewerWithLocalAsset(): void
+    {
+        $payload = [
+            'block_key'    => 'pdf_viewer',
+            'block_config' => json_encode([]),
+            'block_data'   => json_encode([]),
+        ];
+
+        $result = $this->post('blocks/preview', $payload);
+
+        $result->assertStatus(200);
+
+        $json = json_decode($result->getJSON(), true);
+        $this->assertIsArray($json);
+        $this->assertStringContainsString('assets/docs/policies-handbook-demo.pdf', $json['html']);
+    }
+
     public function testBlockPreviewMocksEmptyMapEmbed(): void
     {
         $payload = [

@@ -123,7 +123,7 @@ class BlockPreviewController extends BasePublicWebController
 
         if ($blockKey === 'pdf_viewer') {
             if (! is_array($config['pdf_file'] ?? null) || empty($config['pdf_file']['url'])) {
-                $config['pdf_file'] = $this->mediaReference('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+                $config['pdf_file'] = $this->mediaReference(site_url('assets/docs/policies-handbook-demo.pdf'));
             }
         }
 

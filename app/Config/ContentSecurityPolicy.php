@@ -105,7 +105,7 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string
      */
-    public $imageSrc = 'self';
+    public array|string $imageSrc = ['self', 'http:', 'https:', 'data:'];
 
     /**
      * Restricts the URLs that can appear in a page's `<base>` element.
@@ -161,21 +161,21 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string|null
      */
-    public $frameSrc;
+    public array|string $frameSrc = ['self', 'http:', 'https:'];
 
     /**
      * Restricts the origins allowed to deliver video and audio.
      *
      * @var list<string>|string|null
      */
-    public $mediaSrc;
+    public array|string $mediaSrc = ['self', 'http:', 'https:'];
 
     /**
      * Allows control over Flash and other plugins.
      *
      * @var list<string>|string
      */
-    public $objectSrc = 'self';
+    public array|string $objectSrc = ['self', 'http:', 'https:'];
 
     /**
      * @var list<string>|string|null
@@ -215,4 +215,49 @@ class ContentSecurityPolicy extends BaseConfig
      * Replace nonce tag automatically?
      */
     public bool $autoNonce = true;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->imageSrc = $this->directiveFromEnv('CSP_IMAGE_SRC', ['self', 'http:', 'https:', 'data:']);
+        $this->frameSrc = $this->directiveFromEnv('CSP_FRAME_SRC', ['self', 'http:', 'https:']);
+        $this->mediaSrc = $this->directiveFromEnv('CSP_MEDIA_SRC', ['self', 'http:', 'https:']);
+        $this->objectSrc = $this->directiveFromEnv('CSP_OBJECT_SRC', ['self', 'http:', 'https:']);
+    }
+
+    /**
+     * @param list<string> $defaultSources
+     * @return list<string>|string
+     */
+    private function directiveFromEnv(string $envKey, array $defaultSources): array|string
+    {
+        $raw = env($envKey);
+        $sources = [];
+
+        if (is_string($raw) && trim($raw) !== '') {
+            $sources = preg_split('/[\s,]+/', trim($raw)) ?: [];
+        }
+
+        if ($sources === []) {
+            $sources = $defaultSources;
+        }
+
+        $sources = array_values(array_filter(array_map([$this, 'normalizeSourceToken'], $sources), static fn(string $value): bool => $value !== ''));
+
+        return count($sources) === 1 ? $sources[0] : $sources;
+    }
+
+    private function normalizeSourceToken(string $token): string
+    {
+        $token = trim($token);
+        if ($token === '') {
+            return '';
+        }
+
+        return match (strtolower($token)) {
+            'self', 'none', 'unsafe-inline', 'unsafe-eval', 'strict-dynamic', 'report-sample' => "'{$token}'",
+            default => $token,
+        };
+    }
 }
