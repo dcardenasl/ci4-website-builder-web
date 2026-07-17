@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-require_once dirname(__DIR__, 3) . '/shared/cms_preview_samples.php';
-
 use App\Libraries\BlockRenderer;
 use CodeIgniter\HTTP\ResponseInterface;
 
