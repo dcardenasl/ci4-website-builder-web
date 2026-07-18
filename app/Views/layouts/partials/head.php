@@ -128,4 +128,13 @@ $compiledCssPath = FCPATH . 'assets/css/compiled.css';
 $compiledCssVersion = is_file($compiledCssPath) ? (string) filemtime($compiledCssPath) : (string) time();
 ?>
 
+<?php foreach (\Config\Services::blockRenderer()->getPreloads() as $preload): ?>
+    <link rel="preload" as="image" href="<?= esc($preload['src']) ?>"
+        <?php if ($preload['srcset'] !== ''): ?>
+            imagesrcset="<?= esc($preload['srcset']) ?>"
+            imagesizes="<?= esc($preload['sizes']) ?>"
+        <?php endif; ?>
+        fetchpriority="high">
+<?php endforeach; ?>
+
 <link rel="stylesheet" href="<?= base_url('assets/css/compiled.css?v=' . $compiledCssVersion) ?>">

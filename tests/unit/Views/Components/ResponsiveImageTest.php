@@ -147,4 +147,29 @@ final class ResponsiveImageTest extends CIUnitTestCase
         $this->assertStringContainsString('srcset="https://example.test/image_lg.webp 1200w, https://example.test/image_sm.webp 480w"', $html);
         $this->assertStringContainsString('sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 1200px"', $html);
     }
+
+    public function testRegistersPreloadInBlockRenderer(): void
+    {
+        $blockRenderer = \Config\Services::blockRenderer();
+        $this->assertEmpty($blockRenderer->getPreloads());
+
+        // First image gets loading="eager" and fetchpriority="high", which triggers preloading
+        $html1 = view('components/responsive-image', [
+            'src' => 'https://picsum.photos/id/1040/1200/900',
+            'alt' => 'Img 1',
+        ]);
+
+        $preloads = $blockRenderer->getPreloads();
+        $this->assertCount(1, $preloads);
+        $this->assertSame('https://picsum.photos/id/1040/1200/900', $preloads[0]['src']);
+        $this->assertStringContainsString('https://picsum.photos/id/1040/480/360 480w', $preloads[0]['srcset']);
+
+        // Second image doesn't get fetchpriority="high", so it doesn't add a new preload
+        $html2 = view('components/responsive-image', [
+            'src' => 'https://picsum.photos/id/1041/1200/900',
+            'alt' => 'Img 2',
+        ]);
+
+        $this->assertCount(1, $blockRenderer->getPreloads());
+    }
 }

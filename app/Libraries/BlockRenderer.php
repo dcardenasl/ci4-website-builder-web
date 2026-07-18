@@ -39,6 +39,36 @@ class BlockRenderer
     /** @var int Counter of images rendered on the current page pass */
     private int $imageCount = 0;
 
+    /** @var array<array{src: string, srcset: string, sizes: string}> List of image preloads */
+    private array $imagePreloads = [];
+
+    /**
+     * Add a URL to the head preloads list.
+     */
+    public function addPreload(string $src, string $srcset = '', string $sizes = ''): void
+    {
+        foreach ($this->imagePreloads as $preload) {
+            if ($preload['src'] === $src) {
+                return;
+            }
+        }
+        $this->imagePreloads[] = [
+            'src'    => $src,
+            'srcset' => $srcset,
+            'sizes'  => $sizes,
+        ];
+    }
+
+    /**
+     * Get list of collected preloads.
+     *
+     * @return array<array{src: string, srcset: string, sizes: string}>
+     */
+    public function getPreloads(): array
+    {
+        return $this->imagePreloads;
+    }
+
     /**
      * Increment the global image count and return the new index.
      */
@@ -57,6 +87,7 @@ class BlockRenderer
     public function render(array $blocks, string $lang = 'es'): string
     {
         $this->imageCount = 0;
+        $this->imagePreloads = [];
         $this->preloadFormDefinitions($blocks, $lang);
 
         $html = '';

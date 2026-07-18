@@ -325,6 +325,30 @@ class PageController extends BasePublicWebController
             $ogImageUrl = $featuredImageUrl;
         }
 
+        if ($featuredImageUrl !== '' && !$hasHeroImage) {
+            $srcsetString = '';
+            $sizesString = '';
+            $variants = $featuredImage['variants'] ?? null;
+            if (is_array($variants) && !empty($variants)) {
+                $srcsetItems = [];
+                $widths = [];
+                foreach ($variants as $v) {
+                    if (isset($v['url'], $v['width'])) {
+                        $w = (int) $v['width'];
+                        $srcsetItems[] = esc($v['url']) . ' ' . $w . 'w';
+                        $widths[] = $w;
+                    }
+                }
+                if (!empty($srcsetItems) && !empty($widths)) {
+                    $srcsetString = implode(', ', $srcsetItems);
+                    sort($widths);
+                    $maxWidth = max($widths);
+                    $sizesString = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, ' . $maxWidth . 'px';
+                }
+            }
+            $blockRenderer->addPreload($featuredImageUrl, $srcsetString, $sizesString);
+        }
+
         $data = [
             'title'               => $translation['title'] ?? '',
             'excerpt'             => $translation['excerpt'] ?? '',

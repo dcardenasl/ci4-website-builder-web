@@ -79,6 +79,10 @@ if (is_array($variants) && !empty($variants)) {
         $sizesString = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, ' . $width . 'px';
     }
 }
+
+if (($fetchPriority ?? null) === 'high') {
+    \Config\Services::blockRenderer()->addPreload($src, $srcsetString, $sizesString);
+}
 ?>
 <img
     src="<?= esc($src) ?>"

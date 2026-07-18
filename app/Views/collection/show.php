@@ -89,10 +89,12 @@ $featuredImageUrl = is_string($featuredImage['url'] ?? null) ? trim((string) $fe
         <?php if ($featuredImageUrl !== '' && ($showFeaturedImage ?? true)): ?>
             <figure class="mb-8 -mx-4 sm:mx-0 overflow-hidden sm:rounded-xl">
                 <?= view('components/responsive-image', [
-                    'src'      => $featuredImageUrl,
-                    'alt'      => $title,
-                    'class'    => 'w-full aspect-video object-cover',
-                    'variants' => $featuredImage['variants'] ?? null,
+                    'src'           => $featuredImageUrl,
+                    'alt'           => $title,
+                    'class'         => 'w-full aspect-video object-cover',
+                    'variants'      => $featuredImage['variants'] ?? null,
+                    'loading'       => 'eager',
+                    'fetchPriority' => 'high',
                 ], ['saveData' => false]) ?>
             </figure>
         <?php endif; ?>
