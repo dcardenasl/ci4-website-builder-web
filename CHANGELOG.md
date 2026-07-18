@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Expanded form field rendering** — enhanced `FormController` and `form_embed` block view to support new form field types with improved layout and validation message handling; dynamic field type rendering adapts to expanded field type catalog from Domain
 - **Forms module** — new public-facing forms feature to display and submit CMS forms with field validation and submission handling (CMS-012)
 - **Analytics tracking** — automatic page view tracking to the domain CMS analytics API with user agent and referrer data
+- **LCP image preloading** — `BlockRenderer::addPreload()`/`getPreloads()` collect above-the-fold image URLs (page featured image, and any `responsive-image` component rendered with `fetchPriority="high"`); `head.php` emits matching `<link rel="preload" as="image">` tags with `imagesrcset`/`imagesizes` to speed up Largest Contentful Paint
 
 ### Changed
 - **Enhanced block viewmodels for document and multimedia blocks** — added new ViewModels (`DocumentDownloadViewModel`, `DocumentGalleryViewModel`, `PdfViewerViewModel`, `VideoGalleryViewModel`) with improved media reference handling and URL resolution; enhanced `AbstractBlockViewModel` with media reference URL extraction helpers (`dataMediaReferenceUrl()`, `configMediaReferenceUrl()`); added comprehensive test coverage for new ViewModels
