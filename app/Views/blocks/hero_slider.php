@@ -80,13 +80,13 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
             class="hero-shell relative overflow-hidden bg-transparent"
             style="width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);"
         >
-            <?php \Config\Services::blockRenderer()->incrementImageCount(); ?>
-            <img
-                data-hero-image
-                src="<?= esc($slides[0]['image']['url'] ?? '') ?>"
-                alt="<?= esc($slides[0]['image_alt_text'] ?? $slides[0]['heading'] ?? '') ?>"
-                class="absolute inset-0 h-full w-full"
-            />
+            <?= view('components/responsive-image', [
+                'src'        => $slides[0]['image']['url'] ?? '',
+                'alt'        => $slides[0]['image_alt_text'] ?? $slides[0]['heading'] ?? '',
+                'class'      => 'absolute inset-0 h-full w-full object-cover',
+                'variants'   => $slides[0]['image']['variants'] ?? null,
+                'attributes' => 'data-hero-image',
+            ], ['saveData' => false]) ?>
 
             <div
                 data-hero-overlay

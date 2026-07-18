@@ -47,13 +47,13 @@ class HeroSliderViewModel extends AbstractBlockViewModel
 
         foreach ($this->children() as $index => $child) {
             $childData    = is_array($child['block_data'] ?? null) ? $child['block_data'] : [];
+            $childConfig  = is_array($child['block_config'] ?? null) ? $child['block_config'] : [];
             $heading      = $this->childString($childData, 'heading');
-            $image        = $this->mediaReferenceFromPayload($childData, 'image');
-            $imageUrl = $this->mediaReferenceUrlFromPayload($childData, 'image');
+            $image        = $this->mediaReferenceFromPayload($childConfig, 'image');
+            $imageUrl = $this->mediaReferenceUrlFromPayload($childConfig, 'image');
             $displayImageUrl = $imageUrl !== ''
                 ? $imageUrl
                 : self::placeholderImage($heading !== '' ? $heading : ('Slide ' . ($index + 1)));
-            $childConfig  = is_array($child['block_config'] ?? null) ? $child['block_config'] : [];
             $textColor    = is_scalar($childConfig['text_color'] ?? null) ? (string) $childConfig['text_color'] : '';
             $overlayColor = is_scalar($childConfig['overlay_color'] ?? null) ? (string) $childConfig['overlay_color'] : '';
 

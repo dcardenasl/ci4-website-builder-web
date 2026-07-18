@@ -12,7 +12,7 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class DocumentGalleryViewModelTest extends CIUnitTestCase
 {
-    public function testNormalizesLegacyFlatFileUrlsInsideRepeaterItems(): void
+    public function testUsesCanonicalFileReferencesInsideRepeaterItems(): void
     {
         $vm = new DocumentGalleryViewModel([
             'block_config' => [
@@ -22,12 +22,20 @@ final class DocumentGalleryViewModelTest extends CIUnitTestCase
             'block_data' => [
                 'documents' => [
                     [
-                        'file_url' => 'https://example.com/files/policies.pdf',
+                        'file' => [
+                            'source_kind' => 'external_url',
+                            'file_id'     => null,
+                            'url'         => 'https://example.com/files/policies.pdf',
+                        ],
                         'title' => 'Policies',
                         'description' => 'Main handbook',
                     ],
                     [
-                        'file_url' => 'https://example.com/files/guide.docx',
+                        'file' => [
+                            'source_kind' => 'external_url',
+                            'file_id'     => null,
+                            'url'         => 'https://example.com/files/guide.docx',
+                        ],
                         'title' => 'Guide',
                     ],
                 ],

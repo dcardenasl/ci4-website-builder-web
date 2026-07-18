@@ -75,8 +75,8 @@ class BlockPreviewController extends BasePublicWebController
         }
 
         if ($blockKey === 'hero_banner') {
-            if (! is_array($data['image'] ?? null) || empty($data['image']['url'])) {
-                $data['image'] = $this->mediaReference('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80');
+            if (! is_array($config['image'] ?? null) || empty($config['image']['url'])) {
+                $config['image'] = $this->mediaReference('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80');
             }
         }
 
@@ -182,18 +182,24 @@ class BlockPreviewController extends BasePublicWebController
             return [
                 [
                     'block_key' => 'gallery_item',
-                    'block_config' => [],
-                    'block_data' => $item + ['image' => $this->mediaReference('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80'), 'alt_text' => 'Playa paradisíaca']
+                    'block_config' => [
+                        'image' => $this->mediaReference('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80'),
+                    ],
+                    'block_data' => $item + ['alt' => 'Playa paradisíaca'],
                 ],
                 [
                     'block_key' => 'gallery_item',
-                    'block_config' => [],
-                    'block_data' => $item + ['image' => $this->mediaReference('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80'), 'alt_text' => 'Montañas brumosas']
+                    'block_config' => [
+                        'image' => $this->mediaReference('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80'),
+                    ],
+                    'block_data' => $item + ['alt' => 'Montañas brumosas'],
                 ],
                 [
                     'block_key' => 'gallery_item',
-                    'block_config' => [],
-                    'block_data' => $item + ['image' => $this->mediaReference('https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=600&q=80'), 'alt_text' => 'Sendero forestal']
+                    'block_config' => [
+                        'image' => $this->mediaReference('https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=600&q=80'),
+                    ],
+                    'block_data' => $item + ['alt' => 'Sendero forestal'],
                 ]
             ];
         }
@@ -219,17 +225,17 @@ class BlockPreviewController extends BasePublicWebController
             return [
                 [
                     'block_key' => 'slide_banner',
-                    'block_config' => [],
-                    'block_data' => $slide + [
+                    'block_config' => [
                         'image' => $this->mediaReference('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80'),
                     ],
+                    'block_data' => $slide,
                 ],
                 [
                     'block_key' => 'slide_banner',
-                    'block_config' => [],
-                    'block_data' => $slide + [
+                    'block_config' => [
                         'image' => $this->mediaReference('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80'),
                     ],
+                    'block_data' => $slide,
                 ]
             ];
         }
@@ -239,17 +245,17 @@ class BlockPreviewController extends BasePublicWebController
             return [
                 [
                     'block_key' => 'slide_card',
-                    'block_config' => [],
-                    'block_data' => $card + [
+                    'block_config' => [
                         'image' => $this->mediaReference('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'),
                     ],
+                    'block_data' => $card,
                 ],
                 [
                     'block_key' => 'slide_card',
-                    'block_config' => [],
-                    'block_data' => $card + [
+                    'block_config' => [
                         'image' => $this->mediaReference('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=400&q=80'),
                     ],
+                    'block_data' => $card,
                 ]
             ];
         }
@@ -259,17 +265,17 @@ class BlockPreviewController extends BasePublicWebController
             return [
                 [
                     'block_key' => 'card_item',
-                    'block_config' => [],
-                    'block_data' => $card + [
+                    'block_config' => [
                         'image' => $this->mediaReference('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'),
                     ],
+                    'block_data' => $card,
                 ],
                 [
                     'block_key' => 'card_item',
-                    'block_config' => [],
-                    'block_data' => $card + [
+                    'block_config' => [
                         'image' => $this->mediaReference('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=400&q=80'),
                     ],
+                    'block_data' => $card,
                 ]
             ];
         }

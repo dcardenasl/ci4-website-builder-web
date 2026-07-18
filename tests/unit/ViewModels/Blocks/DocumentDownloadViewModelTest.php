@@ -12,11 +12,15 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class DocumentDownloadViewModelTest extends CIUnitTestCase
 {
-    public function testResolvesConfiguredDocumentStringAndDocumentType(): void
+    public function testResolvesConfiguredDocumentReferenceAndDocumentType(): void
     {
         $vm = new DocumentDownloadViewModel([
             'block_config' => [
-                'document' => 'https://example.com/files/handbook.pdf',
+                'document' => [
+                    'source_kind' => 'external_url',
+                    'file_id'     => null,
+                    'url'         => 'https://example.com/files/handbook.pdf',
+                ],
                 'open_in_new_tab' => false,
             ],
             'block_data' => [
@@ -34,17 +38,21 @@ final class DocumentDownloadViewModelTest extends CIUnitTestCase
         $this->assertFalse($vars['openInNewTab']);
     }
 
-    public function testLegacyDocumentUrlStillWorks(): void
+    public function testConfiguredHubDocumentBuildsPreviewUrl(): void
     {
         $vm = new DocumentDownloadViewModel([
-            'block_data' => [
-                'document_url' => 'https://example.com/files/handbook.docx',
+            'block_config' => [
+                'document' => [
+                    'source_kind' => 'hub_file',
+                    'file_id'     => 17,
+                    'url'         => '/files/17/download?name=handbook.docx',
+                ],
             ],
         ], 'es');
 
         $vars = $vm->vars();
 
-        $this->assertSame('https://example.com/files/handbook.docx', $vars['documentUrl']);
-        $this->assertSame('word', $vars['docType']);
+        $this->assertSame('/files/17/download?name=handbook.docx', $vars['documentUrl']);
+        $this->assertSame('generic', $vars['docType']);
     }
 }

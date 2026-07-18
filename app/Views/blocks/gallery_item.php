@@ -2,7 +2,7 @@
 /** @var array<string, mixed> $block */
 /** @var array<string, mixed> $data */
 
-$image = is_array($data['image'] ?? null) ? $data['image'] : [];
+$image = is_array($config['image'] ?? null) ? $config['image'] : [];
 $imageUrl = (string) ($image['url'] ?? '');
 $alt = (string) ($data['alt'] ?? '');
 $caption = (string) ($data['caption'] ?? '');
@@ -25,9 +25,10 @@ if ($imageUrl === '') {
     class="group relative aspect-square overflow-hidden rounded-2xl border border-slate-200/40 bg-slate-100 shadow-sm transition-all duration-300 <?= esc($hasLink ? 'cursor-pointer hover:shadow-lg' : '') ?>"
 >
     <?= view('components/responsive-image', [
-        'src'   => $imageUrl,
-        'alt'   => $alt,
-        'class' => 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-105',
+        'src'      => $imageUrl,
+        'alt'      => $alt,
+        'class'    => 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-105',
+        'variants' => $image['variants'] ?? null,
     ], ['saveData' => false]) ?>
 
     <div class="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">

@@ -104,25 +104,9 @@ abstract class AbstractBlockViewModel
     /**
      * @return array{source_kind: string, file_id: int|null, url: string}
      */
-    protected function dataMediaReference(string $key): array
-    {
-        return $this->mediaReferenceFromPayload($this->data(), $key);
-    }
-
-    /**
-     * @return array{source_kind: string, file_id: int|null, url: string}
-     */
     protected function configMediaReference(string $key): array
     {
         return $this->mediaReferenceFromPayload($this->config(), $key);
-    }
-
-    /**
-     * @return string
-     */
-    protected function dataMediaReferenceUrl(string $key): string
-    {
-        return $this->dataMediaReference($key)['url'];
     }
 
     /**
@@ -140,35 +124,25 @@ abstract class AbstractBlockViewModel
     protected function normalizeMediaReference(mixed $value): array
     {
         if (! is_array($value)) {
-            $value = [];
+            return $this->emptyMediaReference();
         }
 
-        $sourceKind = strtolower(trim((string) (
-            $value['source_kind']
-            ?? $value['sourceKind']
-            ?? $value['source']
-            ?? ''
-        )));
-        $fileId = is_numeric($value['file_id'] ?? $value['fileId'] ?? null) ? (int) ($value['file_id'] ?? $value['fileId']) : null;
-        $url = '';
-        foreach (['url', 'external_url', 'externalUrl', 'file_url', 'fileUrl'] as $urlKey) {
-            if (is_scalar($value[$urlKey] ?? null) && trim((string) $value[$urlKey]) !== '') {
-                $url = trim((string) $value[$urlKey]);
-                break;
-            }
-        }
+        $sourceKind = is_string($value['source_kind'] ?? null)
+            ? strtolower(trim($value['source_kind']))
+            : '';
+        $fileId = is_numeric($value['file_id'] ?? null) && (int) $value['file_id'] > 0
+            ? (int) $value['file_id']
+            : null;
+        $url = is_string($value['url'] ?? null) ? trim($value['url']) : '';
 
-        if ($fileId === null && $url !== '' && preg_match('~/files/(\d+)/(?:view|download)(?:\?.*)?$~', $url, $matches) === 1) {
-            $fileId = (int) $matches[1];
-            $sourceKind = 'hub_file';
-        }
-
-        if ($sourceKind === '') {
-            $sourceKind = $fileId !== null ? 'hub_file' : 'external_url';
-        }
-
-        if ($url === '' && $fileId !== null) {
+        if ($sourceKind === 'hub_file' && $fileId !== null && $url === '') {
             $url = '/files/' . $fileId . '/view';
+        }
+
+        if (($sourceKind === 'hub_file' && $fileId === null)
+            || ($sourceKind === 'external_url' && $url === '')
+            || ! in_array($sourceKind, ['hub_file', 'external_url'], true)) {
+            return $this->emptyMediaReference();
         }
 
         return [
@@ -179,9 +153,7 @@ abstract class AbstractBlockViewModel
     }
 
     /**
-     * Resolve a media reference from a payload, accepting both canonical nested
-     * references and legacy flat sibling keys like `poster_url` or
-     * `document_file_id`.
+     * Resolve a canonical nested media reference from a payload.
      *
      * @param array<string, mixed> $payload
      * @return array{source_kind: string, file_id: int|null, url: string}
@@ -189,41 +161,22 @@ abstract class AbstractBlockViewModel
     protected function mediaReferenceFromPayload(array $payload, string $key): array
     {
         $value = $payload[$key] ?? null;
-        if (is_string($value)) {
-            $trimmed = trim($value);
-            if ($trimmed !== '') {
-                return $this->normalizeMediaReference([
-                    'url' => ctype_digit($trimmed) ? '' : $trimmed,
-                    'file_id' => ctype_digit($trimmed) ? (int) $trimmed : null,
-                ]);
-            }
-        } elseif (is_numeric($value)) {
-            return $this->normalizeMediaReference(['file_id' => (int) $value]);
-        } elseif (is_array($value)) {
-            $normalized = $this->normalizeMediaReference($value);
-            if ($normalized['url'] !== '' || $normalized['file_id'] !== null) {
-                return $normalized;
-            }
-        }
 
-        $legacyReference = [];
-        foreach ([
-            'source_kind' => ['source_kind', 'sourceKind', 'source'],
-            'file_id' => ['file_id', 'fileId'],
-            'url' => ['url', 'external_url', 'externalUrl', 'file_url', 'fileUrl'],
-        ] as $targetKey => $aliases) {
-            foreach ($aliases as $alias) {
-                $siblingKey = $key . '_' . $alias;
-                if (! array_key_exists($siblingKey, $payload)) {
-                    continue;
-                }
+        return is_array($value)
+            ? $this->normalizeMediaReference($value)
+            : $this->emptyMediaReference();
+    }
 
-                $legacyReference[$targetKey] = $payload[$siblingKey];
-                break;
-            }
-        }
-
-        return $this->normalizeMediaReference($legacyReference);
+    /**
+     * @return array{source_kind: string, file_id: null, url: string}
+     */
+    private function emptyMediaReference(): array
+    {
+        return [
+            'source_kind' => 'external_url',
+            'file_id'     => null,
+            'url'         => '',
+        ];
     }
 
     /**

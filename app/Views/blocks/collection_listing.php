@@ -225,9 +225,10 @@ $sectionClass = trim($cssClass . ' section');
                         <?php if ($entryImage !== ''): ?>
                             <a href="<?= esc($entryUrl) ?>" class="block overflow-hidden <?= esc($imageClass) ?>" tabindex="-1" aria-hidden="true">
                                 <?= view('components/responsive-image', [
-                                    'src'   => $entryImage,
-                                    'alt'   => $entryTitle,
-                                    'class' => 'h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-103',
+                                    'src'      => $entryImage,
+                                    'alt'      => $entryTitle,
+                                    'class'    => 'h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-103',
+                                    'variants' => $entry['featured_image']['variants'] ?? null,
                                 ], ['saveData' => false]) ?>
                             </a>
                         <?php else: ?>
@@ -285,9 +286,10 @@ $sectionClass = trim($cssClass . ' section');
                             <?php if ($showExtraImage && $extraImage !== null): ?>
                                 <div class="mt-4 overflow-hidden rounded-lg">
                                     <?= view('components/responsive-image', [
-                                        'src' => (string) $extraImage['url'],
-                                        'alt' => (string) ($extraImage['alt'] ?: $entryTitle),
-                                        'class' => 'h-32 w-full object-cover',
+                                        'src'      => (string) $extraImage['url'],
+                                        'alt'      => (string) ($extraImage['alt'] ?: $entryTitle),
+                                        'class'    => 'h-32 w-full object-cover',
+                                        'variants' => $extraImage['variants'] ?? null,
                                     ], ['saveData' => false]) ?>
                                 </div>
                             <?php endif; ?>

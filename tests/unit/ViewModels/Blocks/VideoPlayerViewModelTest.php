@@ -80,11 +80,15 @@ final class VideoPlayerViewModelTest extends CIUnitTestCase
         $this->assertFalse($vars['isIframe']);
     }
 
-    public function testConfigPosterStringIsNormalized(): void
+    public function testCanonicalConfigPosterReferenceIsUsed(): void
     {
         $vm = new VideoPlayerViewModel([
             'block_config' => [
-                'poster' => 'https://cdn.test/poster.jpg',
+                'poster' => [
+                    'source_kind' => 'external_url',
+                    'file_id'     => null,
+                    'url'         => 'https://cdn.test/poster.jpg',
+                ],
             ],
             'block_data' => [
                 'video_url' => 'https://youtu.be/dQw4w9WgXcQ',

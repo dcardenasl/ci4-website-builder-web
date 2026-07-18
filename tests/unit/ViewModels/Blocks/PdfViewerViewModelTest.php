@@ -12,11 +12,15 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class PdfViewerViewModelTest extends CIUnitTestCase
 {
-    public function testResolvesConfiguredPdfFileStringAndDefaults(): void
+    public function testResolvesConfiguredPdfReferenceAndDefaults(): void
     {
         $vm = new PdfViewerViewModel([
             'block_config' => [
-                'pdf_file' => 'https://example.com/files/manual.pdf',
+                'pdf_file' => [
+                    'source_kind' => 'external_url',
+                    'file_id'     => null,
+                    'url'         => 'https://example.com/files/manual.pdf',
+                ],
                 'height'   => '800px',
                 'allow_download' => false,
             ],
@@ -33,16 +37,20 @@ final class PdfViewerViewModelTest extends CIUnitTestCase
         $this->assertFalse($vars['allowDownload']);
     }
 
-    public function testLegacyDataPdfFileStillWorks(): void
+    public function testConfiguredHubPdfReferenceBuildsPreviewUrl(): void
     {
         $vm = new PdfViewerViewModel([
-            'block_data' => [
-                'pdf_file' => 'https://example.com/files/legacy-handbook.pdf',
+            'block_config' => [
+                'pdf_file' => [
+                    'source_kind' => 'hub_file',
+                    'file_id'     => 42,
+                    'url'         => '',
+                ],
             ],
         ], 'es');
 
         $vars = $vm->vars();
 
-        $this->assertSame('https://example.com/files/legacy-handbook.pdf', $vars['pdfUrl']);
+        $this->assertSame('/files/42/view', $vars['pdfUrl']);
     }
 }

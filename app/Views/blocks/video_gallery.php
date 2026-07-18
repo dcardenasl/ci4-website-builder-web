@@ -50,7 +50,12 @@ $galleryId = uniqid('video_gal_');
                         
                         <!-- Thumbnail Wrapper -->
                         <div class="relative aspect-video overflow-hidden bg-slate-900 shrink-0">
-                            <img src="<?= esc($poster) ?>" alt="<?= esc($video['title']) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                            <?= view('components/responsive-image', [
+                                'src'      => $poster,
+                                'alt'      => $video['title'],
+                                'class'    => 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500',
+                                'variants' => $video['poster']['variants'] ?? null,
+                            ], ['saveData' => false]) ?>
                             <div class="absolute inset-0 bg-slate-950/40 group-hover:bg-slate-950/30 transition-colors duration-300 flex items-center justify-center">
                                 <span class="flex items-center justify-center w-12 h-12 rounded-full bg-white text-violet-600 shadow-md group-hover:scale-110 group-hover:bg-violet-600 group-hover:text-white transition-all duration-300">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 ml-0.5">

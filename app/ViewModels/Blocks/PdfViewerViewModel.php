@@ -9,9 +9,6 @@ class PdfViewerViewModel extends AbstractBlockViewModel
     public function vars(): array
     {
         $pdfFile = $this->configMediaReference('pdf_file');
-        if ($pdfFile['url'] === '') {
-            $pdfFile = $this->dataMediaReference('pdf_file');
-        }
 
         return [
             'heading'         => $this->dataString('heading'),

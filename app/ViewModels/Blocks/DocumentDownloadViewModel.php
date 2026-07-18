@@ -9,9 +9,6 @@ class DocumentDownloadViewModel extends AbstractBlockViewModel
     public function vars(): array
     {
         $document = $this->configMediaReference('document');
-        if ($document['url'] === '') {
-            $document = $this->dataMediaReference('document');
-        }
 
         $url = $document['url'];
         $meta = $this->documentTypeFromUrl($url);

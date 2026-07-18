@@ -1,8 +1,8 @@
 <?php
 $image = is_array($config['image'] ?? null) ? $config['image'] : [];
 $imageUrl = (string) ($image['url'] ?? '');
-$alt = (string) ($data['image_alt_text'] ?? $data['alt'] ?? '');
-$caption = $data['image_caption'] ?? $data['caption'] ?? null;
+$alt = (string) ($data['alt'] ?? '');
+$caption = $data['caption'] ?? null;
 $figureClass = trim((string) ($config['css_class'] ?? ''));
 $cssClass = esc(trim($config['css_class'] ?? ''));
 ?>
@@ -17,13 +17,12 @@ $cssClass = esc(trim($config['css_class'] ?? ''));
             </figure>
         <?php else: ?>
             <figure class="<?= esc($figureClass) ?>">
-                <img
-                    src="<?= esc($imageUrl) ?>"
-                    alt="<?= esc($alt) ?>"
-                    class="w-full h-auto rounded-3xl border border-slate-200/40 shadow-sm transition-all duration-300 hover:shadow-md"
-                    loading="lazy"
-                    decoding="async"
-                />
+                <?= view('components/responsive-image', [
+                    'src'      => $imageUrl,
+                    'alt'      => $alt,
+                    'class'    => 'w-full h-auto rounded-3xl border border-slate-200/40 shadow-sm transition-all duration-300 hover:shadow-md',
+                    'variants' => $image['variants'] ?? null,
+                ], ['saveData' => false]) ?>
                 <?php if (! empty($caption)): ?>
                     <figcaption class="mt-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">
                         <?= esc((string) $caption) ?>

@@ -49,10 +49,11 @@ class AssetShowcaseViewModel extends AbstractBlockViewModel
                 continue;
             }
             $childData = is_array($child['block_data'] ?? null) ? $child['block_data'] : [];
+            $childConfig = is_array($child['block_config'] ?? null) ? $child['block_config'] : [];
             $string    = static fn (string $key): string => is_scalar($childData[$key] ?? null) ? (string) $childData[$key] : '';
 
             $logos[] = [
-                'logo'     => $this->normalizeMediaReference($childData['logo'] ?? []),
+                'logo'     => $this->normalizeMediaReference($childConfig['logo'] ?? []),
                 'name'     => $string('name'),
                 'link_url' => lang_url($string('link_url'), $this->lang),
             ];

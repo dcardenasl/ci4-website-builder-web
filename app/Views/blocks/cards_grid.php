@@ -56,12 +56,12 @@ if ($variant === 'bordered') {
         <div class="<?= esc($cardBaseClass . $cardVariantClass) ?>">
                 <?php if (($card['image']['url'] ?? '') !== ''): ?>
                     <div class="mb-4 flex items-center justify-start h-12 w-12 rounded-xl bg-violet-50 text-violet-600 overflow-hidden p-2.5">
-                        <img 
-                            src="<?= esc($card['image']['url']) ?>" 
-                            alt="<?= esc($card['title']) ?>" 
-                            class="h-full w-full object-contain"
-                            loading="lazy"
-                        />
+                        <?= view('components/responsive-image', [
+                            'src'      => $card['image']['url'],
+                            'alt'      => $card['title'],
+                            'class'    => 'h-full w-full object-contain',
+                            'variants' => $card['image']['variants'] ?? null,
+                        ], ['saveData' => false]) ?>
                     </div>
                 <?php endif; ?>
                 

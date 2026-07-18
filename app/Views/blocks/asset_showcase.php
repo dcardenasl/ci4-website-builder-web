@@ -47,13 +47,13 @@ if ($logos === []) {
                         <?php endif; ?>
                         
                         <?php if (($logo['logo']['url'] ?? '') !== ''): ?>
-                            <img
-                                src="<?= esc($logo['logo']['url']) ?>"
-                                alt="<?= esc($logo['name']) ?>"
-                                title="<?= esc($logo['name']) ?>"
-                                class="max-h-full max-w-full object-contain <?= $logoStyleClass ?>"
-                                loading="lazy"
-                            />
+                            <?= view('components/responsive-image', [
+                                'src'        => $logo['logo']['url'],
+                                'alt'        => $logo['name'],
+                                'class'      => 'max-h-full max-w-full object-contain ' . $logoStyleClass,
+                                'attributes' => 'title="' . esc($logo['name']) . '"',
+                                'variants'   => $logo['logo']['variants'] ?? null,
+                            ], ['saveData' => false]) ?>
                         <?php else: ?>
                             <span class="text-sm font-semibold text-slate-500"><?= esc($logo['name']) ?></span>
                         <?php endif; ?>
@@ -76,13 +76,13 @@ if ($logos === []) {
                     <?php endif; ?>
                     
                     <?php if (($logo['logo']['url'] ?? '') !== ''): ?>
-                        <img
-                            src="<?= esc($logo['logo']['url']) ?>"
-                            alt="<?= esc($logo['name']) ?>"
-                            title="<?= esc($logo['name']) ?>"
-                            class="max-h-full max-w-full object-contain <?= $logoStyleClass ?>"
-                            loading="lazy"
-                        />
+                        <?= view('components/responsive-image', [
+                            'src'        => $logo['logo']['url'],
+                            'alt'        => $logo['name'],
+                            'class'      => 'max-h-full max-w-full object-contain ' . $logoStyleClass,
+                            'attributes' => 'title="' . esc($logo['name']) . '"',
+                            'variants'   => $logo['logo']['variants'] ?? null,
+                        ], ['saveData' => false]) ?>
                     <?php else: ?>
                         <span class="text-sm font-semibold text-slate-500"><?= esc($logo['name']) ?></span>
                     <?php endif; ?>

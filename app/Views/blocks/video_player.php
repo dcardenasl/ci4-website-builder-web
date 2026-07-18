@@ -43,11 +43,12 @@ if ($videoUrl === '') {
             <?php if (($poster['url'] ?? '') !== ''): ?>
                 <!-- Lazy Load Poster View -->
                 <div class="absolute inset-0 z-10 cursor-pointer flex items-center justify-center transition-all duration-300" data-poster-overlay>
-                    <img 
-                        src="<?= esc($poster['url']) ?>" 
-                        alt="<?= esc($heading !== '' ? $heading : 'Video Poster') ?>"
-                        class="absolute inset-0 w-full h-full object-cover group-hover/video:scale-[1.01] transition-transform duration-500"
-                    />
+                    <?= view('components/responsive-image', [
+                        'src'      => $poster['url'],
+                        'alt'      => $heading !== '' ? $heading : 'Video Poster',
+                        'class'    => 'absolute inset-0 w-full h-full object-cover group-hover/video:scale-[1.01] transition-transform duration-500',
+                        'variants' => $poster['variants'] ?? null,
+                    ], ['saveData' => false]) ?>
                     <!-- Overlay Dark Mask -->
                     <div class="absolute inset-0 bg-slate-950/40 group-hover/video:bg-slate-950/30 transition-colors duration-300"></div>
                     

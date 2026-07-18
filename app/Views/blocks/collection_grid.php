@@ -63,9 +63,10 @@ if ($collectionKey === '' || ($entries === [] && $sectionTitle === '')) {
                         <?php if ($entryImage): ?>
                             <a href="<?= esc($entryUrl) ?>" class="block overflow-hidden <?= esc($imageClass) ?>" tabindex="-1">
                                 <?= view('components/responsive-image', [
-                                    'src'   => $entryImage,
-                                    'alt'   => $entryTitle,
-                                    'class' => 'h-full w-full object-cover transition-transform duration-300 group-hover:scale-105',
+                                    'src'      => $entryImage,
+                                    'alt'      => $entryTitle,
+                                    'class'    => 'h-full w-full object-cover transition-transform duration-300 group-hover:scale-105',
+                                    'variants' => $entry['featured_image']['variants'] ?? null,
                                 ], ['saveData' => false]) ?>
                             </a>
                         <?php endif; ?>

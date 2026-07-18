@@ -12,7 +12,7 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class VideoGalleryViewModelTest extends CIUnitTestCase
 {
-    public function testNormalizesLegacyPosterUrlInsideRepeaterItems(): void
+    public function testUsesCanonicalPosterReferenceInsideRepeaterItems(): void
     {
         $vm = new VideoGalleryViewModel([
             'block_config' => ['columns' => '4'],
@@ -22,7 +22,11 @@ final class VideoGalleryViewModelTest extends CIUnitTestCase
                     [
                         'video_url' => 'https://youtu.be/dQw4w9WgXcQ',
                         'title' => 'Demo',
-                        'poster_url' => 'https://cdn.test/video-poster.jpg',
+                        'poster' => [
+                            'source_kind' => 'external_url',
+                            'file_id'     => null,
+                            'url'         => 'https://cdn.test/video-poster.jpg',
+                        ],
                     ],
                 ],
             ],

@@ -118,7 +118,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
                         'title' => 'Caso de Éxito de Ejemplo 1',
                         'summary' => 'Esta es una descripción corta para la primera entrada de ejemplo en la lista.',
                         'published_at' => date('Y-m-d H:i:s'),
-                        'featured_image' => $this->normalizeMediaReference(['url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80']),
+                        'featured_image' => $this->normalizeMediaReference(['source_kind' => 'external_url', 'file_id' => null, 'url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80']),
                         'categories' => [['title' => 'Casos', 'slug' => 'casos']],
                         'tags' => [['title' => 'Tag 1', 'slug' => 'tag-1']],
                     ],
@@ -128,7 +128,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
                         'title' => 'Lanzamiento de Producto Especial',
                         'summary' => 'Esta es una descripción corta para la segunda entrada de ejemplo en la lista.',
                         'published_at' => date('Y-m-d H:i:s', strtotime('-1 day')),
-                        'featured_image' => $this->normalizeMediaReference(['url' => 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80']),
+                        'featured_image' => $this->normalizeMediaReference(['source_kind' => 'external_url', 'file_id' => null, 'url' => 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=600&q=80']),
                         'categories' => [['title' => 'Productos', 'slug' => 'productos']],
                         'tags' => [['title' => 'Tag 2', 'slug' => 'tag-2']],
                     ]

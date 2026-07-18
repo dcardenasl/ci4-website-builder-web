@@ -75,15 +75,21 @@ final class CardsSliderViewModelTest extends CIUnitTestCase
         $this->assertSame([], $vm->vars()['cards']);
     }
 
-    public function testLegacyImageUrlIsNormalizedForSlideCards(): void
+    public function testCanonicalImageReferenceIsUsedForSlideCards(): void
     {
         $vm = new CardsSliderViewModel([
             'children' => [
                 [
                     'block_key' => 'slide_card',
+                    'block_config' => [
+                        'image' => [
+                            'source_kind' => 'external_url',
+                            'file_id'     => null,
+                            'url'         => 'https://cdn.test/card-a.jpg',
+                        ],
+                    ],
                     'block_data' => [
-                        'title'     => 'Card A',
-                        'image_url' => 'https://cdn.test/card-a.jpg',
+                        'title' => 'Card A',
                     ],
                 ],
             ],

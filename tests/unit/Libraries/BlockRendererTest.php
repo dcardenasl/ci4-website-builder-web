@@ -53,13 +53,14 @@ final class BlockRendererTest extends CIUnitTestCase
         $html = $this->renderer->render([
             [
                 'block_key'    => 'gallery_item',
-                'block_config' => [],
-                'block_data'   => [
+                'block_config' => [
                     'image' => [
                         'source_kind' => 'external_url',
                         'file_id'     => null,
                         'url'         => 'https://picsum.photos/id/1040/1200/900',
                     ],
+                ],
+                'block_data'   => [
                     'alt'       => 'Gallery image',
                     'caption'   => 'Canonical caption',
                 ],
@@ -72,14 +73,14 @@ final class BlockRendererTest extends CIUnitTestCase
         $this->assertStringContainsString('Canonical caption', $html);
     }
 
-    public function testRichTextFallsBackToLegacyBodyField(): void
+    public function testRichTextRendersCanonicalContentField(): void
     {
         $html = $this->renderer->render([
             [
                 'block_key'    => 'rich_text',
                 'block_config' => [],
                 'block_data'   => [
-                    'body' => '<p>Festivales content</p>',
+                    'content' => '<p>Festivales content</p>',
                 ],
                 'children'     => [],
             ],

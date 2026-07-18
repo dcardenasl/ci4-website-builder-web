@@ -20,10 +20,12 @@ $readMore   = lang('Site.read_more');
 
     <?php if ($imageUrl): ?>
         <a href="<?= esc($entryUrl) ?>" class="block overflow-hidden aspect-video" tabindex="-1" aria-hidden="true">
-            <img src="<?= esc($imageUrl) ?>"
-                 alt="<?= esc($title) ?>"
-                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                 loading="lazy">
+            <?= view('components/responsive-image', [
+                'src'      => $imageUrl,
+                'alt'      => $title,
+                'class'    => 'w-full h-full object-cover transition-transform duration-300 group-hover:scale-105',
+                'variants' => $image['variants'] ?? null,
+            ], ['saveData' => false]) ?>
         </a>
     <?php else: ?>
         <div class="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">

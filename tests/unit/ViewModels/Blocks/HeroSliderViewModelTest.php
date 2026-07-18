@@ -24,12 +24,14 @@ final class HeroSliderViewModelTest extends CIUnitTestCase
         $vm = new HeroSliderViewModel([
             'children' => [
                 [
-                    'block_data' => [
+                    'block_config' => [
                         'image' => [
                             'source_kind' => 'external_url',
                             'file_id'     => null,
                             'url'         => 'https://cdn.test/a.jpg',
                         ],
+                    ],
+                    'block_data' => [
                         'heading'   => 'First',
                         'subtitle'  => 'Sub',
                         'cta_label' => 'Go',

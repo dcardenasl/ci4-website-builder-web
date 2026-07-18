@@ -22,11 +22,17 @@ final class TeamMemberViewModelTest extends CIUnitTestCase
     public function testBuildsTeamMemberVariables(): void
     {
         $vm = new TeamMemberViewModel([
+            'block_config' => [
+                'photo' => [
+                    'source_kind' => 'external_url',
+                    'file_id'     => null,
+                    'url'         => 'https://cdn.test/john.jpg',
+                ],
+            ],
             'block_data' => [
                 'name'         => 'John Doe',
                 'position'     => 'Developer',
                 'bio'          => 'Short bio',
-                'photo_url'    => 'https://cdn.test/john.jpg',
                 'linkedin_url' => 'https://linkedin.com/in/johndoe',
             ],
         ], 'es');

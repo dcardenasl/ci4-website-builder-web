@@ -16,7 +16,11 @@ final class HeroBannerViewModelTest extends CIUnitTestCase
     {
         $vm = new HeroBannerViewModel([
             'block_config' => [
-                'image' => ['url' => 'https://cdn.test/hero-banner.jpg'],
+                'image' => [
+                    'source_kind' => 'external_url',
+                    'file_id'     => null,
+                    'url'         => 'https://cdn.test/hero-banner.jpg',
+                ],
                 'text_color' => '#123456',
             ],
             'block_data' => [
@@ -35,17 +39,15 @@ final class HeroBannerViewModelTest extends CIUnitTestCase
         $this->assertStringContainsString('/es/historia', $vars['cta_url']);
     }
 
-    public function testLegacyDataImageUrlStillWorksAsFallback(): void
+    public function testMissingConfiguredImageUsesDarkText(): void
     {
         $vm = new HeroBannerViewModel([
-            'block_data' => [
-                'image_url' => 'https://cdn.test/legacy-hero.jpg',
-            ],
+            'block_data' => [],
         ], 'es');
 
         $vars = $vm->vars();
 
-        $this->assertSame('https://cdn.test/legacy-hero.jpg', $vars['image']['url']);
-        $this->assertSame('#ffffff', $vars['text_color'], 'Fallback image should still trigger the light text treatment');
+        $this->assertSame('', $vars['image']['url']);
+        $this->assertSame('#0f172a', $vars['text_color']);
     }
 }

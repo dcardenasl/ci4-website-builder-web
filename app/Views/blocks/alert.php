@@ -4,8 +4,8 @@
 /** @var array<string, mixed> $data */
 
 $title = (string) ($data['title'] ?? '');
-$message = (string) ($data['message'] ?? $data['content'] ?? '');
-$type = (string) ($config['type'] ?? $config['alert_type'] ?? 'info');
+$message = (string) ($data['message'] ?? '');
+$type = (string) ($config['type'] ?? 'info');
 $dismissible = filter_var($config['dismissible'] ?? true, FILTER_VALIDATE_BOOL);
 $cssClass = trim((string) ($config['css_class'] ?? ''));
 

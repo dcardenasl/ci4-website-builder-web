@@ -9,9 +9,6 @@ class HeroBannerViewModel extends AbstractBlockViewModel
     public function vars(): array
     {
         $image = $this->configMediaReference('image');
-        if ($image['url'] === '') {
-            $image = $this->dataMediaReference('image');
-        }
         $imageUrl = $image['url'];
 
         // White is only a safe default while the dark overlay over the

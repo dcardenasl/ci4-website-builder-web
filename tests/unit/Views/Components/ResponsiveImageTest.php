@@ -119,4 +119,32 @@ final class ResponsiveImageTest extends CIUnitTestCase
         $this->assertStringContainsString('loading="lazy"', $html2);
         $this->assertStringNotContainsString('fetchpriority=', $html2);
     }
+
+    public function testRendersCustomAttributes(): void
+    {
+        $html = view('components/responsive-image', [
+            'src' => 'https://example.test/image.jpg',
+            'alt' => 'Custom Attribute Alt',
+            'attributes' => 'data-custom-attribute="test"',
+        ]);
+
+        $this->assertStringContainsString('data-custom-attribute="test"', $html);
+    }
+
+    public function testRendersSrcsetFromVariants(): void
+    {
+        $variants = [
+            'lg' => ['url' => 'https://example.test/image_lg.webp', 'width' => 1200, 'height' => 800],
+            'sm' => ['url' => 'https://example.test/image_sm.webp', 'width' => 480, 'height' => 320],
+        ];
+
+        $html = view('components/responsive-image', [
+            'src' => 'https://example.test/image.jpg',
+            'alt' => 'Variants Alt',
+            'variants' => $variants,
+        ]);
+
+        $this->assertStringContainsString('srcset="https://example.test/image_lg.webp 1200w, https://example.test/image_sm.webp 480w"', $html);
+        $this->assertStringContainsString('sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 1200px"', $html);
+    }
 }

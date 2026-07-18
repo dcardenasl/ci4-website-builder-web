@@ -41,6 +41,7 @@ class CardsSliderViewModel extends AbstractBlockViewModel
             }
 
             $childData = is_array($child['block_data'] ?? null) ? $child['block_data'] : [];
+            $childConfig = is_array($child['block_config'] ?? null) ? $child['block_config'] : [];
             $string    = static fn (string $key): string => is_scalar($childData[$key] ?? null) ? (string) $childData[$key] : '';
 
             $cards[] = [
@@ -49,7 +50,7 @@ class CardsSliderViewModel extends AbstractBlockViewModel
                 'body'             => $string('body'),
                 'meta_title'       => $string('meta_title'),
                 'meta_description' => $string('meta_description'),
-                'image'            => $this->mediaReferenceFromPayload($childData, 'image'),
+                'image'            => $this->mediaReferenceFromPayload($childConfig, 'image'),
                 'rating'           => is_numeric($childData['rating'] ?? null) ? (int) $childData['rating'] : 0,
                 'link_url'         => lang_url($string('link_url'), $this->lang),
                 'link_label'       => $string('link_label'),
