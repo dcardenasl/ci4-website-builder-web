@@ -41,6 +41,35 @@ abstract class BaseController extends Controller
         // Caution: Do not edit this line.
         parent::initController($request, $response, $logger);
 
+        // CMS/API is the source of truth. Keep the config list only as a
+        // safe fallback when the public API is unavailable.
+        try {
+            $codes = \Config\Services::siteLanguageService()->getCodes();
+            if ($codes !== []) {
+                $config = config('App');
+                $config->supportedLocales = $codes;
+                $default = \Config\Services::siteLanguageService()->getDefaultCode();
+                if ($default !== null) {
+                    $config->defaultLocale = $default;
+                }
+
+                // CodeIgniter validates setLocale() against the request's
+                // own list, which is initialized before this controller
+                // runs. Keep that list in sync with the CMS or a dynamic
+                // locale (for example `fr`) is silently reset to `es`.
+                if (method_exists($request, 'setValidLocales')) {
+                    $request->setValidLocales($codes);
+                }
+
+                $requestedLocale = strtolower((string) $request->getUri()->getSegment(1));
+                $request->setLocale(in_array($requestedLocale, $codes, true) ? $requestedLocale : ($default ?? $codes[0]));
+            }
+        } catch (\Throwable $exception) {
+            log_message('warning', 'Dynamic language discovery unavailable: {message}', [
+                'message' => $exception->getMessage(),
+            ]);
+        }
+
         // Preload any models, libraries, etc, here.
         // $this->session = service('session');
     }

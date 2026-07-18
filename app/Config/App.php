@@ -107,7 +107,11 @@ class App extends BaseConfig
      *
      * If false, no automatic detection will be performed.
      */
-    public bool $negotiateLocale = true;
+    // The public URL is the locale contract (/es, /en, /fr, ...). Browser
+    // Accept-Language must never override an explicit locale in the URL.
+    // The active locale list is discovered from the CMS during bootstrap and
+    // applied by BaseController before any public content is rendered.
+    public bool $negotiateLocale = false;
 
     /**
      * --------------------------------------------------------------------------

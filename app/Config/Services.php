@@ -13,6 +13,7 @@ use App\Services\SiteCollectionService;
 use App\Services\SiteEntryService;
 use App\Services\SiteFormService;
 use App\Services\SiteMenuService;
+use App\Services\SiteLanguageService;
 use App\Services\SitePageService;
 use App\Services\SiteRedirectService;
 use App\Services\SiteSettingsService;
@@ -47,6 +48,16 @@ class Services extends BaseService
         }
 
         return new SiteSettingsService(static::webApiClient());
+    }
+
+    public static function siteLanguageService(bool $getShared = true): SiteLanguageService
+    {
+        if ($getShared) {
+            /** @var SiteLanguageService */
+            return static::getSharedInstance('siteLanguageService');
+        }
+
+        return new SiteLanguageService(static::webApiClient());
     }
 
     public static function siteMenuService(bool $getShared = true): SiteMenuService

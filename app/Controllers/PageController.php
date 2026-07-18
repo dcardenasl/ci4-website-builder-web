@@ -17,8 +17,16 @@ class PageController extends BasePublicWebController
     {
         $request = service('request');
         $uri = $request->getUri();
-        $firstSegment = $uri->getSegment(1);
+        $firstSegment = strtolower(trim((string) $uri->getSegment(1)));
         $supportedLocales = config('App')->supportedLocales;
+
+        // The URL is authoritative for public content. Re-apply it at the
+        // controller boundary so every downstream service (API client,
+        // menus, pages, blocks and translations) sees the same locale even
+        // when the framework negotiated a different browser language earlier.
+        if (in_array($firstSegment, $supportedLocales, true)) {
+            $request->setLocale($firstSegment);
+        }
 
         if (!in_array($firstSegment, $supportedLocales, true)) {
             $locale = $request->getLocale();
