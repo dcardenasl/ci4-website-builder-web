@@ -86,9 +86,9 @@ final class CacheControllerTest extends CIUnitTestCase
 
         /** @var MockCache $cache */
         $cache = service('cache');
-        $cache->save('web_api_v3_pages_abc', ['ok' => true], 300);
-        $cache->save('web_api_stale_v3_pages_abc', ['ok' => true], 86400);
-        $cache->save('web_api_v3_menus_xyz', ['ok' => true], 300);
+        $cache->save('web_api_v4_pages_abc', ['ok' => true], 300);
+        $cache->save('web_api_stale_v4_pages_abc', ['ok' => true], 86400);
+        $cache->save('web_api_v4_menus_xyz', ['ok' => true], 300);
 
         $result = $this->withHeaders(['X-Invalidate-Key' => self::VALID_KEY])
             ->withBodyFormat('json')
@@ -96,8 +96,8 @@ final class CacheControllerTest extends CIUnitTestCase
 
         $result->assertStatus(200);
         $result->assertJSONFragment(['ok' => true, 'invalidated' => ['pages']]);
-        $this->assertNull($cache->get('web_api_v3_pages_abc'));
-        $this->assertNull($cache->get('web_api_stale_v3_pages_abc'));
-        $this->assertNotNull($cache->get('web_api_v3_menus_xyz'));
+        $this->assertNull($cache->get('web_api_v4_pages_abc'));
+        $this->assertNull($cache->get('web_api_stale_v4_pages_abc'));
+        $this->assertNotNull($cache->get('web_api_v4_menus_xyz'));
     }
 }

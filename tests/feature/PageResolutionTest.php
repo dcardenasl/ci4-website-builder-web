@@ -42,7 +42,7 @@ final class PageResolutionTest extends HermeticFeatureTestCase
             'title'           => 'Derechos de Datos',
             'slug'            => 'derechos-datos',
             'excerpt'         => 'Formulario y preguntas frecuentes para ejercer sus derechos ARCO/RGPD.',
-            'meta_description'=> 'Ejercite sus derechos de Acceso, Rectificación, Supresión u Oposición sobre sus datos.',
+            'meta_description' => 'Ejercite sus derechos de Acceso, Rectificación, Supresión u Oposición sobre sus datos.',
             'canonical_url'   => '',
             'blocks'          => [],
             'localized_slugs' => [
@@ -64,7 +64,7 @@ final class PageResolutionTest extends HermeticFeatureTestCase
             'title'           => 'Data Rights',
             'slug'            => 'data-rights',
             'excerpt'         => 'Form and FAQs to exercise your GDPR rights over your personal data.',
-            'meta_description'=> 'Exercise your rights of Access, Rectification, Erasure, or Objection.',
+            'meta_description' => 'Exercise your rights of Access, Rectification, Erasure, or Objection.',
             'canonical_url'   => '',
             'blocks'          => [],
             'localized_slugs' => [

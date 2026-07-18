@@ -41,9 +41,12 @@
             <div class="space-y-3">
                 <div class="flex items-center gap-2">
                     <?php if ($siteFooterLogoUrl !== ''): ?>
-                        <img src="<?= esc($siteFooterLogoUrl) ?>"
-                             alt="<?= esc($settings['site_name'] ?? lang('Site.site_logo_alt')) ?>"
-                             class="h-10 w-auto" />
+                        <?= view('components/responsive-image', [
+                            'src'      => $siteFooterLogoUrl,
+                            'alt'      => $settings['site_name'] ?? lang('Site.site_logo_alt'),
+                            'class'    => 'h-10 w-auto',
+                            'variants' => ($settings['site_footer_logo']['variants'] ?? ($settings['site_logo']['variants'] ?? null)),
+                        ], ['saveData' => false]) ?>
                     <?php else: ?>
                         <span class="text-lg font-bold text-primary"><?= esc($settings['site_name'] ?? lang('Site.site_default_name')) ?></span>
                     <?php endif; ?>

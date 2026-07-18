@@ -35,24 +35,24 @@ final class CacheInvalidatorTest extends CIUnitTestCase
 
     public function testInvalidateDeletesFreshAndStaleKeysForScope(): void
     {
-        $this->cache->save('web_api_v3_pages_abc123', ['ok' => true], 300);
-        $this->cache->save('web_api_stale_v3_pages_abc123', ['ok' => true], 86400);
-        $this->cache->save('web_api_v3_menus_def456', ['ok' => true], 300);
+        $this->cache->save('web_api_v4_pages_abc123', ['ok' => true], 300);
+        $this->cache->save('web_api_stale_v4_pages_abc123', ['ok' => true], 86400);
+        $this->cache->save('web_api_v4_menus_def456', ['ok' => true], 300);
 
         $result = $this->invalidator->invalidate(['pages']);
 
         $this->assertSame(['pages'], $result['invalidated']);
         $this->assertSame(2, $result['deleted']);
-        $this->assertNull($this->cache->get('web_api_v3_pages_abc123'));
-        $this->assertNull($this->cache->get('web_api_stale_v3_pages_abc123'));
-        $this->assertNotNull($this->cache->get('web_api_v3_menus_def456'), 'Other scopes must be untouched');
+        $this->assertNull($this->cache->get('web_api_v4_pages_abc123'));
+        $this->assertNull($this->cache->get('web_api_stale_v4_pages_abc123'));
+        $this->assertNotNull($this->cache->get('web_api_v4_menus_def456'), 'Other scopes must be untouched');
     }
 
     public function testInvalidateClearsSitemapsOnContentScopes(): void
     {
         $this->cache->save('sitemap_es', 'xml...', 3600);
         $this->cache->save('sitemap_en', 'xml...', 3600);
-        $this->cache->save('web_api_v3_pages_abc123', ['ok' => true], 300);
+        $this->cache->save('web_api_v4_pages_abc123', ['ok' => true], 300);
 
         $this->invalidator->invalidate(['pages']);
 
@@ -63,7 +63,7 @@ final class CacheInvalidatorTest extends CIUnitTestCase
     public function testInvalidateDoesNotClearSitemapsOnNonContentScopes(): void
     {
         $this->cache->save('sitemap_es', 'xml...', 3600);
-        $this->cache->save('web_api_v3_menus_abc123', ['ok' => true], 300);
+        $this->cache->save('web_api_v4_menus_abc123', ['ok' => true], 300);
 
         $this->invalidator->invalidate(['menus']);
 
@@ -72,7 +72,7 @@ final class CacheInvalidatorTest extends CIUnitTestCase
 
     public function testUnknownScopesAreIgnored(): void
     {
-        $this->cache->save('web_api_v3_pages_abc123', ['ok' => true], 300);
+        $this->cache->save('web_api_v4_pages_abc123', ['ok' => true], 300);
 
         $result = $this->invalidator->invalidate(['bogus', 'pages']);
 

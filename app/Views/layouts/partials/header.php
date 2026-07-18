@@ -11,9 +11,12 @@
         <!-- Logo / Site Title -->
         <a href="<?= esc(lang_url('/')) ?>" class="flex items-center gap-3 text-slate-900 transition-colors hover:text-primary">
             <?php if ($siteLogoUrl !== ''): ?>
-                <img src="<?= esc($siteLogoUrl) ?>"
-                     alt="<?= esc($settings['site_name'] ?? lang('Site.site_logo_alt')) ?>"
-                     class="h-8 w-auto sm:h-10" />
+                <?= view('components/responsive-image', [
+                    'src'      => $siteLogoUrl,
+                    'alt'      => $settings['site_name'] ?? lang('Site.site_logo_alt'),
+                    'class'    => 'h-8 w-auto sm:h-10',
+                    'variants' => $settings['site_logo']['variants'] ?? null,
+                ], ['saveData' => false]) ?>
                 <span class="text-xl font-bold text-primary"><?= esc($settings['site_name'] ?? lang('Site.site_default_name')) ?></span>
             <?php else: ?>
                 <span class="text-xl font-bold text-primary"><?= esc($settings['site_name'] ?? lang('Site.site_default_name')) ?></span>

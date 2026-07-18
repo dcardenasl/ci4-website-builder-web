@@ -26,7 +26,7 @@ final class PublicLayoutTest extends CIUnitTestCase
         ]);
 
         $this->assertStringContainsString(
-            '<img src="http://localhost:8180/uploads/2026/06/28/logo_md.gif"',
+            'src="http://localhost:8180/uploads/2026/06/28/logo_md.gif"',
             $html
         );
         $this->assertStringContainsString('alt="Mi Sitio"', $html);

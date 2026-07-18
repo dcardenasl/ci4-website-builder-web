@@ -243,7 +243,7 @@ class ContentSecurityPolicy extends BaseConfig
             $sources = $defaultSources;
         }
 
-        $sources = array_values(array_filter(array_map([$this, 'normalizeSourceToken'], $sources), static fn(string $value): bool => $value !== ''));
+        $sources = array_values(array_filter(array_map([$this, 'normalizeSourceToken'], $sources), static fn (string $value): bool => $value !== ''));
 
         return count($sources) === 1 ? $sources[0] : $sources;
     }

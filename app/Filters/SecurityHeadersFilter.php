@@ -62,7 +62,7 @@ class SecurityHeadersFilter implements FilterInterface
      */
     private function cspSources(array $sources): string
     {
-        $sources = array_values(array_filter(array_map([$this, 'normalizeCspSourceToken'], $sources), static fn(string $value): bool => $value !== ''));
+        $sources = array_values(array_filter(array_map([$this, 'normalizeCspSourceToken'], $sources), static fn (string $value): bool => $value !== ''));
 
         return implode(' ', $sources);
     }
