@@ -280,67 +280,17 @@ if (! function_exists('localized_entry_urls')) {
     }
 }
 
-if (! function_exists('legacy_block_text_key_usage_count')) {
-    /**
-     * Cumulative count of `block_text_content()` legacy-key hits, persisted
-     * outside the app log so it stays visible regardless of `Logger::$threshold`
-     * (production's default threshold of 4 filters out debug/info/notice
-     * entirely — a plain `log_message()` call here would never surface in
-     * production log files). Read it with `php spark legacy:block-text-report`.
-     * TTL 0 = never expires (see CacheInterface handlers' getItem()).
-     *
-     * @param 'read'|'increment'|'reset' $action
-     */
-    function legacy_block_text_key_usage_count(string $action = 'read'): int
-    {
-        $cache = \Config\Services::cache();
-        $key   = 'legacy_block_text_key_usage_count';
-
-        if ($action === 'reset') {
-            $cache->save($key, 0, 0);
-
-            return 0;
-        }
-
-        if ($action === 'increment') {
-            if ($cache->get($key) === null) {
-                $cache->save($key, 0, 0);
-            }
-            $cache->increment($key);
-        }
-
-        $value = $cache->get($key);
-
-        return is_int($value) ? $value : 0;
-    }
-}
-
 if (! function_exists('block_text_content')) {
     /**
-     * Resolve rich text content from a block payload using the canonical field
-     * name first, then common legacy fallbacks.
+     * Resolve rich text content from the canonical block field.
      *
      * @param array<string, mixed> $data
      */
     function block_text_content(array $data, string $default = ''): string
     {
-        foreach (['content', 'body', 'html'] as $key) {
-            if (! array_key_exists($key, $data)) {
-                continue;
-            }
-
-            $value = $data[$key];
-            if (is_string($value) && trim($value) !== '') {
-                if ($key !== 'content') {
-                    log_message('debug', "[block_text_content] Legacy payload key '{$key}' used; source should migrate to 'content'.");
-                    legacy_block_text_key_usage_count('increment');
-                }
-
-                // Second-layer sanitization (defense-in-depth): the Domain CMS
-                // sanitizes on write, but the public site must never render
-                // unsanitized HTML regardless of the content's provenance.
-                return \App\Libraries\HtmlSanitizer::clean($value);
-            }
+        $value = $data['content'] ?? null;
+        if (is_string($value) && trim($value) !== '') {
+            return \App\Libraries\HtmlSanitizer::clean($value);
         }
 
         return $default;
