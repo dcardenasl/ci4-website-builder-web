@@ -13,8 +13,12 @@
     }
     ?>
     <?php
-    $footerLayout = (string) ($settings['footer_menu_layout'] ?? 'vertical');
-    $legalLayout = (string) ($settings['footer_legal_menu_layout'] ?? 'horizontal');
+    $footerLayout = in_array(($settings['footer_menu_layout'] ?? null), ['horizontal', 'vertical'], true)
+        ? (string) $settings['footer_menu_layout']
+        : 'vertical';
+    $legalLayout = in_array(($settings['footer_legal_menu_layout'] ?? null), ['horizontal', 'vertical'], true)
+        ? (string) $settings['footer_legal_menu_layout']
+        : 'horizontal';
 
     $isFooterVertical = ($footerLayout === 'vertical');
     $isLegalVertical = ($legalLayout === 'vertical');
