@@ -16,230 +16,225 @@ final class PageResolutionTest extends HermeticFeatureTestCase
 {
     use FeatureTestTrait;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->configureLocales(['aa', 'bb', 'cc']);
+    }
+
     public function testResolvesCmsPage(): void
     {
-        $this->domainAdapter->fakeGet('public/es/collections', []);
-        $this->domainAdapter->fakeGet('public/es/pages/nosotros', [
-            'title'              => 'Nosotros',
-            'slug'               => 'nosotros',
-            'excerpt'            => 'Pagina institucional',
-            'meta_description'   => 'Meta nosotros',
-            'canonical_url'      => '',
-            'blocks'             => [],
-            'localized_slugs'    => ['es' => 'nosotros'],
-        ]);
+        $locale = $this->locale();
+        $slug = $this->slug('page');
+        $title = $this->text('page-title');
+        $this->fakeEmptyCollections($locale);
+        $this->domainAdapter->fakeGet($this->domainPath('pages/' . $slug), $this->page($slug, $title));
 
-        $result = $this->get('es/nosotros');
+        $result = $this->get($locale . '/' . $slug);
 
         $result->assertStatus(200);
-        $result->assertSee('Nosotros');
+        $result->assertSee($title);
     }
 
-    public function testResolvesLocalizedLegalDataRightsPageInSpanish(): void
+    public function testResolvesLocalizedPageInEachConfiguredLanguage(): void
     {
-        $this->domainAdapter->fakeGet('public/es/collections', []);
-        $this->domainAdapter->fakeGet('public/es/pages/derechos-datos', [
-            'title'           => 'Derechos de Datos',
-            'slug'            => 'derechos-datos',
-            'excerpt'         => 'Formulario y preguntas frecuentes para ejercer sus derechos ARCO/RGPD.',
-            'meta_description' => 'Ejercite sus derechos de Acceso, Rectificación, Supresión u Oposición sobre sus datos.',
-            'canonical_url'   => '',
-            'blocks'          => [],
-            'localized_slugs' => [
-                'es' => 'derechos-datos',
-                'en' => 'data-rights',
-            ],
-        ]);
+        foreach ($this->locales() as $position => $locale) {
+            $slug = $this->slug('localized-page', $position);
+            $title = $this->text('localized-title', $position);
+            $this->fakeEmptyCollections($locale);
+            $this->domainAdapter->fakeGet($this->domainPath('pages/' . $slug, $position), $this->page($slug, $title));
 
-        $result = $this->get('es/derechos-datos');
+            $result = $this->get($locale . '/' . $slug);
 
-        $result->assertStatus(200);
-        $result->assertSee('Derechos de Datos');
-    }
-
-    public function testResolvesLocalizedLegalDataRightsPageInEnglish(): void
-    {
-        $this->domainAdapter->fakeGet('public/en/collections', []);
-        $this->domainAdapter->fakeGet('public/en/pages/data-rights', [
-            'title'           => 'Data Rights',
-            'slug'            => 'data-rights',
-            'excerpt'         => 'Form and FAQs to exercise your GDPR rights over your personal data.',
-            'meta_description' => 'Exercise your rights of Access, Rectification, Erasure, or Objection.',
-            'canonical_url'   => '',
-            'blocks'          => [],
-            'localized_slugs' => [
-                'es' => 'derechos-datos',
-                'en' => 'data-rights',
-            ],
-        ]);
-
-        $result = $this->get('en/data-rights');
-
-        $result->assertStatus(200);
-        $result->assertSee('Data Rights');
+            $result->assertStatus(200);
+            $result->assertSee($title);
+        }
     }
 
     public function testResolvesCollectionPrefixAsIndexBeforeCmsPage(): void
     {
-        $this->domainAdapter->fakeGet('public/es/collections', [$this->collection()]);
-        $this->domainAdapter->fakeGet('public/es/entries/news', [], ['total_pages' => 1]);
-        $this->domainAdapter->fakeGet('public/es/categories/news', []);
-        $this->domainAdapter->fakeGet('public/es/pages/noticias', [
-            'title'          => 'Noticias',
-            'slug'           => 'noticias',
-            'page_type'      => 'collection_index',
-            'collection_id'  => 1,
-            'canonical_url'  => '',
-            'localized_slugs' => ['es' => 'noticias'],
-        ]);
+        $locale = $this->locale();
+        $collection = $this->collection('listing');
+        $this->domainAdapter->fakeGet($this->domainPath('collections'), [$collection]);
+        $this->domainAdapter->fakeGet($this->domainPath('entries/' . $collection['collection_key']), [], ['total_pages' => 1]);
+        $this->domainAdapter->fakeGet($this->domainPath('categories/' . $collection['collection_key']), []);
+        $this->domainAdapter->fakeGet($this->domainPath('pages/' . $collection['slug']), $this->page(
+            $collection['slug'],
+            $collection['name'],
+            ['page_type' => 'collection_index', 'collection_id' => $collection['id']],
+        ));
 
-        $result = $this->get('es/noticias');
+        $result = $this->get($locale . '/' . $collection['slug']);
 
         $result->assertStatus(200);
-        $result->assertSee('Noticias');
+        $result->assertSee($collection['name']);
         $result->assertDontSee('CMS page that should not win');
     }
 
     public function testResolvesCollectionEntry(): void
     {
-        $this->domainAdapter->fakeGet('public/es/collections', [$this->collection()]);
-        $this->domainAdapter->fakeGet('public/es/entries/news/primer-post', [
-            'title'            => 'Primer post',
-            'slug'             => 'primer-post',
-            'excerpt'          => 'Entrada publicada',
-            'meta_description' => 'Meta entry',
-            'canonical_url'    => '',
-            'published_at'     => '2026-07-06 12:00:00',
-            'blocks'           => [],
-            'localized_slugs'  => ['es' => 'primer-post'],
-        ]);
+        $locale = $this->locale();
+        $collection = $this->collection('entries');
+        $entrySlug = $this->slug('entry');
+        $entryTitle = $this->text('entry-title');
+        $this->domainAdapter->fakeGet($this->domainPath('collections'), [$collection]);
+        $this->domainAdapter->fakeGet($this->domainPath('entries/' . $collection['collection_key'] . '/' . $entrySlug), $this->entry($entrySlug, $entryTitle));
 
-        $result = $this->get('es/noticias/primer-post');
+        $result = $this->get($locale . '/' . $collection['slug'] . '/' . $entrySlug);
 
         $result->assertStatus(200);
-        $result->assertSee('Primer post');
-        $result->assertSee('Noticias');
+        $result->assertSee($entryTitle);
+        $result->assertSee($collection['name']);
     }
 
     public function testResolvesCollectionEntryWithEmptyListingTitleFallsBackToName(): void
     {
-        $this->domainAdapter->fakeGet('public/es/collections', [[
-            'id'                       => 4,
-            'collection_key'           => 'festivales',
-            'slug'                     => 'festivales',
-            'name'                     => 'Festivales',
-            'listing_title'            => '',
-            'listing_intro'            => '',
-            'default_meta_description' => 'Festivales de teatro',
-            'index_page'               => [
-                'localized_slugs' => [
-                    'es' => 'festivales',
-                    'en' => 'festivals',
-                ],
-            ],
-        ]]);
-        $this->domainAdapter->fakeGet('public/es/entries/festivales/primer-post', [
-            'title'            => 'Primer post',
-            'slug'             => 'primer-post',
-            'excerpt'          => 'Entrada publicada',
-            'meta_description' => 'Meta entry',
-            'canonical_url'    => '',
-            'published_at'     => '2026-07-06 12:00:00',
-            'blocks'           => [],
-            'localized_slugs'  => ['es' => 'primer-post'],
-        ]);
+        $locale = $this->locale();
+        $collection = $this->collection('fallback', listingTitle: '');
+        $entrySlug = $this->slug('fallback-entry');
+        $entryTitle = $this->text('fallback-entry-title');
+        $this->domainAdapter->fakeGet($this->domainPath('collections'), [$collection]);
+        $this->domainAdapter->fakeGet($this->domainPath('entries/' . $collection['collection_key'] . '/' . $entrySlug), $this->entry($entrySlug, $entryTitle));
 
-        $result = $this->get('es/festivales/primer-post');
+        $result = $this->get($locale . '/' . $collection['slug'] . '/' . $entrySlug);
 
         $result->assertStatus(200);
-        $result->assertSee('Primer post');
-        $result->assertSee('Festivales');
+        $result->assertSee($entryTitle);
+        $result->assertSee($collection['name']);
     }
 
     public function testResolvesEntryFromCmsPageWithCollectionListingBlock(): void
     {
-        $this->domainAdapter->fakeGet('public/es/collections', [$this->collection()]);
-        $this->domainAdapter->fakeGet('public/es/pages/festivales', [
-            'title'           => 'Festivales',
-            'slug'            => 'festivales',
-            'excerpt'         => 'Pagina de Festivales',
-            'meta_description' => 'Meta festivales',
-            'canonical_url'   => '',
-            'blocks'          => [
-                [
-                    'block_key' => 'collection_listing',
-                    'block_config' => [
-                        'collection_id' => 1,
-                    ],
-                    'children' => [],
-                ],
-            ],
-            'localized_slugs' => ['es' => 'festivales'],
-        ]);
-        $this->domainAdapter->fakeGet('public/es/entries/news/primer-post', [
-            'title'            => 'Primer post',
-            'slug'             => 'primer-post',
-            'excerpt'          => 'Entrada publicada',
-            'meta_description' => 'Meta entry',
-            'canonical_url'    => '',
-            'published_at'     => '2026-07-06 12:00:00',
-            'blocks'           => [],
-            'localized_slugs'  => ['es' => 'primer-post'],
-        ]);
+        $locale = $this->locale();
+        $collection = $this->collection('block');
+        $entrySlug = $this->slug('block-entry');
+        $entryTitle = $this->text('block-entry-title');
+        $this->domainAdapter->fakeGet($this->domainPath('collections'), [$collection]);
+        $this->domainAdapter->fakeGet($this->domainPath('pages/' . $collection['slug']), $this->page(
+            $collection['slug'],
+            $collection['name'],
+            ['blocks' => [[
+                'block_key' => 'collection_listing',
+                'block_config' => ['collection_id' => $collection['id']],
+                'children' => [],
+            ]]],
+        ));
+        $this->domainAdapter->fakeGet($this->domainPath('entries/' . $collection['collection_key'] . '/' . $entrySlug), $this->entry($entrySlug, $entryTitle));
 
-        $result = $this->get('es/festivales/primer-post');
+        $result = $this->get($locale . '/' . $collection['slug'] . '/' . $entrySlug);
 
         $result->assertStatus(200);
-        $result->assertSee('Primer post');
-        $result->assertSee('Volver a Noticias');
+        $result->assertSee($entryTitle);
+        $result->assertSee($collection['name']);
     }
 
     public function testResolvesPermanentRedirect(): void
     {
-        $this->domainAdapter->fakeGet('public/es/collections', []);
-        $this->domainAdapter->fakeGetFailure('public/es/pages/vieja');
-        $this->domainAdapter->fakeGet('public/redirects/vieja', [
-            'new_url'       => '/es/nueva',
+        $locale = $this->locale();
+        $oldSlug = $this->slug('old-page');
+        $newSlug = $this->slug('new-page');
+        $this->fakeEmptyCollections($locale);
+        $this->domainAdapter->fakeGetFailure($this->domainPath('pages/' . $oldSlug));
+        $this->domainAdapter->fakeGet('public/redirects/' . $oldSlug, [
+            'new_url' => '/' . $locale . '/' . $newSlug,
             'redirect_type' => 'permanent',
         ]);
 
-        $result = $this->get('es/vieja');
+        $result = $this->get($locale . '/' . $oldSlug);
 
         $result->assertStatus(301);
-        $result->assertHeader('Location', site_url('/es/nueva'));
+        $result->assertHeader('Location', site_url('/' . $locale . '/' . $newSlug));
     }
 
     public function testReturns404WhenNothingMatches(): void
     {
-        $this->domainAdapter->fakeGet('public/es/collections', []);
-        $this->domainAdapter->fakeGetFailure('public/es/pages/no-existe');
-        $this->domainAdapter->fakeGetFailure('public/redirects/no-existe');
+        $locale = $this->locale();
+        $slug = $this->slug('missing-page');
+        $this->fakeEmptyCollections($locale);
+        $this->domainAdapter->fakeGetFailure($this->domainPath('pages/' . $slug));
+        $this->domainAdapter->fakeGetFailure('public/redirects/' . $slug);
 
-        $result = $this->get('es/no-existe');
+        $result = $this->get($locale . '/' . $slug);
 
         $result->assertStatus(404);
-        $result->assertSee('no-existe');
+        $result->assertSee($slug);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function collection(): array
+    /** @return array<string, mixed> */
+    private function collection(string $role, ?string $listingTitle = null): array
+    {
+        $slug = $this->slug('collection-' . $role);
+        $name = $this->text('collection-name-' . $role);
+
+        return [
+            'id' => 7000 + crc32($role) % 1000,
+            'collection_key' => 'fixture-' . $role . '-key',
+            'slug' => $slug,
+            'name' => $name,
+            'listing_title' => $listingTitle ?? $name,
+            'listing_intro' => '',
+            'default_meta_description' => $this->text('collection-meta-' . $role),
+            'index_page' => ['localized_slugs' => $this->localizedSlugs('collection-' . $role)],
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private function page(string $slug, string $title, array $overrides = []): array
+    {
+        return array_replace([
+            'title' => $title,
+            'slug' => $slug,
+            'excerpt' => $this->text('page-excerpt'),
+            'meta_description' => $this->text('page-meta'),
+            'canonical_url' => '',
+            'blocks' => [],
+            'localized_slugs' => $this->localizedSlugs($slug),
+        ], $overrides);
+    }
+
+    /** @return array<string, mixed> */
+    private function entry(string $slug, string $title): array
     {
         return [
-            'id'                       => 1,
-            'collection_key'           => 'news',
-            'slug'                     => 'noticias',
-            'name'                     => 'Noticias',
-            'listing_title'            => 'Noticias',
-            'listing_intro'            => '',
-            'default_meta_description' => 'Ultimas noticias',
-            'index_page'               => [
-                'localized_slugs' => [
-                    'es' => 'noticias',
-                    'en' => 'news',
-                ],
-            ],
+            'title' => $title,
+            'slug' => $slug,
+            'excerpt' => $this->text('entry-excerpt'),
+            'meta_description' => $this->text('entry-meta'),
+            'canonical_url' => '',
+            'published_at' => '2026-01-01 00:00:00',
+            'blocks' => [],
+            'localized_slugs' => $this->localizedSlugs($slug),
         ];
+    }
+
+    private function fakeEmptyCollections(string $locale): void
+    {
+        $this->domainAdapter->fakeGet('public/' . $locale . '/collections', []);
+    }
+
+    private function domainPath(string $path, int $localePosition = 0): string
+    {
+        return 'public/' . $this->locale($localePosition) . '/' . $path;
+    }
+
+    private function slug(string $role, int $localePosition = 0): string
+    {
+        return 'fixture-' . $role . '-' . $this->locale($localePosition);
+    }
+
+    private function text(string $role, int $localePosition = 0): string
+    {
+        return 'Fixture ' . str_replace('-', ' ', $role) . ' ' . $this->locale($localePosition);
+    }
+
+    /** @return array<string, string> */
+    private function localizedSlugs(string $role): array
+    {
+        $slugs = [];
+        foreach (array_keys($this->locales()) as $position) {
+            $slugs[$this->locale($position)] = $this->slug($role, $position);
+        }
+
+        return $slugs;
     }
 }

@@ -18,13 +18,19 @@ final class MultilingualPageRenderTest extends HermeticFeatureTestCase
 {
     use FeatureTestTrait;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->configureLocales(['aa', 'bb', 'cc']);
+    }
+
     /**
      * Test 1: Spanish homepage resolves correctly.
      */
     public function testSpanishHomepageResolvesCorrectly(): void
     {
         // Act: GET Spanish home
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
 
         // Assert: Not 404 (route exists, API may not be available so could be 404 content)
         $statusCode = $result->response()->getStatusCode();
@@ -37,7 +43,7 @@ final class MultilingualPageRenderTest extends HermeticFeatureTestCase
     public function testEnglishHomepageResolvesCorrectly(): void
     {
         // Act: GET English home
-        $result = $this->get('/en/');
+        $result = $this->get($this->localizedPath(1));
 
         // Assert: Not 404
         $statusCode = $result->response()->getStatusCode();
@@ -50,7 +56,7 @@ final class MultilingualPageRenderTest extends HermeticFeatureTestCase
     public function testSpanishPagePathResolvesCorrectly(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/about');
+        $result = $this->get($this->localizedPath(0, 'fixture-page'));
 
         // Assert: Returns 404 or 200 (not 404 Not Found route)
         $statusCode = $result->response()->getStatusCode();
@@ -64,7 +70,7 @@ final class MultilingualPageRenderTest extends HermeticFeatureTestCase
     public function testEnglishPagePathResolvesCorrectly(): void
     {
         // Act: GET English page
-        $result = $this->get('/en/about');
+        $result = $this->get($this->localizedPath(1, 'fixture-page'));
 
         // Assert: Returns 404 or 200
         $statusCode = $result->response()->getStatusCode();
@@ -103,7 +109,7 @@ final class MultilingualPageRenderTest extends HermeticFeatureTestCase
     public function testCollectionPathsResolveCorrectly(): void
     {
         // Act: GET collection path (e.g., /es/news)
-        $result = $this->get('/es/news');
+        $result = $this->get($this->localizedPath(0, 'fixture-collection'));
 
         // Assert: Responds (404 or 200)
         $statusCode = $result->response()->getStatusCode();
@@ -116,7 +122,7 @@ final class MultilingualPageRenderTest extends HermeticFeatureTestCase
     public function testHyphensInSlugsSupported(): void
     {
         // Act: GET page with hyphens
-        $result = $this->get('/es/my-page-name');
+        $result = $this->get($this->localizedPath(0, 'fixture-page-with-hyphens'));
 
         // Assert: Responds (404 or 200)
         $statusCode = $result->response()->getStatusCode();
@@ -129,7 +135,7 @@ final class MultilingualPageRenderTest extends HermeticFeatureTestCase
     public function testNestedPathsSupported(): void
     {
         // Act: GET nested path
-        $result = $this->get('/es/category/subcategory/page');
+        $result = $this->get($this->localizedPath(0, 'fixture/category/subsection/page'));
 
         // Assert: Responds
         $statusCode = $result->response()->getStatusCode();
@@ -142,10 +148,17 @@ final class MultilingualPageRenderTest extends HermeticFeatureTestCase
     public function testResponseIsHtmlForPages(): void
     {
         // Act: GET page
-        $result = $this->get('/es/test-page');
+        $result = $this->get($this->localizedPath(0, 'fixture-page'));
 
         // Assert: Response contains HTML structure or 404 gracefully
         $statusCode = $result->response()->getStatusCode();
         $this->assertIsInt($statusCode);
+    }
+
+    private function localizedPath(int $position = 0, string $suffix = ''): string
+    {
+        $path = '/' . $this->locale($position);
+
+        return $path . ($suffix !== '' ? '/' . ltrim($suffix, '/') : '/');
     }
 }

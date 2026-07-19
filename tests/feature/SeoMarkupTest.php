@@ -19,6 +19,12 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
 {
     use FeatureTestTrait;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->configureLocales(['aa', 'bb', 'cc']);
+    }
+
     /**
      * Test 1: Spanish homepage has complete meta tags.
      *
@@ -36,7 +42,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testSpanishHomepageSeoScore(): void
     {
         // Act: GET Spanish homepage
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
 
         // Assert: Route exists and responds
         $statusCode = $result->response()->getStatusCode();
@@ -64,7 +70,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testEnglishHomepageSeoScore(): void
     {
         // Act: GET English homepage
-        $result = $this->get('/en/');
+        $result = $this->get($this->localizedPath(1));
 
         // Assert: Route exists
         $statusCode = $result->response()->getStatusCode();
@@ -134,7 +140,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testCanonicalUrlFormat(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -151,8 +157,8 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
 
         // Assert: Canonical includes language
         $this->assertTrue(
-            str_contains($canonical, '/es') || str_contains($canonical, '/en'),
-            'Canonical must include language prefix (/es or /en)'
+            str_contains($canonical, '/' . $this->locale()) || str_contains($canonical, '/' . $this->locale(1)),
+            'Canonical must include one of the configured language prefixes'
         );
 
         // Assert: Canonical has no query parameters
@@ -170,7 +176,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testHreflangLinksComplete(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -178,14 +184,16 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
         $body = $result->response()->getBody();
 
         // Assert: hreflang links for both locales
-        $this->assertStringContainsString('hreflang="es"', $body, 'hreflang for Spanish must be present');
-        $this->assertStringContainsString('hreflang="en"', $body, 'hreflang for English must be present');
+        foreach ($this->locales() as $locale) {
+            $this->assertStringContainsString('hreflang="' . $locale . '"', $body);
+        }
 
         // Also check English page has es and en
-        $result = $this->get('/en/');
+        $result = $this->get($this->localizedPath(1));
         $body = $result->response()->getBody();
-        $this->assertStringContainsString('hreflang="es"', $body);
-        $this->assertStringContainsString('hreflang="en"', $body);
+        foreach ($this->locales() as $locale) {
+            $this->assertStringContainsString('hreflang="' . $locale . '"', $body);
+        }
     }
 
     /**
@@ -200,7 +208,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testOgImageConfiguredOrFallback(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -229,7 +237,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testMetaDescriptionLength(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -260,7 +268,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testTwitterMetaTagsPresent(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -285,7 +293,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testJsonLdSchemaPresent(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -310,7 +318,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testHeadingHierarchyPresent(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -342,7 +350,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     {
         // Act: Record time and GET page
         $start = microtime(true);
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $elapsed = microtime(true) - $start;
 
         // Assert: Response is successful
@@ -366,7 +374,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testViewportMetaTagPresent(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -388,7 +396,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testCharsetMetaTagPresent(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -409,7 +417,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     {
         // Act: GET collection index (news, for example)
         // This may return 404 if no collection exists, which is OK
-        $result = $this->get('/es/news');
+        $result = $this->get($this->localizedPath(0, 'fixture-collection'));
 
         $statusCode = $result->response()->getStatusCode();
 
@@ -437,7 +445,7 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
     public function testMetaTagsNotEmpty(): void
     {
         // Act: GET Spanish page
-        $result = $this->get('/es/');
+        $result = $this->get($this->localizedPath());
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode);
 
@@ -462,51 +470,72 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
      */
     public function testEmptySeoTagsFallback(): void
     {
+        $locale = $this->locale();
+        $collectionId = $this->fixtureId();
+        $collectionKey = 'fixture-seo-collection';
+        $collectionSlug = 'fixture-seo-collection-' . $locale;
+        $entrySlug = 'fixture-seo-entry-' . $locale;
+        $entryTitle = 'Fixture SEO Entry ' . $locale;
+        $entryExcerpt = 'Fixture SEO excerpt ' . $locale;
+
         // 1. Mock collections (so resolving routes works)
         $collection = [
-            'id'                       => 4,
-            'collection_key'           => 'festivales',
-            'slug'                     => 'festivales',
-            'name'                     => 'Festivales',
-            'listing_title'            => 'Festivales',
+            'id'                       => $collectionId,
+            'collection_key'           => $collectionKey,
+            'slug'                     => $collectionSlug,
+            'name'                     => 'Fixture SEO Collection',
+            'listing_title'            => 'Fixture SEO Collection',
             'listing_intro'            => '',
-            'default_meta_description' => 'Festivales de teatro',
+            'default_meta_description' => 'Fixture SEO collection description',
             'index_page'               => [
                 'localized_slugs' => [
-                    'es' => 'festivales',
-                    'en' => 'festivals',
+                    ...array_fill_keys($this->locales(), $collectionSlug),
                 ],
             ],
         ];
-        $this->domainAdapter->fakeGet('public/es/collections', [$collection]);
+        $this->domainAdapter->fakeGet('public/' . $locale . '/collections', [$collection]);
 
         // 2. Mock a collection entry with empty/whitespace SEO fields
-        $this->domainAdapter->fakeGet('public/es/entries/festivales/animate-ix-encuentro-internacional-de-titeres', [
-            'title'              => 'Anímate, IX Encuentro Internacional De Títeres',
-            'slug'               => 'animate-ix-encuentro-internacional-de-titeres',
-            'excerpt'            => 'Excerpt de títeres',
+        $this->domainAdapter->fakeGet('public/' . $locale . '/entries/' . $collectionKey . '/' . $entrySlug, [
+            'title'              => $entryTitle,
+            'slug'               => $entrySlug,
+            'excerpt'            => $entryExcerpt,
             'meta_title'         => '   ', // whitespace
             'meta_description'   => '',    // empty
             'robots'             => '',    // empty
             'canonical_url'      => '',
             'published_at'       => '2024-10-07 04:15:23',
             'blocks'             => [],
-            'localized_slugs'    => ['es' => 'animate-ix-encuentro-internacional-de-titeres'],
+            'localized_slugs'    => array_fill_keys($this->locales(), $entrySlug),
         ]);
 
         // Act: GET the page
-        $result = $this->get('/es/festivales/animate-ix-encuentro-internacional-de-titeres');
+        $result = $this->get('/' . $locale . '/' . $collectionSlug . '/' . $entrySlug);
         $result->assertStatus(200);
 
         $body = $result->response()->getBody();
 
         // Title should fall back to entry title
-        $this->assertStringContainsString('<title>Anímate, IX Encuentro Internacional De Títeres</title>', $body);
+        $this->assertStringContainsString('<title>' . $entryTitle . '</title>', $body);
 
         // Description should fall back to entry excerpt
-        $this->assertStringContainsString('<meta name="description" content="Excerpt de títeres">', $body);
+        $this->assertStringContainsString('<meta name="description" content="' . $entryExcerpt . '">', $body);
 
         // Robots should fall back to \'index, follow\'
         $this->assertStringContainsString('<meta name="robots" content="index, follow">', $body);
+    }
+
+    private function localizedPath(int $position = 0, string $suffix = ''): string
+    {
+        $path = '/' . $this->locale($position);
+
+        return $path . ($suffix !== '' ? '/' . ltrim($suffix, '/') : '/');
+    }
+
+    private function fixtureId(): int
+    {
+        static $nextId = 9000;
+
+        return ++$nextId;
     }
 }

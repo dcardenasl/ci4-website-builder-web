@@ -11,63 +11,79 @@ use CodeIgniter\Test\CIUnitTestCase;
  */
 final class CollectionUrlHelpersTest extends CIUnitTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        config('App')->supportedLocales = ['aa', 'bb'];
+        config('App')->defaultLocale = 'aa';
+        service('request')->setValidLocales(['aa', 'bb']);
+    }
+
     public function testCanonicalPathIsNormalized(): void
     {
-        service('request')->setLocale('en');
+        $locale = 'aa';
+        $path = 'fixture-collection-' . $locale;
+        service('request')->setLocale($locale);
 
         $collection = [
             'index_page' => [
                 'localized_slugs' => [
-                    'en' => '/news',
+                    $locale => '/' . $path,
                 ],
             ],
         ];
 
-        $this->assertSame('/news', collection_url_path($collection));
+        $this->assertSame('/' . $path, collection_url_path($collection));
     }
 
     public function testCanonicalPathMatchesAndReportsPrefix(): void
     {
-        service('request')->setLocale('en');
+        $locale = 'aa';
+        $path = 'fixture-collection-' . $locale;
+        $entrySlug = 'fixture-entry-' . $locale;
+        service('request')->setLocale($locale);
 
         $collection = [
             'index_page' => [
                 'localized_slugs' => [
-                    'en' => 'news',
+                    $locale => $path,
                 ],
             ],
         ];
 
-        $info = collection_url_path_info($collection, 'news/welcome-to-our-news');
+        $info = collection_url_path_info($collection, $path . '/' . $entrySlug);
 
         $this->assertNotNull($info);
-        $this->assertSame('/news', $info['prefix']);
-        $this->assertSame('welcome-to-our-news', $info['remainder']);
+        $this->assertSame('/' . $path, $info['prefix']);
+        $this->assertSame($entrySlug, $info['remainder']);
     }
 
     public function testCanonicalPathFallsBackToCollectionKeyWithoutIndexPage(): void
     {
-        service('request')->setLocale('en');
+        $locale = 'aa';
+        $collectionKey = 'fixture-collection-key';
+        $entrySlug = 'fixture-entry-' . $locale;
+        service('request')->setLocale($locale);
 
         // Without a dedicated index page, entry links must still resolve to a
         // stable, collection-derived prefix — not depend on whichever page
         // happens to embed the listing block (see PageController::resolve()
         // Step 1, which relies on this prefix being routable).
         $collection = [
-            'collection_key' => 'noticias',
+            'collection_key' => $collectionKey,
         ];
 
-        $this->assertSame('/noticias', collection_url_path($collection));
+        $this->assertSame('/' . $collectionKey, collection_url_path($collection));
 
-        $info = collection_url_path_info($collection, 'noticias/bienvenidos-a-nuestras-noticias');
+        $info = collection_url_path_info($collection, $collectionKey . '/' . $entrySlug);
         $this->assertNotNull($info);
-        $this->assertSame('/noticias', $info['prefix']);
-        $this->assertSame('bienvenidos-a-nuestras-noticias', $info['remainder']);
+        $this->assertSame('/' . $collectionKey, $info['prefix']);
+        $this->assertSame($entrySlug, $info['remainder']);
     }
 
     public function testCanonicalPathReturnsEmptyWithoutSlugOrCollectionKey(): void
     {
-        service('request')->setLocale('en');
+        service('request')->setLocale('aa');
 
         $collection = [];
 
@@ -77,77 +93,93 @@ final class CollectionUrlHelpersTest extends CIUnitTestCase
 
     public function testLocalizedCollectionUrlPathUsesTranslatedSlug(): void
     {
-        service('request')->setLocale('en');
+        $defaultLocale = 'aa';
+        $secondaryLocale = 'bb';
+        $defaultSlug = 'fixture-collection-' . $defaultLocale;
+        $secondarySlug = 'fixture-collection-' . $secondaryLocale;
+        service('request')->setLocale($defaultLocale);
 
         $collection = [
             'index_page' => [
                 'localized_slugs' => [
-                    'es' => 'noticias',
-                    'en' => 'news',
+                    $defaultLocale => $defaultSlug,
+                    $secondaryLocale => $secondarySlug,
                 ],
             ],
         ];
 
-        $this->assertSame('/noticias', localized_collection_url_path($collection, 'es'));
-        $this->assertSame('/news', localized_collection_url_path($collection, 'en'));
+        $this->assertSame('/' . $defaultSlug, localized_collection_url_path($collection, $defaultLocale));
+        $this->assertSame('/' . $secondarySlug, localized_collection_url_path($collection, $secondaryLocale));
     }
 
     public function testLocalizedEntryUrlsUseTranslatedCollectionAndEntrySlugs(): void
     {
-        service('request')->setLocale('en');
+        $defaultLocale = 'aa';
+        $secondaryLocale = 'bb';
+        $defaultCollectionSlug = 'fixture-collection-' . $defaultLocale;
+        $secondaryCollectionSlug = 'fixture-collection-' . $secondaryLocale;
+        $defaultEntrySlug = 'fixture-entry-' . $defaultLocale;
+        $secondaryEntrySlug = 'fixture-entry-' . $secondaryLocale;
+        service('request')->setLocale($defaultLocale);
 
         $collection = [
             'index_page' => [
                 'localized_slugs' => [
-                    'es' => 'noticias',
-                    'en' => 'news',
+                    $defaultLocale => $defaultCollectionSlug,
+                    $secondaryLocale => $secondaryCollectionSlug,
                 ],
             ],
         ];
 
         $entry = [
             'localized_slugs' => [
-                'es' => 'bienvenidos-a-nuestras-noticias',
-                'en' => 'welcome-to-our-news',
+                $defaultLocale => $defaultEntrySlug,
+                $secondaryLocale => $secondaryEntrySlug,
             ],
         ];
 
-        $esPath = parse_url(localized_entry_urls($collection, $entry)['es'], PHP_URL_PATH);
-        $enPath = parse_url(localized_entry_urls($collection, $entry)['en'], PHP_URL_PATH);
+        $urls = localized_entry_urls($collection, $entry);
+        $defaultPath = parse_url($urls[$defaultLocale], PHP_URL_PATH);
+        $secondaryPath = parse_url($urls[$secondaryLocale], PHP_URL_PATH);
 
-        $this->assertSame('/es/noticias/bienvenidos-a-nuestras-noticias', $esPath);
-        $this->assertSame('/en/news/welcome-to-our-news', $enPath);
+        $this->assertSame('/' . $defaultLocale . '/' . $defaultCollectionSlug . '/' . $defaultEntrySlug, $defaultPath);
+        $this->assertSame('/' . $secondaryLocale . '/' . $secondaryCollectionSlug . '/' . $secondaryEntrySlug, $secondaryPath);
     }
 
     public function testCollectionDisplayTitleFallsBackToNameSlugThenKey(): void
     {
-        $this->assertSame('Festivales de Títeres', collection_display_title([
+        $displayName = 'Fixture Collection Name';
+        $slug = 'fixture-collection-name';
+        $key = 'fixture-collection-key';
+
+        $this->assertSame($displayName, collection_display_title([
             'listing_title' => '',
-            'name' => 'Festivales de Títeres',
-            'slug' => 'festivales-de-titeres',
-            'collection_key' => 'festivales',
+            'name' => $displayName,
+            'slug' => $slug,
+            'collection_key' => $key,
         ]));
 
-        $this->assertSame('Festivales De Titeres', collection_display_title([
+        $this->assertSame('Fixture Collection Name', collection_display_title([
             'listing_title' => '',
             'name' => '',
-            'slug' => 'festivales-de-titeres',
-            'collection_key' => 'festivales',
+            'slug' => $slug,
+            'collection_key' => $key,
         ]));
 
-        $this->assertSame('Festivales', collection_display_title([
+        $this->assertSame('Fixture Collection Key', collection_display_title([
             'listing_title' => '',
             'name' => '',
             'slug' => '',
-            'collection_key' => 'festivales',
+            'collection_key' => $key,
         ]));
     }
 
     public function testCollectionDisplayIntroFallsBackToDescription(): void
     {
-        $this->assertSame('Descripción principal', collection_display_intro([
+        $description = 'Fixture primary description';
+        $this->assertSame($description, collection_display_intro([
             'listing_intro' => '',
-            'description' => 'Descripción principal',
+            'description' => $description,
         ]));
 
         $this->assertSame('', collection_display_intro([

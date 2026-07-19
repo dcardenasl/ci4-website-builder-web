@@ -65,6 +65,18 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
             ]);
         }
 
+        if ($path === 'cms/public/languages') {
+            return $this->response(array_map(
+                static fn (string $locale): array => [
+                    'code' => $locale,
+                    'name' => 'Fixture ' . $locale,
+                    'native_name' => 'Fixture ' . $locale,
+                    'is_default' => false,
+                ],
+                $this->locales,
+            ));
+        }
+
         if (str_starts_with($path, 'public/menus/')) {
             return $this->response(['items' => []]);
         }
