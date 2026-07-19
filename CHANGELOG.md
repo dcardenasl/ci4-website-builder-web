@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Translated footer menu label** — `footer.php` renders the menu's translated `name` (resolved by the Domain CMS public menu endpoint) instead of the static `Site.footer_menu_label` string, falling back to it when the menu has no translation.
 - **Dynamic social links rendering** — adapted `social_links` block to render child `social_link_item` blocks; new `SocialLinkItemViewModel` and `social_link_item.php` view for individual link presentation; `social_links` container view now delegates to `$renderedChildren` instead of hardcoded network array iteration, allowing flexible link management from Domain CMS
 - **Responsive image component and collection filters** — new `responsive-image.php` component for adaptive image rendering; progressive AJAX filtering for collection listings with `collectionFilters.js` module supporting client-side filtering, pagination, and history API integration
 - **Monorepo standardization pass** — added level-8 PHPStan quality gates, explicit PHPUnit suites, pre-commit hooks, `WebApiClientInterface`, shared service base class, block ViewModels, stale API cache fallback, POST throttling, modular JS source/build tooling, and expanded resolver/form/cache test coverage
@@ -28,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Contact form migration** — replace legacy `ContactController` with new `FormController` powered by CMS forms system
 
 ### Fixed
+- **`WebApiClient` locale fallback** — falls back to `config('App')->defaultLocale` instead of a hardcoded `'es'` when the request has no resolved locale.
 - **Gallery modal caption text color** — ensure gallery caption inherits consistent `text-white/90` opacity in modal overlay; refactored base CSS element styles into `@layer base` to prevent utility class override issues
 - **Block renderers** — `alert`, `accordion`, `rich_text`, `tab_item`, and `tabs` now fall back to legacy `body`/`html` payload keys via `block_text_content()` when `content` is empty, matching the domain's normalized rich-text contract
 - **`CacheInvalidator` cache pattern** — correct wildcard pattern to match actual cache key structure (`web_api_*_scope_*` instead of `web_api_scope_*`)
