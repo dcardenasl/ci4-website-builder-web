@@ -9,8 +9,9 @@ Accepted
 
 ## Context
 
-`ci4-website-builder-admin` organizes feature code under `app/Modules/{Name}/`
-(Controllers, Services, Requests, Language, Config per module) because it has
+`ci4-website-builder-admin` organizes feature code under a `Modules/{Name}/`
+tree inside its own `app/` (Controllers, Services, Requests, Language, Config
+per module) because it has
 many independent, permission-gated CRUD surfaces that benefit from that
 isolation. `ci4-website-builder-web` is structurally different: it is a
 single public-facing rendering pipeline (`PageController::resolve()` → block
@@ -25,7 +26,7 @@ resource.
 
 Keep `ci4-website-builder-web` app-structured: `app/Controllers/`,
 `app/Services/`, `app/ViewModels/Blocks/`, `app/Views/blocks/`, etc. Do not
-introduce `app/Modules/` here, even as the block/ViewModel count grows.
+introduce a `Modules/` tree here, even as the block/ViewModel count grows.
 
 ## Consequences
 
@@ -37,6 +38,6 @@ introduce `app/Modules/` here, even as the block/ViewModel count grows.
   in `BlockRenderer::VIEW_MODELS`), `app/ViewModels/Blocks/` will keep
   growing flat rather than being partitioned. Acceptable trade-off as long as
   each ViewModel stays small and focused (`AbstractBlockViewModel::vars()`).
-- **Guardrail:** if a future session proposes `app/Modules/` here "for
-  consistency with admin," that's solving a problem this repo doesn't have —
-  check this ADR first.
+- **Guardrail:** if a future session proposes adding a `Modules/` tree here
+  "for consistency with admin," that's solving a problem this repo doesn't
+  have — check this ADR first.
