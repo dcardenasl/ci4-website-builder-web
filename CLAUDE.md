@@ -136,9 +136,11 @@ To add one:
 5. Add unit tests for full data, empty data, invalid config, and URL parsing
    helpers when relevant.
 
-`block_text_content()` prefers canonical `content`, then legacy `body`/`html`.
-Legacy fallback is logged at debug level so Domain payloads can be migrated
-without breaking existing content.
+`block_text_content()` reads the canonical `content` key only. The earlier
+`body`/`html`/`text` legacy fallback (and its usage-counter instrumentation)
+was fully removed 2026-07-18 once the counters confirmed zero legacy reads in
+real content — see `TASKS.md` DEBT-002 and `../CONTEXT.md`. Do not
+reintroduce a multi-key fallback here.
 
 ## Frontend Assets
 
