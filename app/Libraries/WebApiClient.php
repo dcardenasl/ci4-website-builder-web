@@ -321,6 +321,6 @@ class WebApiClient implements WebApiClientInterface
     {
         $locale = service('request')->getLocale();
 
-        return $locale !== '' ? $locale : 'es';
+        return $locale !== '' ? $locale : (string) config('App')->defaultLocale;
     }
 }
