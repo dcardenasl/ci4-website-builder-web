@@ -11,15 +11,28 @@ use App\Libraries\WebApiClientInterface;
  */
 final class DeterministicDomainAdapter implements WebApiClientInterface
 {
-    /**
-     * @var array<string, array{ok: bool, status: int, data: mixed, meta: array<string, mixed>, messages: list<string>}>
-     */
+    /** @var list<string> */
+    private array $locales;
+
+    /** @var array<string, array{ok: bool, status: int, data: mixed, meta: array<string, mixed>, messages: list<string>}> */
     private array $responses = [];
 
-    /**
-     * @param mixed                $data
-     * @param array<string, mixed> $meta
-     */
+    /** @param list<string> $locales */
+    public function __construct(array $locales = ['l01', 'l02', 'l03'])
+    {
+        $this->locales = array_values(array_unique(array_filter(
+            $locales,
+            static fn (mixed $locale): bool => is_string($locale) && $locale !== '',
+        )));
+    }
+
+    /** @return list<string> */
+    public function locales(): array
+    {
+        return $this->locales;
+    }
+
+    /** @param array<string, mixed> $meta */
     public function fakeGet(string $path, mixed $data, array $meta = []): void
     {
         $this->responses[$path] = $this->response($data, $meta);
@@ -28,10 +41,10 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
     public function fakeGetFailure(string $path, int $status = 404): void
     {
         $this->responses[$path] = [
-            'ok'       => false,
-            'status'   => $status,
-            'data'     => null,
-            'meta'     => [],
+            'ok' => false,
+            'status' => $status,
+            'data' => null,
+            'meta' => [],
             'messages' => ['Not found'],
         ];
     }
@@ -46,9 +59,9 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
 
         if ($path === 'public/settings') {
             return $this->response([
-                'site_name'        => 'Deterministic Test Site',
-                'site_description' => 'A deterministic public website fixture for hermetic feature tests.',
-                'site_logo_url'    => 'https://example.com/assets/test-logo.png',
+                'site_name' => 'Deterministic Fixture Site',
+                'site_description' => 'Synthetic settings for hermetic feature tests.',
+                'site_logo_url' => 'https://example.com/assets/fixture-logo.png',
             ]);
         }
 
@@ -56,23 +69,23 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
             return $this->response(['items' => []]);
         }
 
-        if (preg_match('#^public/(es|en)/pages/home$#', $path, $matches) === 1) {
+        if (preg_match('#^public/([^/]+)/pages/home$#', $path, $matches) === 1) {
             return $this->response($this->homePage($matches[1]));
         }
 
-        if (preg_match('#^public/(es|en)/pages$#', $path, $matches) === 1) {
+        if (preg_match('#^public/([^/]+)/pages$#', $path, $matches) === 1) {
             return $this->response([$this->homePage($matches[1])]);
         }
 
-        if (preg_match('#^public/(es|en)/collections$#', $path) === 1) {
+        if (preg_match('#^public/([^/]+)/collections$#', $path) === 1) {
             return $this->response([]);
         }
 
         return [
-            'ok'       => false,
-            'status'   => 404,
-            'data'     => null,
-            'meta'     => [],
+            'ok' => false,
+            'status' => 404,
+            'data' => null,
+            'meta' => [],
             'messages' => ['Not found'],
         ];
     }
@@ -84,18 +97,14 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
         return $this->response([]);
     }
 
-    /**
-     * @param array<string, mixed> $meta
-     *
-     * @return array{ok: bool, status: int, data: mixed, meta: array<string, mixed>, messages: list<string>}
-     */
+    /** @param array<string, mixed> $meta */
     private function response(mixed $data, array $meta = []): array
     {
         return [
-            'ok'       => true,
-            'status'   => 200,
-            'data'     => $data,
-            'meta'     => $meta,
+            'ok' => true,
+            'status' => 200,
+            'data' => $data,
+            'meta' => $meta,
             'messages' => [],
         ];
     }
@@ -103,26 +112,23 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
     /** @return array<string, mixed> */
     private function homePage(string $locale): array
     {
-        $isSpanish = $locale === 'es';
+        $localizedSlugs = array_fill_keys($this->locales, 'home');
+        $localizedSlugs[$locale] = 'home';
 
         return [
-            'title'            => $isSpanish ? 'Inicio de prueba' : 'Test homepage',
-            'slug'             => 'home',
-            'excerpt'          => $isSpanish
-                ? 'Contenido estable para validar el marcado público sin depender de Domain.'
-                : 'Stable content used to validate public markup without depending on Domain.',
-            'meta_title'       => $isSpanish ? 'Sitio de prueba determinista' : 'Deterministic test site',
-            'meta_description' => $isSpanish
-                ? 'Página de inicio determinista para validar metadatos y HTML en pruebas herméticas.'
-                : 'A deterministic homepage used to validate metadata and HTML in hermetic tests.',
-            'canonical_url'    => '',
-            'robots'           => 'index, follow',
-            'is_in_sitemap'    => true,
-            'updated_at'       => '2026-01-01T00:00:00+00:00',
+            'title' => 'Fixture homepage ' . $locale,
+            'slug' => 'home',
+            'excerpt' => 'Synthetic content for hermetic public markup tests in ' . $locale . '.',
+            'meta_title' => 'Deterministic fixture site ' . $locale,
+            'meta_description' => 'Synthetic homepage metadata used to validate public markup for an arbitrary locale.',
+            'canonical_url' => '',
+            'robots' => 'index, follow',
+            'is_in_sitemap' => true,
+            'updated_at' => '2026-01-01T00:00:00+00:00',
             'sitemap_changefreq' => 'weekly',
             'sitemap_priority' => '1.0',
-            'blocks'           => [],
-            'localized_slugs'  => ['es' => 'home', 'en' => 'home'],
+            'blocks' => [],
+            'localized_slugs' => $localizedSlugs,
         ];
     }
 }

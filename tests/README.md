@@ -116,3 +116,14 @@ Be sure to modify the test case (or create your own) to point to your seed and m
 and include any additional steps to be run before tests in the `setUp()` method.
 See [Testing Your Database](https://codeigniter.com/user_guide/testing/database.html)
 for details.
+## Fixture policy
+
+Hermetic feature tests use `DeterministicDomainAdapter`, whose locale set is
+configurable and is not tied to the site's starter content. Test expectations
+should derive routes, localized slugs and language links from the adapter's
+configured locales.
+
+```bash
+composer test:dynamic
+composer test:fixture-policy
+```
