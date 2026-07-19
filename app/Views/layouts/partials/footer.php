@@ -63,7 +63,7 @@
             <?php if ($isFooterVertical): ?>
                 <!-- Navigation Menu Links (Vertical) -->
                 <div class="space-y-4">
-                    <p class="section-eyebrow"><?= lang('Site.footer_menu_label') ?></p>
+                    <p class="section-eyebrow"><?= esc($menu['name'] ?? lang('Site.footer_menu_label')) ?></p>
                     <ul class="space-y-2.5">
                         <?php foreach (($menu['items'] ?? []) as $item): ?>
                             <li>

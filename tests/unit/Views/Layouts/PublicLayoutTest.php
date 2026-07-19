@@ -16,7 +16,8 @@ final class PublicLayoutTest extends CIUnitTestCase
         $html = view('layouts/public', [
             'view' => 'page',
             'mainMenu' => ['items' => []],
-            'footerMenu' => ['items' => []],
+            'footerMenu' => ['name' => 'Menu variant', 'items' => []],
+            'legalMenu' => ['items' => []],
             'settings' => [
                 'site_name' => 'Mi Sitio',
                 'site_logo' => [
@@ -31,5 +32,6 @@ final class PublicLayoutTest extends CIUnitTestCase
         );
         $this->assertStringContainsString('alt="Mi Sitio"', $html);
         $this->assertStringContainsString('<span class="text-xl font-bold text-primary">Mi Sitio</span>', $html);
+        $this->assertStringContainsString('>Menu variant</p>', $html);
     }
 }
