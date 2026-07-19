@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
-# Run lint-staged on changed files before every commit.
-# JS files: eslint (PHP checks run via the composer pre-commit hook)
-npx lint-staged
+# JS files: eslint (via lint-staged)
+npx lint-staged || exit 1
+
+# PHP files: style + static analysis (see ./pre-commit for the exact checks)
+./pre-commit
