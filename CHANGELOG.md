@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Editable entry CTA label per collection** — `collection_listing.php` now prefers the collection's own `entry_cta_label` translation for the entry card CTA text, falling back to the hardcoded `news`/`portfolio` labels and then a generic "view more" label for any other collection type (COL-002).
 - **Translated footer menu label** — `footer.php` renders the menu's translated `name` (resolved by the Domain CMS public menu endpoint) instead of the static `Site.footer_menu_label` string, falling back to it when the menu has no translation.
 - **Dynamic social links rendering** — adapted `social_links` block to render child `social_link_item` blocks; new `SocialLinkItemViewModel` and `social_link_item.php` view for individual link presentation; `social_links` container view now delegates to `$renderedChildren` instead of hardcoded network array iteration, allowing flexible link management from Domain CMS
 - **Responsive image component and collection filters** — new `responsive-image.php` component for adaptive image rendering; progressive AJAX filtering for collection listings with `collectionFilters.js` module supporting client-side filtering, pagination, and history API integration
