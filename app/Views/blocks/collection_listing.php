@@ -67,6 +67,15 @@ $nextLabel = lang('Site.collection_next');
 $noResultsLabel = lang('Site.collection_empty');
 $headerTitle = $introTitle !== '' ? $introTitle : collection_display_title($collection ?? []);
 $headerIntro = $introText !== '' ? $introText : collection_display_intro($collection ?? []);
+// COL-002: editable per-collection CTA label (Collections.field_entry_cta_label in the admin)
+// takes priority; the collection_type fallback only covers the two shipped starter presets so
+// custom collection types get a neutral label instead of an assumed "Ver proyecto".
+$entryCtaLabelRaw = trim((string) ($collection['entry_cta_label'] ?? ''));
+$entryCtaLabel = $entryCtaLabelRaw !== '' ? $entryCtaLabelRaw : match ($collection['collection_type'] ?? '') {
+    'news' => lang('Site.view_article'),
+    'portfolio' => lang('Site.view_project'),
+    default => lang('Site.view_more'),
+};
 
 $gridClass = match ($layoutVariant) {
     'list' => 'space-y-6',
@@ -299,7 +308,7 @@ $sectionClass = trim($cssClass . ' section');
                                 <div class="mt-auto pt-5 border-t border-slate-100 flex flex-wrap items-center gap-x-5 gap-y-3">
                                     <?php if ($showButton): ?>
                                         <a href="<?= esc($entryUrl) ?>" class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider !text-primary group-hover:!text-primary-dark !no-underline">
-                                            <?= esc($collection['collection_type'] === 'news' ? lang('Site.view_article') : lang('Site.view_project')) ?>
+                                            <?= esc($entryCtaLabel) ?>
                                             <svg class="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                                             </svg>

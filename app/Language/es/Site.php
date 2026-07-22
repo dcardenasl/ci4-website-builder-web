@@ -72,4 +72,5 @@ return [
     'pagination'              => 'Paginación',
     'view_project'            => 'Ver proyecto',
     'view_article'            => 'Leer artículo',
+    'view_more'               => 'Ver más',
 ];
