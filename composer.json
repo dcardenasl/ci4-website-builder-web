@@ -42,11 +42,15 @@
     "scripts": {
         "post-install-cmd": [
             "chmod +x pre-commit",
-            "cp pre-commit .git/hooks/pre-commit"
+            "cp pre-commit .git/hooks/pre-commit",
+            "chmod +x pre-push",
+            "cp pre-push .git/hooks/pre-push"
         ],
         "post-update-cmd": [
             "chmod +x pre-commit",
-            "cp pre-commit .git/hooks/pre-commit"
+            "cp pre-commit .git/hooks/pre-commit",
+            "chmod +x pre-push",
+            "cp pre-push .git/hooks/pre-push"
         ],
         "test": "phpunit --no-coverage",
         "test:unit": "phpunit --testsuite=Unit --no-coverage",
