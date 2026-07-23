@@ -125,7 +125,9 @@ $analyticsId       = $settings['analytics_id'] ?? '';
 
 <?php
 $compiledCssPath = FCPATH . 'assets/css/compiled.css';
-$compiledCssVersion = is_file($compiledCssPath) ? (string) filemtime($compiledCssPath) : (string) time();
+$compiledCssVersion = is_file($compiledCssPath)
+    ? (string) (md5_file($compiledCssPath) ?: filemtime($compiledCssPath))
+    : (string) time();
 ?>
 
 <?php foreach (\Config\Services::blockRenderer()->getPreloads() as $preload): ?>

@@ -153,7 +153,9 @@
 </footer>
 <?php
 $siteJsPath = FCPATH . 'assets/js/site.js';
-$siteJsVersion = is_file($siteJsPath) ? (string) filemtime($siteJsPath) : (string) time();
+$siteJsVersion = is_file($siteJsPath)
+    ? (string) (md5_file($siteJsPath) ?: filemtime($siteJsPath))
+    : (string) time();
 ?>
 <script src="<?= base_url('assets/js/alpine.min.js') ?>" defer></script>
 <script src="<?= base_url('assets/js/site.js?v=' . $siteJsVersion) ?>" defer></script>
