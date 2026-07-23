@@ -22,7 +22,7 @@ RUN npm ci --ignore-scripts --no-audit --no-fund
 
 COPY src ./src
 COPY public ./public
-COPY postcss.config.js tailwind.config.js ./
+COPY postcss.config.js ./
 RUN npm run build:all
 
 FROM php:8.2-apache
