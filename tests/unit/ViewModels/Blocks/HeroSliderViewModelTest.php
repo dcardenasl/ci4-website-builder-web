@@ -88,6 +88,23 @@ final class HeroSliderViewModelTest extends CIUnitTestCase
         $this->assertFalse($vars['controlsIsOverlay']);
     }
 
+    public function testTransitionIsConfigurableAndInvalidValuesUseFade(): void
+    {
+        $vm = new HeroSliderViewModel([
+            'block_config' => ['transition' => 'slide'],
+            'children' => [['block_data' => ['heading' => 'Slide']]],
+        ], 'es');
+
+        $this->assertSame('slide', $vm->vars()['transition']);
+
+        $invalidVm = new HeroSliderViewModel([
+            'block_config' => ['transition' => 'flip'],
+            'children' => [['block_data' => ['heading' => 'Slide']]],
+        ], 'es');
+
+        $this->assertSame('fade', $invalidVm->vars()['transition']);
+    }
+
     public function testEmptyChildrenYieldNoSlides(): void
     {
         $vm = new HeroSliderViewModel([], 'es');

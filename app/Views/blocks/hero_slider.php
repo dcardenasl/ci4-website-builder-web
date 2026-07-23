@@ -6,6 +6,7 @@
  * @var list<array{image: array{source_kind: string, file_id: int|null, url: string}, image_alt_text: string, heading: string, subtitle: string, cta_label: string, cta_url: string}> $slides
  * @var string $captionPosition
  * @var string $controlsPosition
+ * @var string $transition
  * @var string $cssClass
  * @var bool   $autoplay
  * @var int    $intervalMs
@@ -43,6 +44,7 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
         data-interval="<?= esc((string) $intervalMs) ?>"
         data-caption-position="<?= esc($captionPosition, 'attr') ?>"
         data-controls-position="<?= esc($controlsPosition, 'attr') ?>"
+        data-transition="<?= esc($transition, 'attr') ?>"
         data-slides='<?= esc($jsonSlides, 'attr') ?>'
         data-overlay-pct="<?= esc((string) $overlayPct) ?>"
     >
@@ -67,6 +69,42 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
                 object-fit: cover;
                 object-position: center center;
                 background: transparent;
+                transform-origin: center center;
+                will-change: opacity, transform;
+            }
+
+            [data-hero-carousel] [data-hero-image].hero-carousel-image--fade {
+                animation: hero-carousel-fade-in 650ms ease both;
+            }
+
+            [data-hero-carousel] [data-hero-image].hero-carousel-image--slide {
+                animation: hero-carousel-slide-in 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+            }
+
+            [data-hero-carousel] [data-hero-image].hero-carousel-image--zoom {
+                animation: hero-carousel-zoom-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+            }
+
+            @keyframes hero-carousel-fade-in {
+                from { opacity: 0.2; }
+                to { opacity: 1; }
+            }
+
+            @keyframes hero-carousel-slide-in {
+                from { opacity: 0.45; transform: translateX(4%); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+
+            @keyframes hero-carousel-zoom-in {
+                from { opacity: 0.45; transform: scale(1.08); }
+                to { opacity: 1; transform: scale(1); }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                [data-hero-carousel] [data-hero-image] {
+                    animation: none !important;
+                    transition: none !important;
+                }
             }
 
             [data-hero-carousel] [data-hero-dot-fill] {
@@ -85,6 +123,7 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
                 'alt'        => $slides[0]['image_alt_text'] ?? $slides[0]['heading'] ?? '',
                 'class'      => 'absolute inset-0 h-full w-full object-cover',
                 'variants'   => $slides[0]['image']['variants'] ?? null,
+                'responsive' => false,
                 'attributes' => 'data-hero-image',
             ], ['saveData' => false]) ?>
 

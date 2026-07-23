@@ -51,6 +51,19 @@ final class ResponsiveImageTest extends CIUnitTestCase
         $this->assertStringNotContainsString('sizes=', $html);
     }
 
+    public function testCanDisableSrcsetForDynamicImages(): void
+    {
+        $html = view('components/responsive-image', [
+            'src'        => 'https://picsum.photos/id/1040/1200/900',
+            'alt'        => 'Dynamic image',
+            'responsive' => false,
+        ]);
+
+        $this->assertStringContainsString('src="https://picsum.photos/id/1040/1200/900"', $html);
+        $this->assertStringNotContainsString('srcset=', $html);
+        $this->assertStringNotContainsString('sizes=', $html);
+    }
+
     public function testImageSequenceOrderControlsEagerLoadingAndFetchpriority(): void
     {
         // First image gets loading="eager" and fetchpriority="high"

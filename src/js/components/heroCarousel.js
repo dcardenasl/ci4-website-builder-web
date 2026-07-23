@@ -24,6 +24,13 @@ const initHeroCarousel = (root) => {
   const hoverTarget = image || root;
   const overlay = root.querySelector('[data-hero-overlay]');
   const captionCard = root.querySelector('[data-hero-caption-card]');
+  const transitionClassNames = {
+    fade: 'hero-carousel-image--fade',
+    slide: 'hero-carousel-image--slide',
+    zoom: 'hero-carousel-image--zoom',
+  };
+  const transitionClassList = Object.values(transitionClassNames);
+  let hasRendered = false;
 
   // The button is the touch target (min 24x24 for a11y); the visual pill is a
   // nested span so it can stay small while the button's hit area stays large.
@@ -152,8 +159,24 @@ const initHeroCarousel = (root) => {
     if (!slide) return;
 
     if (image) {
-      image.src = slide.image?.url || slide.image?.external_url || '';
+      const imageUrl = slide.image?.url || slide.image?.external_url || '';
+      const shouldAnimate = hasRendered && image.getAttribute('src') !== imageUrl;
+
+      // A carousel reuses one <img> node. Any responsive candidates rendered
+      // for the first slide would otherwise keep winning source selection after
+      // src changes, leaving the browser on the first image forever.
+      image.removeAttribute('srcset');
+      image.removeAttribute('sizes');
+      image.src = imageUrl;
       image.alt = slide.image_alt_text || slide.heading || '';
+
+      transitionClassList.forEach((className) => image.classList.remove(className));
+      const transitionClass = transitionClassNames[root.dataset.transition];
+      if (shouldAnimate && transitionClass) {
+        // Restart the keyframe when a user changes slides repeatedly.
+        void image.offsetWidth;
+        image.classList.add(transitionClass);
+      }
     }
     if (link) {
       link.href = slide.cta_url || '#';
@@ -201,6 +224,7 @@ const initHeroCarousel = (root) => {
     }
 
     setActiveDot();
+    hasRendered = true;
   };
 
   const goToSlide = (index) => {

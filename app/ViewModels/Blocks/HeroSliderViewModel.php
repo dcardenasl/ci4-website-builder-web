@@ -8,6 +8,7 @@ class HeroSliderViewModel extends AbstractBlockViewModel
 {
     private const CAPTION_POSITIONS  = ['below', 'overlay_top', 'overlay_bottom', 'hide'];
     private const CONTROLS_POSITIONS = ['below', 'overlay_bottom'];
+    private const TRANSITIONS        = ['none', 'fade', 'slide', 'zoom'];
 
     public function vars(): array
     {
@@ -23,10 +24,16 @@ class HeroSliderViewModel extends AbstractBlockViewModel
             $controlsPosition = 'below';
         }
 
+        $transition = $this->configString('transition', 'fade');
+        if (! in_array($transition, self::TRANSITIONS, true)) {
+            $transition = 'fade';
+        }
+
         return [
             'slides'            => $slides,
             'captionPosition'   => $captionPosition,
             'controlsPosition'  => $controlsPosition,
+            'transition'        => $transition,
             'cssClass'          => trim($this->configString('css_class')),
             'autoplay'          => $this->configBool('autoplay', true),
             'intervalMs'        => max(1000, $this->configInt('interval', 6000)),
