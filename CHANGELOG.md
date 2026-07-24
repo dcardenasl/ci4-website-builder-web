@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Contact form migration** — replace legacy `ContactController` with new `FormController` powered by CMS forms system
 
 ### Fixed
+- **CI's `.env` setup step referenced the removed `env` scaffold file** — `cp env .env` in `ci.yml` started failing every job once the leftover `env` scaffold artifact was removed (see the Removed section); now copies `.env.example`, the file that actually ships in the repo.
+- **Production Docker image shipped 2 kernel-header HIGH CVEs (CVE-2026-53399, CVE-2026-64600)** — the `php:8.2-apache` base image's `linux-libc-dev` package was behind the Debian patch level; `apt-get upgrade` now runs before `apt-get install` in the image's system-dependency layer so patched OS packages are picked up even when the base image tag itself hasn't been rebuilt.
 - **`WebApiClient` locale fallback** — falls back to `config('App')->defaultLocale` instead of a hardcoded `'es'` when the request has no resolved locale.
 - **Gallery modal caption text color** — ensure gallery caption inherits consistent `text-white/90` opacity in modal overlay; refactored base CSS element styles into `@layer base` to prevent utility class override issues
 - **Block renderers** — `alert`, `accordion`, `rich_text`, `tab_item`, and `tabs` now fall back to legacy `body`/`html` payload keys via `block_text_content()` when `content` is empty, matching the domain's normalized rich-text contract

@@ -50,7 +50,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          cp env .env
+          cp .env.example .env
           echo 'CI_ENVIRONMENT = testing' >> .env
           echo 'app.baseURL = "http://localhost/"' >> .env
           echo 'WEB_API_BASE_URL = http://localhost:8190' >> .env

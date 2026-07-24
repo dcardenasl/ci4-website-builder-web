@@ -31,6 +31,7 @@ LABEL maintainer="CI4 Website Builder"
 LABEL description="Production image for the public CI4 website"
 
 RUN apt-get update \
+    && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends curl libicu-dev \
     && docker-php-ext-install -j$(nproc) intl opcache \
     && a2enmod rewrite headers expires deflate \
