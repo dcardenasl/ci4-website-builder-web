@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] — 2026-07-23
+
 ### Added
 - **`init.sh`** — non-interactive-capable environment initializer (`--yes`/`--skip-server`), mirroring the pattern already used by `ci4-website-builder-domain`. Backs up an existing `.env`, seeds a fresh one from `.env.example`, and writes `app.baseURL`, `app.defaultLocale`, `WEB_API_BASE_URL`, `WEB_API_KEY`, and `CACHE_INVALIDATE_KEY`; generates `encryption.key` independently per clone; installs Composer/npm dependencies and builds assets. Enables `ci4-kickstart`'s website-builder archetype to provision this app non-interactively via `do_web_init()`.
 - **Configurable hero carousel transitions** — `hero_slider.php`/`heroCarousel.js` read a new `transition` block config (`none`/`fade`/`slide`/`zoom`) and animate the reused `<img>` node between slides via CSS keyframes, respecting `prefers-reduced-motion`; `responsive-image.php` gained a `responsive` opt-out flag so the carousel's single image no longer keeps a stale `srcset` from the first slide, which previously could pin the browser to the first slide's resolution after `src` changed.
