@@ -63,6 +63,8 @@ Vagrantfile
 /writable/debugbar/*
 !/writable/debugbar/index.html
 
+/writable/htmlpurifier/*
+
 php_errors.log
 
 #-------------------------
@@ -81,10 +83,14 @@ php_errors.log
 # Don't save phpunit under version control.
 /phpunit
 
+.php-cs-fixer.cache
+
 #-------------------------
-# Composer
+# Composer & NPM
 #-------------------------
 vendor/
+node_modules/
+pnpm-lock.yaml
 
 #-------------------------
 # IDE / Development Files

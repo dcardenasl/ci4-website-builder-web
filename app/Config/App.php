@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Config;
 
 use CodeIgniter\Config\BaseConfig;
@@ -16,7 +18,7 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'http://localhost:8080/';
+    public string $baseURL = 'http://localhost:8186/';
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
@@ -40,7 +42,7 @@ class App extends BaseConfig
      * something else. If you have configured your web server to remove this file
      * from your site URIs, set this variable to an empty string.
      */
-    public string $indexPage = 'index.php';
+    public string $indexPage = '';
 
     /**
      * --------------------------------------------------------------------------
@@ -93,7 +95,7 @@ class App extends BaseConfig
      * strings (like currency markers, numbers, etc), that your program
      * should run under for this request.
      */
-    public string $defaultLocale = 'en';
+    public string $defaultLocale = 'es';
 
     /**
      * --------------------------------------------------------------------------
@@ -105,6 +107,10 @@ class App extends BaseConfig
      *
      * If false, no automatic detection will be performed.
      */
+    // The public URL is the locale contract (/es, /en, /fr, ...). Browser
+    // Accept-Language must never override an explicit locale in the URL.
+    // The active locale list is discovered from the CMS during bootstrap and
+    // applied by BaseController before any public content is rendered.
     public bool $negotiateLocale = false;
 
     /**
@@ -120,7 +126,7 @@ class App extends BaseConfig
      *
      * @var list<string>
      */
-    public array $supportedLocales = ['en'];
+    public array $supportedLocales = ['es', 'en'];
 
     /**
      * --------------------------------------------------------------------------
@@ -153,9 +159,22 @@ class App extends BaseConfig
      * --------------------------------------------------------------------------
      *
      * Configuration for communicating with the ci4-website-builder-domain API
+     * Configured via environment variables: WEB_API_BASE_URL and WEB_API_KEY
      */
-    public string $webApiBaseUrl = 'http://localhost:8190';
-    public string $webApiKey = 'web_api_test_key';
+    public string $webApiBaseUrl = '';
+    public string $webApiKey = '';
+
+    /**
+     * Timeout (seconds) for requests against the Domain API.
+     * Override with WEB_API_TIMEOUT in .env.
+     */
+    public int $webApiTimeout = 15;
+
+    /**
+     * TTL (seconds) for the long-lived stale cache copy served when the
+     * Domain API is down. Set WEB_API_STALE_TTL=0 in .env to disable.
+     */
+    public int $webApiStaleTtl = 86400;
 
     /**
      * --------------------------------------------------------------------------
@@ -167,7 +186,7 @@ class App extends BaseConfig
      * secure, the user will be redirected to a secure version of the page
      * and the HTTP Strict Transport Security (HSTS) header will be set.
      */
-    public bool $forceGlobalSecureRequests = false;
+    public bool $forceGlobalSecureRequests = ENVIRONMENT === 'production';
 
     /**
      * --------------------------------------------------------------------------
@@ -208,5 +227,111 @@ class App extends BaseConfig
      * @see http://www.html5rocks.com/en/tutorials/security/content-security-policy/
      * @see http://www.w3.org/TR/CSP/
      */
-    public bool $CSPEnabled = false;
+    public bool $CSPEnabled = ENVIRONMENT === 'production';
+
+    /**
+     * --------------------------------------------------------------------------
+     * Content-Security-Policy source allowlists (SecurityHeadersFilter)
+     * --------------------------------------------------------------------------
+     *
+     * Space/comma-separated source lists for the custom CSP header built in
+     * App\Filters\SecurityHeadersFilter (kept separate from CI4's native CSP,
+     * see that filter's docblock). Override via CSP_OBJECT_SRC / CSP_IMAGE_SRC /
+     * CSP_FRAME_SRC / CSP_MEDIA_SRC in .env to tighten the allowlist for
+     * production; defaults stay permissive to keep the starter working with
+     * seeded remote media out of the box.
+     *
+     * @var list<string>
+     */
+    public array $cspObjectSrc = ['self', 'http:', 'https:'];
+
+    /** @var list<string> */
+    public array $cspImageSrc = ['self', 'http:', 'https:', 'data:'];
+
+    /** @var list<string> */
+    public array $cspFrameSrc = ['self', 'http:', 'https:'];
+
+    /** @var list<string> */
+    public array $cspMediaSrc = ['self', 'http:', 'https:'];
+
+    /**
+     * Opt-in flag so ThrottleFilterTest can exercise real throttling behavior
+     * (throttling is otherwise bypassed under ENVIRONMENT=testing so feature
+     * tests hitting controllers directly are never penalized). Read fresh via
+     * `new Config\App()` in ThrottleFilter rather than the shared `config('App')`
+     * instance, since tests toggle WEB_THROTTLE_IN_TESTS per-test at runtime.
+     */
+    public bool $throttleInTestsEnabled = false;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        // Validate baseURL is configured. In production, the hardcoded localhost
+        // default must never be used silently — require an explicit app.baseURL in
+        // .env. In development the localhost fallback is acceptable.
+        $baseUrlFromEnv = (string) (env('app.baseURL') ?? '');
+        if ($this->baseURL === '' || (ENVIRONMENT === 'production' && trim($baseUrlFromEnv) === '')) {
+            throw new \LogicException(
+                'Missing app.baseURL in .env. '
+                . 'Set app.baseURL to your website URL. '
+                . 'Example: app.baseURL=http://localhost:8186/'
+            );
+        }
+
+        // Load Website Builder API configuration from .env
+        $webApiBaseUrl = env('WEB_API_BASE_URL');
+        if (! is_string($webApiBaseUrl) || trim($webApiBaseUrl) === '') {
+            throw new \LogicException(
+                'Missing WEB_API_BASE_URL in .env. '
+                . 'Set WEB_API_BASE_URL to your domain API server URL. '
+                . 'Example: WEB_API_BASE_URL=http://localhost:8190'
+            );
+        }
+        $this->webApiBaseUrl = $webApiBaseUrl;
+
+        $webApiKey = env('WEB_API_KEY');
+        if (! is_string($webApiKey) || trim($webApiKey) === '') {
+            throw new \LogicException(
+                'Missing WEB_API_KEY in .env. '
+                . 'This is the API key registered in your domain API. '
+                . 'Contact your administrator for the key.'
+            );
+        }
+        $this->webApiKey = $webApiKey;
+
+        // Optional tuning knobs — silently keep defaults when absent.
+        $webApiTimeout = env('WEB_API_TIMEOUT');
+        if (is_numeric($webApiTimeout) && (int) $webApiTimeout > 0) {
+            $this->webApiTimeout = (int) $webApiTimeout;
+        }
+
+        $webApiStaleTtl = env('WEB_API_STALE_TTL');
+        if (is_numeric($webApiStaleTtl) && (int) $webApiStaleTtl >= 0) {
+            $this->webApiStaleTtl = (int) $webApiStaleTtl;
+        }
+
+        $this->cspObjectSrc = $this->parseCspSources(env('CSP_OBJECT_SRC'), $this->cspObjectSrc);
+        $this->cspImageSrc  = $this->parseCspSources(env('CSP_IMAGE_SRC'), $this->cspImageSrc);
+        $this->cspFrameSrc  = $this->parseCspSources(env('CSP_FRAME_SRC'), $this->cspFrameSrc);
+        $this->cspMediaSrc  = $this->parseCspSources(env('CSP_MEDIA_SRC'), $this->cspMediaSrc);
+
+        $throttleInTests = env('WEB_THROTTLE_IN_TESTS');
+        $this->throttleInTestsEnabled = $throttleInTests === true || $throttleInTests === 'true';
+    }
+
+    /**
+     * @param list<string> $default
+     * @return list<string>
+     */
+    private function parseCspSources(mixed $raw, array $default): array
+    {
+        if (! is_string($raw) || trim($raw) === '') {
+            return $default;
+        }
+
+        $sources = preg_split('/[\s,]+/', trim($raw)) ?: [];
+
+        return $sources !== [] ? $sources : $default;
+    }
 }

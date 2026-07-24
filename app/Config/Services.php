@@ -1,122 +1,172 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Config;
 
+use App\Libraries\BlockRenderer;
+use App\Libraries\CacheInvalidator;
+use App\Libraries\WebApiClient;
+use App\Libraries\WebApiClientInterface;
+use App\Services\SiteCategoryService;
+use App\Services\SiteCollectionService;
+use App\Services\SiteEntryService;
+use App\Services\SiteFormService;
+use App\Services\SiteLanguageService;
+use App\Services\SiteMenuService;
+use App\Services\SitePageService;
+use App\Services\SiteRedirectService;
+use App\Services\SiteSettingsService;
+use App\Services\SiteTagService;
+use App\Services\SocialLinksService;
 use CodeIgniter\Config\BaseService;
 
-/**
- * Services Configuration file.
- *
- * Services are simply other classes/libraries that the system uses
- * to do its job. This is used by CodeIgniter to allow the core of the
- * framework to be swapped out easily without affecting the usage within
- * the rest of your application.
- *
- * This file holds any application-specific services, or service overrides
- * that you might need. An example has been included with the general
- * method format you should use for your service methods. For more examples,
- * see the core Services file at system/Config/Services.php.
- */
 class Services extends BaseService
 {
-    /**
-     * Web API Client for communicating with ci4-website-builder-domain.
-     */
-    public static function webApiClient(bool $getShared = true): \App\Libraries\WebApiClient
+    public static function webApiClient(bool $getShared = true): WebApiClientInterface
     {
         if ($getShared) {
+            /** @var WebApiClientInterface */
             return static::getSharedInstance('webApiClient');
         }
 
         $config = config('App');
 
-        return new \App\Libraries\WebApiClient(
+        return new WebApiClient(
             $config->webApiBaseUrl,
-            $config->webApiKey
+            $config->webApiKey,
+            $config->webApiTimeout,
+            $config->webApiStaleTtl
         );
     }
 
-    /**
-     * Site Settings Service - fetches public settings from the API.
-     */
-    public static function siteSettingsService(bool $getShared = true): \App\Services\SiteSettingsService
+    public static function siteSettingsService(bool $getShared = true): SiteSettingsService
     {
         if ($getShared) {
+            /** @var SiteSettingsService */
             return static::getSharedInstance('siteSettingsService');
         }
 
-        return new \App\Services\SiteSettingsService(static::webApiClient());
+        return new SiteSettingsService(static::webApiClient());
     }
 
-    /**
-     * Site Menu Service - fetches menu trees from the API.
-     */
-    public static function siteMenuService(bool $getShared = true): \App\Services\SiteMenuService
+    public static function siteLanguageService(bool $getShared = true): SiteLanguageService
     {
         if ($getShared) {
+            /** @var SiteLanguageService */
+            return static::getSharedInstance('siteLanguageService');
+        }
+
+        return new SiteLanguageService(static::webApiClient());
+    }
+
+    public static function siteMenuService(bool $getShared = true): SiteMenuService
+    {
+        if ($getShared) {
+            /** @var SiteMenuService */
             return static::getSharedInstance('siteMenuService');
         }
 
-        return new \App\Services\SiteMenuService(static::webApiClient());
+        return new SiteMenuService(static::webApiClient());
     }
 
-    /**
-     * Site Page Service - fetches CMS pages from the API.
-     */
-    public static function sitePageService(bool $getShared = true): \App\Services\SitePageService
+    public static function sitePageService(bool $getShared = true): SitePageService
     {
         if ($getShared) {
+            /** @var SitePageService */
             return static::getSharedInstance('sitePageService');
         }
 
-        return new \App\Services\SitePageService(static::webApiClient());
+        return new SitePageService(static::webApiClient());
     }
 
-    /**
-     * Site Collection Service - fetches collections from the API.
-     */
-    public static function siteCollectionService(bool $getShared = true): \App\Services\SiteCollectionService
+    public static function siteCollectionService(bool $getShared = true): SiteCollectionService
     {
         if ($getShared) {
+            /** @var SiteCollectionService */
             return static::getSharedInstance('siteCollectionService');
         }
 
-        return new \App\Services\SiteCollectionService(static::webApiClient());
+        return new SiteCollectionService(static::webApiClient());
     }
 
-    /**
-     * Site Entry Service - fetches collection entries from the API.
-     */
-    public static function siteEntryService(bool $getShared = true): \App\Services\SiteEntryService
+    public static function siteEntryService(bool $getShared = true): SiteEntryService
     {
         if ($getShared) {
+            /** @var SiteEntryService */
             return static::getSharedInstance('siteEntryService');
         }
 
-        return new \App\Services\SiteEntryService(static::webApiClient());
+        return new SiteEntryService(static::webApiClient());
     }
 
-    /**
-     * Site Redirect Service - resolves redirects from the API.
-     */
-    public static function siteRedirectService(bool $getShared = true): \App\Services\SiteRedirectService
+    public static function siteCategoryService(bool $getShared = true): SiteCategoryService
     {
         if ($getShared) {
+            /** @var SiteCategoryService */
+            return static::getSharedInstance('siteCategoryService');
+        }
+
+        return new SiteCategoryService(static::webApiClient());
+    }
+
+    public static function siteTagService(bool $getShared = true): SiteTagService
+    {
+        if ($getShared) {
+            /** @var SiteTagService */
+            return static::getSharedInstance('siteTagService');
+        }
+
+        return new SiteTagService(static::webApiClient());
+    }
+
+    public static function siteRedirectService(bool $getShared = true): SiteRedirectService
+    {
+        if ($getShared) {
+            /** @var SiteRedirectService */
             return static::getSharedInstance('siteRedirectService');
         }
 
-        return new \App\Services\SiteRedirectService(static::webApiClient());
+        return new SiteRedirectService(static::webApiClient());
     }
 
-    /**
-     * Block Renderer - renders content blocks dynamically by block_key.
-     */
-    public static function blockRenderer(bool $getShared = true): \App\Libraries\BlockRenderer
+    public static function blockRenderer(bool $getShared = true): BlockRenderer
     {
         if ($getShared) {
+            /** @var BlockRenderer */
             return static::getSharedInstance('blockRenderer');
         }
 
-        return new \App\Libraries\BlockRenderer();
+        return new BlockRenderer();
+    }
+
+    public static function cacheInvalidator(bool $getShared = true): CacheInvalidator
+    {
+        if ($getShared) {
+            /** @var CacheInvalidator */
+            return static::getSharedInstance('cacheInvalidator');
+        }
+
+        return new CacheInvalidator();
+    }
+
+    public static function siteFormService(bool $getShared = true): SiteFormService
+    {
+        if ($getShared) {
+            /** @var SiteFormService */
+            return static::getSharedInstance('siteFormService');
+        }
+
+        return new SiteFormService(static::webApiClient());
+    }
+
+    public static function socialLinksService(bool $getShared = true): SocialLinksService
+    {
+        if ($getShared) {
+            /** @var SocialLinksService */
+            return static::getSharedInstance('socialLinksService');
+        }
+
+        return new SocialLinksService(static::webApiClient());
     }
 }
