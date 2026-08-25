@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `createFetchQueue()` no existe en el código fuente disponible de Teatro Museo.
 
 ### Fixed
+- **Page-cache query variants** — include the complete query string in CI4 page-cache
+  identities so paginated and filtered listings cannot share another variant's HTML.
 - **Snapshot mode never actually cached a page** — `BasePublicWebController::render()` set the
   `Cache-Control` header for snapshot mode but never called `Controller::cachePage()`, so
   `ResponseCache` kept its TTL at `0` and silently no-opped; `cache:warmup` was visiting URLs
