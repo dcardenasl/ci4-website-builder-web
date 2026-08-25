@@ -17,6 +17,9 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
     /** @var array<string, array{ok: bool, status: int, data: mixed, meta: array<string, mixed>, messages: list<string>}> */
     private array $responses = [];
 
+    /** @var array<string, array{ok: bool, status: int, data: mixed, meta: array<string, mixed>, messages: list<string>}> */
+    private array $queryResponses = [];
+
     /** @var list<string> */
     private array $getPaths = [];
 
@@ -41,6 +44,14 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
         $this->responses[$path] = $this->response($data, $meta);
     }
 
+    /** @param array<string, scalar|null> $query
+     *  @param array<string, mixed> $meta
+     */
+    public function fakeGetForQuery(string $path, array $query, mixed $data, array $meta = []): void
+    {
+        $this->queryResponses[$this->responseKey($path, $query)] = $this->response($data, $meta);
+    }
+
     public function fakeGetFailure(string $path, int $status = 404): void
     {
         $this->responses[$path] = [
@@ -61,7 +72,12 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
     public function get(string $path, array $query = [], int $cacheTtl = 300, string $scope = 'general'): array
     {
         $this->getPaths[] = $path;
-        unset($query, $cacheTtl, $scope);
+        unset($cacheTtl, $scope);
+
+        $queryResponseKey = $this->responseKey($path, $query);
+        if (isset($this->queryResponses[$queryResponseKey])) {
+            return $this->queryResponses[$queryResponseKey];
+        }
 
         if (isset($this->responses[$path])) {
             return $this->responses[$path];
@@ -129,6 +145,14 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
             'meta' => $meta,
             'messages' => [],
         ];
+    }
+
+    /** @param array<string, scalar|null> $query */
+    private function responseKey(string $path, array $query): string
+    {
+        ksort($query);
+
+        return $path . '?' . http_build_query($query);
     }
 
     /** @return array<string, mixed> */
