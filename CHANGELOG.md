@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Public-site cache status endpoint — GET /cache/status exposes generic cache maintenance
+  metadata behind the existing invalidation key, and invalidations now record their source,
+  scopes, timestamp, and deleted-entry count for Admin's maintenance screen.
+
 ### Changed
 - **Fase 1 del backport** — verificado que no hay cambios específicos para Web; el supuesto
   `createFetchQueue()` no existe en el código fuente disponible de Teatro Museo.
