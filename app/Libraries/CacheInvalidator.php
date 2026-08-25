@@ -62,6 +62,11 @@ class CacheInvalidator
             $totalDeleted += $cache->deleteMatching('web_api_*_bootstrap_*');
         }
 
+        $responseCacheDeleted = $invalidated === []
+            ? 0
+            : \Config\Services::htmlResponseCacheRegistry()->invalidate($invalidated);
+        $totalDeleted += $responseCacheDeleted;
+
         if ($invalidated !== []) {
             $this->recordStatus($invalidated, $totalDeleted, $source);
         }

@@ -284,6 +284,7 @@ class PageController extends BasePublicWebController
             'schemaData'         => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'     => $blockRenderer->render($blocks, $lang),
             'localized_urls'     => $localizedUrls,
+            'cacheScopes'        => $this->cacheScopesForBlocks($blocks),
         ];
 
         if ($layout !== null) {
@@ -421,6 +422,7 @@ class PageController extends BasePublicWebController
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'      => $blockRenderer->render($entry['blocks'] ?? [], $lang),
             'localized_urls'      => $this->resolveEntryLocalizedUrls($collection, $entry, $lang, $resolvedSlug),
+            'cacheScopes'         => ['collections', 'entries', 'settings', 'menus'],
         ];
 
         if ($layout !== null) {
@@ -428,6 +430,35 @@ class PageController extends BasePublicWebController
         }
 
         return $this->render('collection/show', $data);
+    }
+
+    /** @param mixed $blocks
+     *  @return list<string>
+     */
+    private function cacheScopesForBlocks(mixed $blocks): array
+    {
+        $scopes = ['pages', 'settings', 'menus'];
+        $blocks = is_array($blocks) ? $blocks : [];
+
+        foreach ($blocks as $block) {
+            if (! is_array($block)) {
+                continue;
+            }
+
+            $blockKey = (string) ($block['block_key'] ?? '');
+            if (in_array($blockKey, ['collection_grid', 'collection_listing'], true)) {
+                $scopes[] = 'collections';
+                $scopes[] = 'entries';
+                $scopes[] = 'taxonomies';
+            }
+            if ($blockKey === 'form_embed') {
+                $scopes[] = 'forms';
+            }
+
+            $scopes = array_merge($scopes, $this->cacheScopesForBlocks($block['children'] ?? []));
+        }
+
+        return array_values(array_unique($scopes));
     }
 
     /**

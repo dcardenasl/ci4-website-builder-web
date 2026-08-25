@@ -11,6 +11,8 @@ abstract class BasePublicWebController extends BaseController
     /** @param array<string,mixed> $data */
     protected function render(string $view, array $data = []): ResponseInterface
     {
+        $cacheScopes = $this->normalizeCacheScopes($data['cacheScopes'] ?? []);
+        unset($data['cacheScopes']);
         $data['view'] = $view;
 
         if (empty($data['canonicalUrl'])) {
@@ -94,11 +96,41 @@ abstract class BasePublicWebController extends BaseController
             $this->cachePage(900);
         }
 
+        if ($isSnapshotMode && $this->request->is('get')) {
+            try {
+                $cacheKey = service('responsecache')->generateCacheKey($this->request);
+                \Config\Services::htmlResponseCacheRegistry()->record(
+                    $this->request->getUri()->getPath(),
+                    (string) $this->request->getLocale(),
+                    $cacheScopes,
+                    $cacheKey,
+                );
+            } catch (\Throwable $exception) {
+                log_message('warning', 'HTML response-cache registry skipped: {message}', [
+                    'message' => $exception->getMessage(),
+                ]);
+            }
+        }
+
         return $this->response
             ->setHeader('Cache-Control', $cacheControl)
             ->setHeader('ETag', $etag)
             ->setHeader('Vary', 'Accept-Language')
             ->setBody($body);
+    }
+
+    /** @param mixed $scopes
+     *  @return list<string>
+     */
+    private function normalizeCacheScopes(mixed $scopes): array
+    {
+        $scopes = is_array($scopes) ? $scopes : [];
+        $scopes = array_values(array_unique(array_filter(array_map(
+            static fn (mixed $scope): string => is_scalar($scope) ? strtolower(trim((string) $scope)) : '',
+            $scopes,
+        ))));
+
+        return $scopes !== [] ? $scopes : ['pages', 'settings', 'menus'];
     }
 
     protected function notFound(string $message = 'Página no encontrada'): ResponseInterface

@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Indexed rendered HTML cache variants by route, locale, and public content
+  scope so targeted cache invalidations evict matching snapshot pages.
 - Public-site cache status endpoint — GET /cache/status exposes generic cache maintenance
   metadata behind the existing invalidation key, and invalidations now record their source,
   scopes, timestamp, and deleted-entry count for Admin's maintenance screen.

@@ -6,6 +6,7 @@ namespace Config;
 
 use App\Libraries\BlockRenderer;
 use App\Libraries\CacheInvalidator;
+use App\Libraries\HtmlResponseCacheRegistry;
 use App\Libraries\WebApiClient;
 use App\Libraries\WebApiClientInterface;
 use App\Services\SiteBootstrapService;
@@ -159,6 +160,16 @@ class Services extends BaseService
         }
 
         return new CacheInvalidator();
+    }
+
+    public static function htmlResponseCacheRegistry(bool $getShared = true): HtmlResponseCacheRegistry
+    {
+        if ($getShared) {
+            /** @var HtmlResponseCacheRegistry */
+            return static::getSharedInstance('htmlResponseCacheRegistry');
+        }
+
+        return new HtmlResponseCacheRegistry(static::cache());
     }
 
     public static function siteFormService(bool $getShared = true): SiteFormService
