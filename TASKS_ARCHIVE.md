@@ -4,6 +4,12 @@
 
 Última actualización: 2026-08-25.
 
+## ✅ Remediación de huecos profundos — Fase 0 (2026-08-25)
+
+- **GAP-00-web** — CSP nativo estricto con nonces para scripts/estilos inline, orden de filtros
+  corregido, regresión feature y smoke en navegador real con `CSPEnabled=true` sin bloqueos.
+  Commit `a600ae9`; `composer quality`, build/lint JS y `composer cs-check` verificados.
+
 ## ✅ Backport de mejoras de Teatro Museo — Fase 5 (2026-08-25)
 
 - **BACKPORT-05-web** — documentación de entrega compuesta, snapshot, CSRF/cache, CSP nonce y
