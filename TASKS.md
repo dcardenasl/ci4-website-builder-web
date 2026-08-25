@@ -21,11 +21,6 @@
 - [ ] **BACKPORT-03-web — Fase 3:** consumir el patrón CMS `page_type` → inyección de dominio
       externo una vez formalizado en domain, si el sitio público expone contenido de un segundo
       dominio. Ver plan §Fase 3.
-- [ ] **BACKPORT-04-web — Fase 4:** endpoints CMS compuestos (`layout`, `page-bootstrap/{path}`),
-      entrega snapshot-first (`pageDeliveryMode=snapshot`, `cache:warmup --strict`), patrón CSRF
-      de doble-cookie (`CsrfCookieFilter` después de `pagecache`), fix de Tailwind v4
-      `@source inline()` para clases `bg-*` dinámicas. Ver plan §Fase 4.
-
 ## ⚪ Backlog
 
 *(vacío)*

@@ -2,6 +2,16 @@
 
 > Historial de tareas completadas. Movido desde TASKS.md para mantener el tracker activo liviano.
 
+Última actualización: 2026-08-25.
+
+## ✅ Backport de mejoras de Teatro Museo — Fase 4 (2026-08-25)
+
+- **BACKPORT-04-web** — bootstrap público compuesto con fallback, round-trip budget, snapshot
+  warmup con lock, CSRF doble-cookie posterior a `pagecache`, nonces CSP para estilos scoped,
+  invalidación de caches compuestos y sparse-fieldset consumption en Domain. Commits `ffe8a3c`,
+  `970a1b3`, `b6dbfd4`; `composer quality`, PHPUnit 195/621 (5 skips), ESLint y build frontend
+  verdes. Tailwind `@source inline(...)` ya existía y quedó documentado como falso positivo.
+
 ---
 
 ## ✅ Backport de mejoras de Teatro Museo — CVE (2026-08-25)
