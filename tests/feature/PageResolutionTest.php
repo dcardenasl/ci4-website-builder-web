@@ -34,6 +34,7 @@ final class PageResolutionTest extends HermeticFeatureTestCase
 
         $result->assertStatus(200);
         $result->assertSee($title);
+        $this->assertGreaterThanOrEqual(5, count($this->domainAdapter->getPaths()));
     }
 
     public function testUsesComposedBootstrapForCmsPage(): void
