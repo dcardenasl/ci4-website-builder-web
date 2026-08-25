@@ -11,18 +11,6 @@
 > Auditoría origen: [`../docs/audits/2026-08-25-auditoria-profunda-backport-git-history.md`](../docs/audits/2026-08-25-auditoria-profunda-backport-git-history.md).
 > Tracker cross-repo: [`../TASKS.md`](../TASKS.md).
 
-- [ ] **GAP-03-web:** ítems del plan §Fase 3 (cache, analytics, observabilidad), revisados
-      2026-08-25 — reencuadrados como buenas prácticas universales (no como workarounds de un
-      hosting específico). Alta prioridad: `cacheQueryString` activado (bug real de
-      envenenamiento de caché en listados paginados/filtrados), `HtmlResponseCacheRegistry` (el
-      webhook de invalidación hoy no alcanza el HTML ya cacheado). Resto: locale sin llamada
-      HTTP síncrona, tracking analítico asíncrono vía cola (nunca bloquear la respuesta por un
-      side-effect fire-and-forget), sitemap paginado, sesión condicional, protección de
-      cache-stampede, timeouts de `WebApiClient`. La capa de observabilidad se **acotó**: solo
-      `CorrelationIdFilter` (id de correlación en logs); el resto (timing de fases, agregación
-      de llamadas) queda diferido hasta tener un consumidor real. NO portar `apcu` como cache
-      handler — teatromuseo lo probó y revirtió por locality per-worker.
-
 ## 🟡 Próximo
 ## ⚪ Backlog
 

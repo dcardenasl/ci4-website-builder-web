@@ -4,6 +4,14 @@
 
 Última actualización: 2026-08-25.
 
+## ✅ Remediación de huecos profundos — Fase 3 (2026-08-25)
+
+- **GAP-03-web** — cerrados los 9 ítems aplicables: claves de caché con query string, índice de
+  invalidación HTML, locale estático, tracking asíncrono con `analytics:flush`, sitemap paginado,
+  sesión condicional, single-flight, `X-Request-ID` y timeouts cURL. Commits `5fd95f5`, `e614da2`,
+  `79dec29`, `ddeec81`, `b51f850`, `4d9c50f`, `4071843`, `9bccb91`, `0944c88`; `composer quality`
+  y `npm run build:all` verdes.
+
 ## ✅ Remediación de huecos profundos — Fase 0 (2026-08-25)
 
 - **GAP-00-web** — CSP nativo estricto con nonces para scripts/estilos inline, orden de filtros
