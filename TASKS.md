@@ -11,10 +11,6 @@
 > [`../docs/plans/2026-08-24-plan-backport-teatromuseo.md`](../docs/plans/2026-08-24-plan-backport-teatromuseo.md).
 > Tracker cross-repo: [`../TASKS.md`](../TASKS.md).
 
-- [x] **BACKPORT-CVE-web:** bump `codeigniter4/framework` → v4.7.4 (CVEs críticos/altos de SQLi,
-      path traversal y header spoofing). Verificado (ninguno de los comportamientos con CVE se
-      ejercita en este código); PHPStan/PHPUnit/CS-Fixer en verde; **pendiente de commit**. Ver
-      plan §Remediación de CVEs.
 - [ ] **BACKPORT-01-web — Fase 1:** ninguna acción específica identificada para este repo en esta
       fase — confirmar contra el plan al momento de ejecutar.
 
