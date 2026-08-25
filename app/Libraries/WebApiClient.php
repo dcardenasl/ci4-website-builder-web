@@ -28,12 +28,14 @@ class WebApiClient implements WebApiClientInterface
     private string $apiKey;
     private int $timeout;
     private int $staleTtl;
+    private SingleFlightLock $singleFlightLock;
 
     public function __construct(
         string $baseUrl,
         string $apiKey,
         int $timeout = 15,
-        int $staleTtl = 86400
+        int $staleTtl = 86400,
+        ?SingleFlightLock $singleFlightLock = null,
     ) {
         if (trim($baseUrl) === '') {
             throw new \LogicException(
@@ -53,6 +55,9 @@ class WebApiClient implements WebApiClientInterface
         $this->apiKey   = $apiKey;
         $this->timeout  = max(1, $timeout);
         $this->staleTtl = max(0, $staleTtl);
+        $this->singleFlightLock = $singleFlightLock ?? new SingleFlightLock(
+            defined('WRITEPATH') ? WRITEPATH . 'cache/locks' : '',
+        );
     }
 
     /**
@@ -75,17 +80,30 @@ class WebApiClient implements WebApiClientInterface
             return $this->resultFromArray($cached);
         }
 
-        $result = $this->request('GET', $path, $query);
+        $result = $cacheTtl > 0
+            ? $this->singleFlightLock->single(
+                $cacheKey,
+                function () use ($cache, $cacheKey): ?array {
+                    $cached = $cache->get($cacheKey);
+
+                    return is_array($cached) ? $this->resultFromArray($cached) : null;
+                },
+                function () use ($path, $query, $cache, $cacheKey, $staleKey, $cacheTtl): array {
+                    $result = $this->request('GET', $path, $query);
+                    if ($result['ok']) {
+                        $cache->save($cacheKey, $result, $cacheTtl);
+
+                        if ($this->staleTtl > 0) {
+                            $cache->save($staleKey, $result, $this->staleTtl);
+                        }
+                    }
+
+                    return $result;
+                },
+            )
+            : $this->request('GET', $path, $query);
 
         if ($result['ok']) {
-            if ($cacheTtl > 0) {
-                $cache->save($cacheKey, $result, $cacheTtl);
-
-                if ($this->staleTtl > 0) {
-                    $cache->save($staleKey, $result, $this->staleTtl);
-                }
-            }
-
             return $result;
         }
 
