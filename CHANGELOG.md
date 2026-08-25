@@ -29,6 +29,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Fase 1 del backport** — verificado que no hay cambios específicos para Web; el supuesto
   `createFetchQueue()` no existe en el código fuente disponible de Teatro Museo.
 
+### Fixed
+- **Snapshot mode never actually cached a page** — `BasePublicWebController::render()` set the
+  `Cache-Control` header for snapshot mode but never called `Controller::cachePage()`, so
+  `ResponseCache` kept its TTL at `0` and silently no-opped; `cache:warmup` was visiting URLs
+  that were never stored. Now calls `cachePage(900)` for GET requests when
+  `pageDeliveryMode === 'snapshot'`. `Config\Cache::$cacheStatusCodes` narrowed from `[]` to
+  `[200]` so a transient error page can never be served from cache to a later visitor.
+  Verified safe against the CSRF double-cookie design with a new regression test simulating two
+  independent visitors sharing one cached snapshot (`tests/feature/CsrfCacheTest.php`) — each
+  gets their own token pair via `Config\Filters::$required['after']`, which runs `csrfcookie`
+  unconditionally even on a cache HIT, unlike a route-scoped `$globals` filter would.
+
 ### Security
 - **`codeigniter4/framework`** — bumped to v4.7.4, closing CVE-2026-63221 (critical, SQLi in `deleteBatch()`), CVE-2026-63222 (high, path traversal in `UploadedFile::move()`), and CVE-2026-63220 (medium, header spoofing in `isSecure()`). None of the three code paths are exercised by this app; verified via `composer audit`.
 
