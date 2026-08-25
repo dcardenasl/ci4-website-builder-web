@@ -36,6 +36,39 @@ final class PageResolutionTest extends HermeticFeatureTestCase
         $result->assertSee($title);
     }
 
+    public function testUsesComposedBootstrapForCmsPage(): void
+    {
+        $locale = $this->locale();
+        $slug = $this->slug('composed-page');
+        $title = $this->text('composed-title');
+        $this->domainAdapter->fakeGet('public/page-bootstrap/' . $slug, [
+            'layout' => [
+                'lang' => $locale,
+                'settings' => ['site_name' => 'Composed fixture site'],
+                'menus' => [
+                    'main' => ['items' => []],
+                    'footer' => ['items' => []],
+                    'legal' => ['items' => []],
+                ],
+            ],
+            'route' => [
+                'type' => 'page',
+                'data' => $this->page($slug, $title),
+            ],
+        ]);
+
+        $result = $this->get($locale . '/' . $slug);
+
+        $result->assertStatus(200);
+        $result->assertSee($title);
+        $paths = $this->domainAdapter->getPaths();
+        $this->assertSame(1, count(array_filter(
+            $paths,
+            static fn (string $path): bool => $path === 'public/page-bootstrap/' . $slug,
+        )));
+        $this->assertLessThanOrEqual(3, count($paths));
+    }
+
     public function testResolvesLocalizedPageInEachConfiguredLanguage(): void
     {
         foreach ($this->locales() as $position => $locale) {

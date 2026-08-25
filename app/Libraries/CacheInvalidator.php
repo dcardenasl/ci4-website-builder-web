@@ -55,6 +55,13 @@ class CacheInvalidator
             }
         }
 
+        if (array_intersect($invalidated, ['settings', 'menus']) !== []) {
+            $totalDeleted += $cache->deleteMatching('web_api_*_layout_*');
+        }
+        if (array_intersect($invalidated, ['pages', 'collections', 'entries']) !== []) {
+            $totalDeleted += $cache->deleteMatching('web_api_*_bootstrap_*');
+        }
+
         if ($invalidated !== []) {
             $this->recordStatus($invalidated, $totalDeleted, $source);
         }

@@ -94,7 +94,9 @@
 
             <!-- Social Links -->
             <?php
-            $socialLinks = \Config\Services::socialLinksService()->getActiveLinks();
+            $socialLinks = is_array($socialLinks ?? null)
+                ? $socialLinks
+                : \Config\Services::socialLinksService()->getActiveLinks();
             ?>
             <?php if (!empty($socialLinks)): ?>
                 <div class="space-y-4">

@@ -75,6 +75,19 @@ class PageController extends BasePublicWebController
         $lang = service('request')->getLocale();
         [$preview, $previewExpires, $previewSig] = $this->previewParams();
 
+        $bootstrap = Services::siteBootstrapService()->getPageBootstrap(
+            'home',
+            $preview,
+            $previewExpires,
+            $previewSig,
+        );
+        if ($bootstrap !== null) {
+            $route = $bootstrap['route'];
+            if (($route['type'] ?? '') === 'page' && is_array($route['data'] ?? null)) {
+                return $this->renderPage($route['data'], $lang, $bootstrap['layout']);
+            }
+        }
+
         // For now, try to fetch a page by slug 'home'
         $pageService = Services::sitePageService();
         $page = $pageService->getBySlug($lang, 'home', $preview, $previewExpires, $previewSig);
@@ -101,6 +114,25 @@ class PageController extends BasePublicWebController
 
         if (empty($path)) {
             return $this->home();
+        }
+
+        $bootstrap = Services::siteBootstrapService()->getPageBootstrap(
+            $path,
+            $preview,
+            $previewExpires,
+            $previewSig,
+        );
+        if ($bootstrap !== null) {
+            $route = $bootstrap['route'];
+            if (($route['type'] ?? '') === 'page' && is_array($route['data'] ?? null)) {
+                return $this->renderPage($route['data'], $lang, $bootstrap['layout']);
+            }
+            if (($route['type'] ?? '') === 'entry'
+                && is_array($route['data'] ?? null)
+                && is_array($route['collection'] ?? null)
+            ) {
+                return $this->renderEntry($route['data'], $route['collection'], $lang, $bootstrap['layout']);
+            }
         }
 
         // Step 1: Try collection prefix match first.
@@ -206,8 +238,9 @@ class PageController extends BasePublicWebController
      * Render a CMS page.
      *
      * @param array<string, mixed> $page
+     * @param array<string, mixed>|null $layout
      */
-    private function renderPage(array $page, string $lang): ResponseInterface
+    private function renderPage(array $page, string $lang, ?array $layout = null): ResponseInterface
     {
         $blockRenderer = Services::blockRenderer();
 
@@ -253,6 +286,10 @@ class PageController extends BasePublicWebController
             'localized_urls'     => $localizedUrls,
         ];
 
+        if ($layout !== null) {
+            $data['_layout'] = $layout;
+        }
+
         return $this->render('page', $data);
     }
 
@@ -261,8 +298,9 @@ class PageController extends BasePublicWebController
      *
      * @param array<string, mixed> $entry
      * @param array<string, mixed> $collection
+     * @param array<string, mixed>|null $layout
      */
-    private function renderEntry(array $entry, array $collection, string $lang): ResponseInterface
+    private function renderEntry(array $entry, array $collection, string $lang, ?array $layout = null): ResponseInterface
     {
         $blockRenderer = Services::blockRenderer();
 
@@ -384,6 +422,10 @@ class PageController extends BasePublicWebController
             'renderedBlocks'      => $blockRenderer->render($entry['blocks'] ?? [], $lang),
             'localized_urls'      => $this->resolveEntryLocalizedUrls($collection, $entry, $lang, $resolvedSlug),
         ];
+
+        if ($layout !== null) {
+            $data['_layout'] = $layout;
+        }
 
         return $this->render('collection/show', $data);
     }

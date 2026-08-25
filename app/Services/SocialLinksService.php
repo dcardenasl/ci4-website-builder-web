@@ -33,10 +33,20 @@ class SocialLinksService extends BaseSiteService
     public function getActiveLinks(): array
     {
         $settings = $this->fetchData('public/settings', [], self::CACHE_TTL, 'settings') ?? [];
+
+        return $this->getActiveLinksFromSettings($settings);
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     * @return list<array{key: string, label: string, url: string}>
+     */
+    public function getActiveLinksFromSettings(array $settings): array
+    {
         $active = [];
 
         foreach (self::SOCIAL_NETWORKS as $network) {
-            $url = $settings[$network['key']] ?? '';
+            $url = (string) ($settings[$network['key']] ?? '');
 
             // Skip if empty, placeholder, or invalid
             if (empty($url) || !$this->isValidSocialUrl($url)) {

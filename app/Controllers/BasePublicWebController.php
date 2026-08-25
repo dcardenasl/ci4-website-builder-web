@@ -17,36 +17,50 @@ abstract class BasePublicWebController extends BaseController
             $data['canonicalUrl'] = site_url($this->request->getPath());
         }
 
-        // Pre-load global layout data: menus and settings
-        if (! isset($data['mainMenu'])) {
-            try {
-                $data['mainMenu'] = \Config\Services::siteMenuService()->getMenu('main');
-            } catch (\Throwable) {
-                $data['mainMenu'] = ['items' => []];
-            }
-        }
+        // A cold page can bring its layout in the same response as the route.
+        // Keep the individual service calls as a graceful fallback for older
+        // Domain deployments and isolated tests.
+        $composedLayout = is_array($data['_layout'] ?? null) ? $data['_layout'] : null;
+        unset($data['_layout']);
 
-        if (! isset($data['footerMenu'])) {
-            try {
-                $data['footerMenu'] = \Config\Services::siteMenuService()->getMenu('footer');
-            } catch (\Throwable) {
-                $data['footerMenu'] = ['items' => []];
+        if ($composedLayout !== null) {
+            $menus = is_array($composedLayout['menus'] ?? null) ? $composedLayout['menus'] : [];
+            $data['mainMenu'] = is_array($menus['main'] ?? null) ? $menus['main'] : ['items' => []];
+            $data['footerMenu'] = is_array($menus['footer'] ?? null) ? $menus['footer'] : ['items' => []];
+            $data['legalMenu'] = is_array($menus['legal'] ?? null) ? $menus['legal'] : ['items' => []];
+            $data['settings'] = is_array($composedLayout['settings'] ?? null) ? $composedLayout['settings'] : [];
+            $data['socialLinks'] = \Config\Services::socialLinksService()->getActiveLinksFromSettings($data['settings']);
+        } else {
+            if (! isset($data['mainMenu'])) {
+                try {
+                    $data['mainMenu'] = \Config\Services::siteMenuService()->getMenu('main');
+                } catch (\Throwable) {
+                    $data['mainMenu'] = ['items' => []];
+                }
             }
-        }
 
-        if (! isset($data['legalMenu'])) {
-            try {
-                $data['legalMenu'] = \Config\Services::siteMenuService()->getMenu('legal');
-            } catch (\Throwable) {
-                $data['legalMenu'] = ['items' => []];
+            if (! isset($data['footerMenu'])) {
+                try {
+                    $data['footerMenu'] = \Config\Services::siteMenuService()->getMenu('footer');
+                } catch (\Throwable) {
+                    $data['footerMenu'] = ['items' => []];
+                }
             }
-        }
 
-        if (! isset($data['settings'])) {
-            try {
-                $data['settings'] = \Config\Services::siteSettingsService()->getAll();
-            } catch (\Throwable) {
-                $data['settings'] = [];
+            if (! isset($data['legalMenu'])) {
+                try {
+                    $data['legalMenu'] = \Config\Services::siteMenuService()->getMenu('legal');
+                } catch (\Throwable) {
+                    $data['legalMenu'] = ['items' => []];
+                }
+            }
+
+            if (! isset($data['settings'])) {
+                try {
+                    $data['settings'] = \Config\Services::siteSettingsService()->getAll();
+                } catch (\Throwable) {
+                    $data['settings'] = [];
+                }
             }
         }
 
@@ -66,8 +80,12 @@ abstract class BasePublicWebController extends BaseController
         $body = view('layouts/public', $data, ['saveData' => false]);
         $etag = '"' . sha1($body) . '"';
 
+        $cacheControl = config('App')->pageDeliveryMode === 'snapshot'
+            ? 'public, max-age=900, stale-while-revalidate=300'
+            : 'public, max-age=300, stale-while-revalidate=60';
+
         return $this->response
-            ->setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=60')
+            ->setHeader('Cache-Control', $cacheControl)
             ->setHeader('ETag', $etag)
             ->setHeader('Vary', 'Accept-Language')
             ->setBody($body);

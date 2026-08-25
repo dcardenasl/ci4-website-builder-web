@@ -17,6 +17,9 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
     /** @var array<string, array{ok: bool, status: int, data: mixed, meta: array<string, mixed>, messages: list<string>}> */
     private array $responses = [];
 
+    /** @var list<string> */
+    private array $getPaths = [];
+
     /** @param list<string> $locales */
     public function __construct(array $locales = ['l01', 'l02', 'l03'])
     {
@@ -49,8 +52,15 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
         ];
     }
 
+    /** @return list<string> */
+    public function getPaths(): array
+    {
+        return $this->getPaths;
+    }
+
     public function get(string $path, array $query = [], int $cacheTtl = 300, string $scope = 'general'): array
     {
+        $this->getPaths[] = $path;
         unset($query, $cacheTtl, $scope);
 
         if (isset($this->responses[$path])) {

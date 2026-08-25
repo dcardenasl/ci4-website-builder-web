@@ -47,11 +47,22 @@ abstract class BaseController extends Controller
         // variant), so narrow the type before calling them.
         if ($request instanceof \CodeIgniter\HTTP\IncomingRequest) {
             try {
-                $codes = \Config\Services::siteLanguageService()->getCodes();
+                $activeLanguages = \Config\Services::siteLanguageService()->getActive();
+                $codes = array_values(array_unique(array_map(
+                    static fn (array $language): string => $language['code'],
+                    $activeLanguages
+                )));
                 if ($codes !== []) {
                     $config = config('App');
                     $config->supportedLocales = $codes;
-                    $default = \Config\Services::siteLanguageService()->getDefaultCode();
+                    $default = null;
+                    foreach ($activeLanguages as $language) {
+                        if ($language['is_default']) {
+                            $default = $language['code'];
+                            break;
+                        }
+                    }
+                    $default ??= $codes[0] ?? null;
                     if ($default !== null) {
                         $config->defaultLocale = $default;
                     }

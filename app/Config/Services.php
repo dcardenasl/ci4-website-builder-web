@@ -8,6 +8,7 @@ use App\Libraries\BlockRenderer;
 use App\Libraries\CacheInvalidator;
 use App\Libraries\WebApiClient;
 use App\Libraries\WebApiClientInterface;
+use App\Services\SiteBootstrapService;
 use App\Services\SiteCategoryService;
 use App\Services\SiteCollectionService;
 use App\Services\SiteEntryService;
@@ -23,6 +24,16 @@ use CodeIgniter\Config\BaseService;
 
 class Services extends BaseService
 {
+    public static function siteBootstrapService(bool $getShared = true): SiteBootstrapService
+    {
+        if ($getShared) {
+            /** @var SiteBootstrapService */
+            return static::getSharedInstance('siteBootstrapService');
+        }
+
+        return new SiteBootstrapService(static::webApiClient());
+    }
+
     public static function webApiClient(bool $getShared = true): WebApiClientInterface
     {
         if ($getShared) {
