@@ -55,10 +55,10 @@ final class FormControllerTest extends CIUnitTestCase
         Services::injectMock('siteFormService', $formService);
 
         $result = $this->withHeaders(['Referer' => 'http://localhost:8186/contacto'])
-            ->post('forms/contact/submit', [
+            ->post('forms/contact/submit', $this->csrfPayload([
                 'email'   => 'bot@example.com',
                 'website' => 'https://spam.example',
-            ]);
+            ]));
 
         $result->assertStatus(302);
         $this->assertTrue(session()->getFlashdata('form_success_contact'));
@@ -86,9 +86,9 @@ final class FormControllerTest extends CIUnitTestCase
         Services::injectMock('siteFormService', $formService);
 
         $result = $this->withHeaders(['Referer' => 'http://localhost:8186/contacto'])
-            ->post('forms/contact/submit', [
+            ->post('forms/contact/submit', $this->csrfPayload([
                 'email' => 'ada@example.com',
-            ]);
+            ]));
 
         $result->assertStatus(302);
         $errors = session()->getFlashdata('form_errors_contact');
@@ -116,9 +116,9 @@ final class FormControllerTest extends CIUnitTestCase
         Services::injectMock('siteFormService', $formService);
 
         $result = $this->withHeaders(['Referer' => 'http://localhost:8186/contacto'])
-            ->post('forms/contact/submit', [
+            ->post('forms/contact/submit', $this->csrfPayload([
                 'name' => '',
-            ]);
+            ]));
 
         $result->assertStatus(302);
         $errors = session()->getFlashdata('form_errors_contact');
@@ -147,9 +147,9 @@ final class FormControllerTest extends CIUnitTestCase
         Services::injectMock('siteFormService', $formService);
 
         $result = $this->withHeaders(['Referer' => 'http://localhost:8186/contacto'])
-            ->post('forms/contact/submit', [
+            ->post('forms/contact/submit', $this->csrfPayload([
                 'email' => 'not-an-email',
-            ]);
+            ]));
 
         $result->assertStatus(302);
         $errors = session()->getFlashdata('form_errors_contact');
@@ -198,10 +198,10 @@ final class FormControllerTest extends CIUnitTestCase
         Services::injectMock('siteFormService', $formService);
 
         $result = $this->withHeaders(['Referer' => 'http://localhost:8186/contacto'])
-            ->post('forms/contact/submit', [
+            ->post('forms/contact/submit', $this->csrfPayload([
                 'name'  => 'Ada Lovelace',
                 'email' => 'ada@example.com',
-            ]);
+            ]));
 
         $result->assertStatus(302);
         $this->assertTrue(session()->getFlashdata('form_sent_contact'));
@@ -237,10 +237,10 @@ final class FormControllerTest extends CIUnitTestCase
         Services::injectMock('siteFormService', $formService);
 
         $result = $this->withHeaders(['Referer' => 'http://localhost:8186/contacto'])
-            ->post('forms/contact/submit', [
+            ->post('forms/contact/submit', $this->csrfPayload([
                 'email'                => 'Ada@Example.com',
                 'g_recaptcha_response' => 'captcha-token',
-            ]);
+            ]));
 
         $result->assertStatus(302);
         $this->assertTrue(session()->getFlashdata('form_sent_contact'));
@@ -277,9 +277,9 @@ final class FormControllerTest extends CIUnitTestCase
         $result = null;
         for ($i = 0; $i < 11; $i++) {
             $result = $this->withHeaders(['Referer' => 'http://localhost:8186/contacto'])
-                ->post('forms/contact/submit', [
+                ->post('forms/contact/submit', $this->csrfPayload([
                     'email' => "ada{$i}@example.com",
-                ]);
+                ]));
         }
 
         $this->assertNotNull($result);
@@ -297,5 +297,13 @@ final class FormControllerTest extends CIUnitTestCase
     {
         putenv('WEB_THROTTLE_IN_TESTS');
         unset($_ENV['WEB_THROTTLE_IN_TESTS'], $_SERVER['WEB_THROTTLE_IN_TESTS']);
+    }
+
+    /** @param array<string, mixed> $payload */
+    private function csrfPayload(array $payload): array
+    {
+        $security = service('security');
+
+        return [$security->getTokenName() => $security->getHash(), ...$payload];
     }
 }

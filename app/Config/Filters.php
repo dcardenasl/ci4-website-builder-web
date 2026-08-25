@@ -38,6 +38,7 @@ class Filters extends BaseFilters
         'cors'           => Cors::class,
         'forcehttps'     => ForceHTTPS::class,
         'pagecache'      => PageCache::class,
+        'csrfcookie'     => \App\Filters\CsrfCookieFilter::class,
         'performance'    => PerformanceMetrics::class,
     ];
 
@@ -60,7 +61,8 @@ class Filters extends BaseFilters
             'pagecache',  // Web Page Caching
         ],
         'after' => [
-            'pagecache',   // Web Page Caching
+            'pagecache',   // Web Page Caching — must precede csrfcookie
+            'csrfcookie',  // Per-browser token cookie after cached HTML
             'performance', // Performance Metrics
             // 'toolbar',     // Debug Toolbar
         ],

@@ -100,7 +100,7 @@ if ($anchors === []) {
 })();
 </script>
 
-<style>
+<style <?= csp_style_nonce() ?>>
 /* Hide default scrollbar on horizontal nav scroll list */
 .no-scrollbar::-webkit-scrollbar {
     display: none;

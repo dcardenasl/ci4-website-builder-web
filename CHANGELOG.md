@@ -11,8 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Public-site cache status endpoint — GET /cache/status exposes generic cache maintenance
   metadata behind the existing invalidation key, and invalidations now record their source,
   scopes, timestamp, and deleted-entry count for Admin's maintenance screen.
+- Generic composed public delivery — Domain now exposes `public/layout` and
+  `public/page-bootstrap/{path}`, and Web consumes the composed route/layout envelope with
+  the existing endpoint resolver as a compatibility fallback.
+- Snapshot-first operations — production defaults to `PAGE_DELIVERY_MODE=snapshot`, public
+  responses advertise the longer snapshot cache window, and `cache:warmup --strict` serializes
+  explicit URL warmup behind a filesystem lock.
 
 ### Changed
+- Public forms now use the double-cookie CSRF pattern: the native HttpOnly token remains
+  authoritative while `CsrfCookieFilter` emits a readable mirror after `pagecache`; scoped block
+  `<style>` tags carry CodeIgniter CSP nonces.
+- Re-verified the Tailwind v4 dynamic background safelist: `@source inline(...)` was already
+  present in the base stylesheet, so no duplicate port was added.
 - **Fase 1 del backport** — verificado que no hay cambios específicos para Web; el supuesto
   `createFetchQueue()` no existe en el código fuente disponible de Teatro Museo.
 

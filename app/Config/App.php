@@ -176,6 +176,12 @@ class App extends BaseConfig
      */
     public int $webApiStaleTtl = 86400;
 
+    /** `snapshot` serves warmed/stale public data first; `live` is the development default. */
+    public string $pageDeliveryMode = 'live';
+
+    /** Comma-separated local paths consumed by `cache:warmup --strict`. */
+    public string $cacheWarmupUrls = '';
+
     /**
      * --------------------------------------------------------------------------
      * Force Global Secure Requests
@@ -310,6 +316,13 @@ class App extends BaseConfig
         if (is_numeric($webApiStaleTtl) && (int) $webApiStaleTtl >= 0) {
             $this->webApiStaleTtl = (int) $webApiStaleTtl;
         }
+
+        $pageDeliveryMode = strtolower(trim((string) env('PAGE_DELIVERY_MODE', ENVIRONMENT === 'production' ? 'snapshot' : 'live')));
+        if (! in_array($pageDeliveryMode, ['live', 'snapshot'], true)) {
+            throw new \LogicException('PAGE_DELIVERY_MODE must be live or snapshot.');
+        }
+        $this->pageDeliveryMode = $pageDeliveryMode;
+        $this->cacheWarmupUrls = trim((string) env('CACHE_WARMUP_URLS', ''));
 
         $this->cspObjectSrc = $this->parseCspSources(env('CSP_OBJECT_SRC'), $this->cspObjectSrc);
         $this->cspImageSrc  = $this->parseCspSources(env('CSP_IMAGE_SRC'), $this->cspImageSrc);

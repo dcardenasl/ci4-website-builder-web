@@ -13,7 +13,23 @@ import { initVideoPlayers } from './components/videoPlayer.js';
 import { initCollectionFilters } from './components/collectionFilters.js';
 import { initShareButtons } from './components/shareButtons.js';
 
+const readCookie = (name) => {
+  const prefix = `${name}=`;
+  const match = document.cookie.split('; ').find((cookie) => cookie.startsWith(prefix));
+  return match ? decodeURIComponent(match.slice(prefix.length)) : '';
+};
+
+const initCsrfTokens = () => {
+  document.querySelectorAll('[data-csrf-token]').forEach((field) => {
+    const cookieName = field.getAttribute('data-csrf-cookie');
+    if (cookieName) {
+      field.value = readCookie(cookieName);
+    }
+  });
+};
+
 const boot = () => {
+  initCsrfTokens();
   initMobileDrawer();
   initHeroCarousels();
   initCardsSliders();

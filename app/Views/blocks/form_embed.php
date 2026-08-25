@@ -108,7 +108,11 @@ $hasLeftContent = ($heading !== '' || $description !== '' || ($showInfoBoxes && 
                           action="<?= site_url("forms/{$formKey}/submit") ?>"
                           class="space-y-5"
                           id="form-<?= esc($formKey) ?>">
-                        <?= csrf_field() ?>
+                        <input type="hidden"
+                               name="<?= esc(config('Security')->tokenName) ?>"
+                               value=""
+                               data-csrf-token
+                               data-csrf-cookie="<?= esc(config('Security')->readableCookieName, 'attr') ?>" />
 
                         <?php // Honeypot — hidden from real users, tempting to bots. Handled server-side in FormController. ?>
                         <div class="hidden" aria-hidden="true">
