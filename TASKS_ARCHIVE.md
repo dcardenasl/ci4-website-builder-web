@@ -4,6 +4,12 @@
 
 Última actualización: 2026-08-25.
 
+## ✅ Backport de mejoras de Teatro Museo — Fase 5 (2026-08-25)
+
+- **BACKPORT-05-web** — documentación de entrega compuesta, snapshot, CSRF/cache, CSP nonce y
+  defaults de runtime; se eliminó una referencia histórica específica de Teatro Museo del
+  documento de implementación y se verificó el build frontend.
+
 ## ✅ Backport de mejoras de Teatro Museo — Fase 4 (2026-08-25)
 
 - **BACKPORT-04-web** — bootstrap público compuesto con fallback, round-trip budget, snapshot

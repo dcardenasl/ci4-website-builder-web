@@ -5,22 +5,9 @@
 
 ## 🔴 En progreso
 
-### Backport de mejoras de Teatro Museo (parte Web)
-
-> Plan completo (contexto, decisiones de alcance, todas las fases, todos los repos):
-> [`../docs/plans/2026-08-24-plan-backport-teatromuseo.md`](../docs/plans/2026-08-24-plan-backport-teatromuseo.md).
-> Tracker cross-repo: [`../TASKS.md`](../TASKS.md).
+*(vacío; el backport quedó archivado en `TASKS_ARCHIVE.md`.)*
 
 ## 🟡 Próximo
-
-### Backport de mejoras de Teatro Museo — fases posteriores (parte Web)
-
-- [ ] **BACKPORT-02-web — Fase 2:** ninguna acción directa (el BFF es consumido opcionalmente por
-      el sitio público solo si el sitio adopta el patrón de agregación); revisar si aplica al
-      momento de ejecutar. Ver plan §Fase 2.
-- [ ] **BACKPORT-03-web — Fase 3:** consumir el patrón CMS `page_type` → inyección de dominio
-      externo una vez formalizado en domain, si el sitio público expone contenido de un segundo
-      dominio. Ver plan §Fase 3.
 ## ⚪ Backlog
 
 *(vacío)*

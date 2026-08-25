@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   explicit URL warmup behind a filesystem lock.
 
 ### Changed
+- **Starter documentation** — aligned the generic runtime contracts and removed a historical
+  project-specific provenance reference from the implementation guide.
 - Public forms now use the double-cookie CSRF pattern: the native HttpOnly token remains
   authoritative while `CsrfCookieFilter` emits a readable mirror after `pagecache`; scoped block
   `<style>` tags carry CodeIgniter CSP nonces.

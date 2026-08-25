@@ -207,7 +207,7 @@ File: `.env`
 - cache.handler = file
 
 ## 14. Quality Configuration
-Files copied from teatromuseo-web-ci4:
+Files inherited from the generic website-builder base:
 - `.php-cs-fixer.dist.php` - PHP code style fixing
 - `phpstan.neon` - Static analysis configuration (level 8)
 - `phpunit.xml.dist` - Unit test configuration
