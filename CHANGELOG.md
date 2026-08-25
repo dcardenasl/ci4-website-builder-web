@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   explicit URL warmup behind a filesystem lock.
 
 ### Changed
+- Locale routing now uses the configured static locale list during bootstrap;
+  public requests no longer perform synchronous language discovery over HTTP.
 - **Starter documentation** — aligned the generic runtime contracts and removed a historical
   project-specific provenance reference from the implementation guide.
 - Public forms now use the double-cookie CSRF pattern: the native HttpOnly token remains
