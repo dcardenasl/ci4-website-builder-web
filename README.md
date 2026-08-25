@@ -52,6 +52,7 @@ app.defaultLocale=es
 WEB_API_BASE_URL=http://localhost:8190
 WEB_API_KEY=web_api_test_key
 WEB_API_TIMEOUT=15
+WEB_API_CONNECT_TIMEOUT=15
 WEB_API_STALE_TTL=86400
 CSP_IMAGE_SRC="self http: https: data:"
 CSP_FRAME_SRC="self http: https:"

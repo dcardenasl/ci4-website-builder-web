@@ -48,7 +48,8 @@ class Services extends BaseService
             $config->webApiBaseUrl,
             $config->webApiKey,
             $config->webApiTimeout,
-            $config->webApiStaleTtl
+            $config->webApiStaleTtl,
+            $config->webApiConnectTimeout,
         );
     }
 

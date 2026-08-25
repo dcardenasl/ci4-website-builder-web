@@ -27,6 +27,7 @@ class WebApiClient implements WebApiClientInterface
     private string $baseUrl;
     private string $apiKey;
     private int $timeout;
+    private int $connectTimeout;
     private int $staleTtl;
     private SingleFlightLock $singleFlightLock;
 
@@ -35,6 +36,7 @@ class WebApiClient implements WebApiClientInterface
         string $apiKey,
         int $timeout = 15,
         int $staleTtl = 86400,
+        int $connectTimeout = 15,
         ?SingleFlightLock $singleFlightLock = null,
     ) {
         if (trim($baseUrl) === '') {
@@ -54,6 +56,7 @@ class WebApiClient implements WebApiClientInterface
         $this->baseUrl  = rtrim($baseUrl, '/');
         $this->apiKey   = $apiKey;
         $this->timeout  = max(1, $timeout);
+        $this->connectTimeout = min($this->timeout, max(1, $connectTimeout));
         $this->staleTtl = max(0, $staleTtl);
         $this->singleFlightLock = $singleFlightLock ?? new SingleFlightLock(
             defined('WRITEPATH') ? WRITEPATH . 'cache/locks' : '',
@@ -209,6 +212,8 @@ class WebApiClient implements WebApiClientInterface
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => $this->timeout,
+            CURLOPT_CONNECTTIMEOUT => $this->connectTimeout,
+            CURLOPT_NOSIGNAL       => true,
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_CUSTOMREQUEST  => $method,
         ]);

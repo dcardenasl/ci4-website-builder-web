@@ -171,6 +171,13 @@ class App extends BaseConfig
     public int $webApiTimeout = 15;
 
     /**
+     * Connection-establishment timeout in seconds. Defaults to the total
+     * request timeout; override with WEB_API_CONNECT_TIMEOUT when the hosting
+     * environment needs a shorter connect budget.
+     */
+    public int $webApiConnectTimeout = 15;
+
+    /**
      * TTL (seconds) for the long-lived stale cache copy served when the
      * Domain API is down. Set WEB_API_STALE_TTL=0 in .env to disable.
      */
@@ -310,6 +317,12 @@ class App extends BaseConfig
         $webApiTimeout = env('WEB_API_TIMEOUT');
         if (is_numeric($webApiTimeout) && (int) $webApiTimeout > 0) {
             $this->webApiTimeout = (int) $webApiTimeout;
+        }
+
+        $this->webApiConnectTimeout = $this->webApiTimeout;
+        $webApiConnectTimeout = env('WEB_API_CONNECT_TIMEOUT');
+        if (is_numeric($webApiConnectTimeout) && (int) $webApiConnectTimeout > 0) {
+            $this->webApiConnectTimeout = min($this->webApiTimeout, (int) $webApiConnectTimeout);
         }
 
         $webApiStaleTtl = env('WEB_API_STALE_TTL');
