@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Asynchronous page-view analytics queue with an explicit `analytics:flush`
+  CLI consumer, bounded retries, and a failed-event quarantine.
 - Host-local single-flight locking now collapses concurrent public API cache
   misses while preserving a bounded fallback when filesystem locking is unavailable.
 - Indexed rendered HTML cache variants by route, locale, and public content

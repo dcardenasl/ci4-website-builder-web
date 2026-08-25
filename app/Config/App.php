@@ -183,6 +183,22 @@ class App extends BaseConfig
      */
     public int $webApiStaleTtl = 86400;
 
+    /** Page-view tracking remains best-effort and can be disabled explicitly. */
+    public bool $trackingEnabled = true;
+
+    /** Directory where page-view events wait for the analytics flush worker. */
+    public string $analyticsQueueDirectory = WRITEPATH . 'analytics-queue';
+
+    /** Maximum queued events processed by one flush invocation. */
+    public int $trackingQueueBatchSize = 100;
+
+    /** Number of delivery attempts before an event is quarantined. */
+    public int $trackingQueueMaxAttempts = 5;
+
+    /** CLI transport timeouts; these never run during a visitor request. */
+    public int $trackingQueueTimeoutMs = 5000;
+    public int $trackingQueueConnectTimeoutMs = 1000;
+
     /** `snapshot` serves warmed/stale public data first; `live` is the development default. */
     public string $pageDeliveryMode = 'live';
 
@@ -330,6 +346,42 @@ class App extends BaseConfig
             $this->webApiStaleTtl = (int) $webApiStaleTtl;
         }
 
+        $this->trackingEnabled = $this->parseBoolean(
+            env('WEB_TRACKING_ENABLED'),
+            $this->trackingEnabled,
+        );
+
+        $trackingQueueDirectory = env('WEB_TRACKING_QUEUE_DIR');
+        if (is_string($trackingQueueDirectory) && trim($trackingQueueDirectory) !== '') {
+            $trackingQueueDirectory = trim($trackingQueueDirectory);
+            $this->analyticsQueueDirectory = str_starts_with($trackingQueueDirectory, DIRECTORY_SEPARATOR)
+                ? rtrim($trackingQueueDirectory, DIRECTORY_SEPARATOR)
+                : ROOTPATH . trim($trackingQueueDirectory, " /\\");
+        }
+
+        $trackingQueueBatchSize = env('WEB_TRACKING_QUEUE_BATCH_SIZE');
+        if (is_numeric($trackingQueueBatchSize) && (int) $trackingQueueBatchSize > 0) {
+            $this->trackingQueueBatchSize = min(500, (int) $trackingQueueBatchSize);
+        }
+
+        $trackingQueueMaxAttempts = env('WEB_TRACKING_QUEUE_MAX_ATTEMPTS');
+        if (is_numeric($trackingQueueMaxAttempts) && (int) $trackingQueueMaxAttempts > 0) {
+            $this->trackingQueueMaxAttempts = min(20, (int) $trackingQueueMaxAttempts);
+        }
+
+        $trackingQueueTimeout = env('WEB_TRACKING_QUEUE_TIMEOUT_MS');
+        if (is_numeric($trackingQueueTimeout) && (int) $trackingQueueTimeout > 0) {
+            $this->trackingQueueTimeoutMs = min(30000, (int) $trackingQueueTimeout);
+        }
+
+        $trackingQueueConnectTimeout = env('WEB_TRACKING_QUEUE_CONNECT_TIMEOUT_MS');
+        if (is_numeric($trackingQueueConnectTimeout) && (int) $trackingQueueConnectTimeout > 0) {
+            $this->trackingQueueConnectTimeoutMs = min(
+                $this->trackingQueueTimeoutMs,
+                (int) $trackingQueueConnectTimeout,
+            );
+        }
+
         $pageDeliveryMode = strtolower(trim((string) env('PAGE_DELIVERY_MODE', ENVIRONMENT === 'production' ? 'snapshot' : 'live')));
         if (! in_array($pageDeliveryMode, ['live', 'snapshot'], true)) {
             throw new \LogicException('PAGE_DELIVERY_MODE must be live or snapshot.');
@@ -359,5 +411,22 @@ class App extends BaseConfig
         $sources = preg_split('/[\s,]+/', trim($raw)) ?: [];
 
         return $sources !== [] ? $sources : $default;
+    }
+
+    private function parseBoolean(mixed $value, bool $default): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return match (strtolower(trim($value))) {
+                '1', 'true', 'yes', 'on' => true,
+                '0', 'false', 'no', 'off' => false,
+                default => $default,
+            };
+        }
+
+        return $default;
     }
 }

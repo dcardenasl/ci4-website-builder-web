@@ -64,6 +64,7 @@ class Filters extends BaseFilters
             'securityheaders',
             'pagecache',   // Web Page Caching — must precede csrfcookie
             'csrfcookie',  // Per-browser token cookie after cached HTML
+            'tracking',    // Queue page views after the response is complete
             'performance', // Performance Metrics
             // 'toolbar',     // Debug Toolbar
         ],
@@ -84,7 +85,6 @@ class Filters extends BaseFilters
         ],
         'after' => [
             'secureheaders',   // CI4 native: emits headers from Config\Security::$secureHeaders
-            'tracking',        // First-party page-view tracking (fire-and-forget to Domain CMS)
         ],
     ];
 

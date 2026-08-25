@@ -54,6 +54,10 @@ WEB_API_KEY=web_api_test_key
 WEB_API_TIMEOUT=15
 WEB_API_CONNECT_TIMEOUT=15
 WEB_API_STALE_TTL=86400
+WEB_TRACKING_ENABLED=true
+WEB_TRACKING_QUEUE_DIR=writable/analytics-queue
+WEB_TRACKING_QUEUE_BATCH_SIZE=100
+WEB_TRACKING_QUEUE_MAX_ATTEMPTS=5
 CSP_IMAGE_SRC="self http: https: data:"
 CSP_FRAME_SRC="self http: https:"
 CSP_MEDIA_SRC="self http: https:"
@@ -64,6 +68,18 @@ cache.handler=file
 
 `CACHE_INVALIDATE_KEY` debe estar configurado en producción. El webhook de
 invalidación rechaza claves vacías o incorrectas.
+
+### Tracking asíncrono
+
+El tracking público se encola localmente y no hace una llamada HTTP durante la
+visita. Configura un cron del hosting para consumir la cola:
+
+```cron
+* * * * * cd /ruta/absoluta/ci4-website-builder-web && php spark analytics:flush --limit 100
+```
+
+Los eventos que no pueden enviarse se reintentan y, después del límite
+configurado, pasan a `writable/analytics-queue/failed`.
 
 `CSP_*` se deja abierto por defecto en el starter para que los seeders puedan
 cargar imágenes, documentos y embeds remotos durante la puesta en marcha. Si

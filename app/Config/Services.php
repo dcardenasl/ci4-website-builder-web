@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Config;
 
+use App\Analytics\CurlAnalyticsTransport;
+use App\Libraries\AnalyticsQueue;
 use App\Libraries\BlockRenderer;
 use App\Libraries\CacheInvalidator;
 use App\Libraries\HtmlResponseCacheRegistry;
@@ -25,6 +27,27 @@ use CodeIgniter\Config\BaseService;
 
 class Services extends BaseService
 {
+    public static function analyticsQueue(bool $getShared = true): AnalyticsQueue
+    {
+        if ($getShared) {
+            /** @var AnalyticsQueue */
+            return static::getSharedInstance('analyticsQueue');
+        }
+
+        $config = config('App');
+
+        return new AnalyticsQueue(
+            directory: $config->analyticsQueueDirectory,
+            maxAttempts: $config->trackingQueueMaxAttempts,
+            transport: new CurlAnalyticsTransport(
+                trackUrl: rtrim($config->webApiBaseUrl, '/') . '/api/v1/public/track',
+                apiKey: $config->webApiKey,
+                timeoutMs: $config->trackingQueueTimeoutMs,
+                connectTimeoutMs: $config->trackingQueueConnectTimeoutMs,
+            ),
+        );
+    }
+
     public static function siteBootstrapService(bool $getShared = true): SiteBootstrapService
     {
         if ($getShared) {
