@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **`codeigniter4/framework`** — bumped to v4.7.4, closing CVE-2026-63221 (critical, SQLi in `deleteBatch()`), CVE-2026-63222 (high, path traversal in `UploadedFile::move()`), and CVE-2026-63220 (medium, header spoofing in `isSecure()`). None of the three code paths are exercised by this app; verified via `composer audit`.
+
 ## [1.0.0] — 2026-07-23
 
 ### Added
