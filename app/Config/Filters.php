@@ -39,6 +39,7 @@ class Filters extends BaseFilters
         'forcehttps'     => ForceHTTPS::class,
         'pagecache'      => PageCache::class,
         'csrfcookie'     => \App\Filters\CsrfCookieFilter::class,
+        'correlationid'  => \App\Filters\CorrelationIdFilter::class,
         'performance'    => PerformanceMetrics::class,
     ];
 
@@ -58,6 +59,7 @@ class Filters extends BaseFilters
     public array $required = [
         'before' => [
             'forcehttps', // Force Global Secure Requests
+            'correlationid',
             'pagecache',  // Web Page Caching
         ],
         'after' => [
@@ -65,6 +67,7 @@ class Filters extends BaseFilters
             'pagecache',   // Web Page Caching — must precede csrfcookie
             'csrfcookie',  // Per-browser token cookie after cached HTML
             'tracking',    // Queue page views after the response is complete
+            'correlationid',
             'performance', // Performance Metrics
             // 'toolbar',     // Debug Toolbar
         ],

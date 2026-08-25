@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Correlation ID filter that safely propagates `X-Request-ID` from request to
+  response, including responses served by the page cache.
 - Asynchronous page-view analytics queue with an explicit `analytics:flush`
   CLI consumer, bounded retries, and a failed-event quarantine.
 - Host-local single-flight locking now collapses concurrent public API cache
