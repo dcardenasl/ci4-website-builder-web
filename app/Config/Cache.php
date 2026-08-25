@@ -196,5 +196,5 @@ class Cache extends BaseConfig
      *
      * @var list<int>
      */
-    public array $cacheStatusCodes = [];
+    public array $cacheStatusCodes = [200];
 }

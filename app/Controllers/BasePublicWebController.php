@@ -80,9 +80,19 @@ abstract class BasePublicWebController extends BaseController
         $body = view('layouts/public', $data, ['saveData' => false]);
         $etag = '"' . sha1($body) . '"';
 
-        $cacheControl = config('App')->pageDeliveryMode === 'snapshot'
+        $isSnapshotMode = config('App')->pageDeliveryMode === 'snapshot';
+        $cacheControl = $isSnapshotMode
             ? 'public, max-age=900, stale-while-revalidate=300'
             : 'public, max-age=300, stale-while-revalidate=60';
+
+        // Activate CI4's own page-cache store to match the Cache-Control
+        // header above — without this, `cache:warmup` visits pages that are
+        // never actually cached, and CsrfCookieFilter's post-pagecache
+        // ordering guards a caching mode that never engages. GET only: a
+        // cached response must never be a replay of a form submission.
+        if ($isSnapshotMode && $this->request->is('get')) {
+            $this->cachePage(900);
+        }
 
         return $this->response
             ->setHeader('Cache-Control', $cacheControl)
