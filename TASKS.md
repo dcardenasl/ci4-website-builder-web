@@ -11,9 +11,6 @@
 > [`../docs/plans/2026-08-24-plan-backport-teatromuseo.md`](../docs/plans/2026-08-24-plan-backport-teatromuseo.md).
 > Tracker cross-repo: [`../TASKS.md`](../TASKS.md).
 
-- [ ] **BACKPORT-01-web — Fase 1:** ninguna acción específica identificada para este repo en esta
-      fase — confirmar contra el plan al momento de ejecutar.
-
 ## 🟡 Próximo
 
 ### Backport de mejoras de Teatro Museo — fases posteriores (parte Web)
