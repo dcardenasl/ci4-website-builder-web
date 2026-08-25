@@ -42,6 +42,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   unconditionally even on a cache HIT, unlike a route-scoped `$globals` filter would.
 
 ### Security
+- **Nonce-based Content Security Policy** — enabled CI4's strict CSP delivery in production by
+  adding script/style nonce helpers to every inline web view, aligning filter order so the native
+  CSP header is final, and documenting explicit script/connect source overrides for integrations.
 - **`codeigniter4/framework`** — bumped to v4.7.4, closing CVE-2026-63221 (critical, SQLi in `deleteBatch()`), CVE-2026-63222 (high, path traversal in `UploadedFile::move()`), and CVE-2026-63220 (medium, header spoofing in `isSecure()`). None of the three code paths are exercised by this app; verified via `composer audit`.
 
 ## [1.0.0] — 2026-07-23

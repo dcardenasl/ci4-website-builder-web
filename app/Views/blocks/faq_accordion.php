@@ -87,13 +87,13 @@ foreach ($faqs as $faq) {
 
     <?php if ($jsonSchema['mainEntity'] !== []): ?>
         <!-- JSON-LD SEO Structured Data for Google -->
-        <script type="application/ld+json">
+        <script <?= csp_script_nonce() ?> type="application/ld+json">
             <?= json_encode($jsonSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) ?>
         </script>
     <?php endif; ?>
 </section>
 
-<script>
+<script <?= csp_script_nonce() ?>>
 (function() {
     const root = document.querySelector('[data-faq-id="<?= $faqId ?>"]');
     if (!root) return;

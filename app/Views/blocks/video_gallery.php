@@ -135,7 +135,7 @@ $galleryId = uniqid('video_gal_');
     </div>
 </section>
 
-<script>
+<script <?= csp_script_nonce() ?>>
 (function() {
     const root = document.querySelector('[data-video-gallery-id="<?= $galleryId ?>"]');
     if (!root) return;

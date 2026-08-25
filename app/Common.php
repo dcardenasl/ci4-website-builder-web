@@ -456,3 +456,35 @@ if (! function_exists('cms_block_preview_sample')) {
         return cms_block_preview_samples()[$blockKey] ?? [];
     }
 }
+
+if (! function_exists('csp_script_nonce')) {
+    /**
+     * Generate the nonce attribute for an inline script element.
+     */
+    function csp_script_nonce(): string
+    {
+        $csp = service('csp');
+
+        if (! $csp->enabled()) {
+            return '';
+        }
+
+        return 'nonce="' . $csp->getScriptNonce() . '"';
+    }
+}
+
+if (! function_exists('csp_style_nonce')) {
+    /**
+     * Generate the nonce attribute for an inline style element.
+     */
+    function csp_style_nonce(): string
+    {
+        $csp = service('csp');
+
+        if (! $csp->enabled()) {
+            return '';
+        }
+
+        return 'nonce="' . $csp->getStyleNonce() . '"';
+    }
+}

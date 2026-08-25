@@ -33,7 +33,7 @@ if ($anchors === []) {
     </div>
 </div>
 
-<script>
+<script <?= csp_script_nonce() ?>>
 (function() {
     const root = document.getElementById('<?= $navId ?>');
     if (!root) return;
