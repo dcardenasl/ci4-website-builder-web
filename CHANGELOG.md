@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   explicit URL warmup behind a filesystem lock.
 
 ### Changed
+- Anonymous public renders no longer start a server-side session; flash data
+  is read only when an existing session cookie indicates a stateful visitor.
 - Locale routing now uses the configured static locale list during bootstrap;
   public requests no longer perform synchronous language discovery over HTTP.
 - **Starter documentation** — aligned the generic runtime contracts and removed a historical
