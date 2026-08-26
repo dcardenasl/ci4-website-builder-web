@@ -65,6 +65,9 @@ Vagrantfile
 
 /writable/htmlpurifier/*
 
+# Asynchronous analytics queue runtime files
+/writable/analytics-queue/*
+
 php_errors.log
 
 #-------------------------
