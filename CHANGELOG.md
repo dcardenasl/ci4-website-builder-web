@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `createFetchQueue()` no existe en el código fuente disponible de Teatro Museo.
 
 ### Fixed
+- Added regression coverage for composed collection-entry routes with independent localized collection and entry slugs.
 - Sitemap generation now walks the Domain pagination metadata for each
   collection instead of truncating entries at 500.
 - Web API cURL requests now bound connection establishment and disable signal
