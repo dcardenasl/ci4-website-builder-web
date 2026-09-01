@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\ViewModels\Blocks;
 
+use App\DTO\ListingProjection;
 use App\Services\SiteCategoryService;
 use App\Services\SiteCollectionService;
 use App\Services\SiteEntryService;
@@ -11,6 +12,8 @@ use App\Services\SiteTagService;
 
 class CollectionListingViewModel extends AbstractBlockViewModel
 {
+    use ListingProjectionSupport;
+
     private const ORDER_COLUMNS = ['published_at', 'sort_order', 'created_at', 'title'];
     private const LAYOUT_VARIANTS = ['cards', 'compact', 'portfolio', 'list'];
 
@@ -76,6 +79,12 @@ class CollectionListingViewModel extends AbstractBlockViewModel
 
         $orderBy = $this->resolveOrderBy($this->requestGet('order_by'));
         $orderDirection = $this->resolveOrderDirection($this->requestGet('order_direction'));
+        $projection = ListingProjection::fromArray(
+            $this->config()['listing_projection'] ?? [],
+            ListingProjection::allowedFields(),
+            $this->config(),
+        );
+        [$orderBy, $orderDirection] = $this->resolveListingProjectionOrder($projection, $orderBy, $orderDirection, self::ORDER_COLUMNS);
         $perPage = max(1, min(100, $this->configInt('per_page', 12)));
         $layoutVariant = $this->resolveLayoutVariant($this->configString('layout_variant', 'cards'));
         $collectionKey = (string) ($collection['collection_key'] ?? '');
@@ -159,7 +168,7 @@ class CollectionListingViewModel extends AbstractBlockViewModel
             'collectionUrlPath' => $collectionUrlPath,
             'localizedUrls' => $localizedUrls,
             'collectionKey' => $collectionKey,
-            'entries' => $this->prepareEntries($result['data'] ?? []),
+            'entries' => $this->prepareListingProjectionEntries($result['data'] ?? [], $projection),
             'pagination' => is_array($result['meta']['pagination'] ?? null) ? $result['meta']['pagination'] : [],
             'currentPage' => $currentPage,
             'currentCategory' => $currentCategory,
@@ -238,78 +247,6 @@ class CollectionListingViewModel extends AbstractBlockViewModel
     private function resolveLayoutVariant(string $value): string
     {
         return in_array($value, self::LAYOUT_VARIANTS, true) ? $value : 'cards';
-    }
-
-    /**
-     * Normalize the optional Domain projection once, keeping the template free
-     * from URL policy and rich-text sanitization concerns.
-     *
-     * @param mixed $entries
-     * @return list<array<string, mixed>>
-     */
-    private function prepareEntries(mixed $entries): array
-    {
-        if (!is_array($entries)) {
-            return [];
-        }
-
-        $normalized = [];
-        foreach ($entries as $entry) {
-            if (!is_array($entry)) {
-                continue;
-            }
-
-            $content = is_array($entry['listing_content'] ?? null) ? $entry['listing_content'] : [];
-            $image = is_array($content['image'] ?? null) ? $content['image'] : null;
-            $action = is_array($content['secondary_action'] ?? null) ? $content['secondary_action'] : null;
-            $richText = is_string($content['rich_text'] ?? null) ? trim($content['rich_text']) : '';
-            $featuredImage = $this->mediaReferenceFromPayload($entry, 'featured_image');
-
-            $entry['listing_content'] = [
-                'rich_text' => $richText !== '' ? \App\Libraries\HtmlSanitizer::clean($richText) : '',
-                'image' => $this->normalizeListingImage($image),
-                'secondary_action' => $this->normalizeListingAction($action),
-            ];
-            $entry['featured_image'] = $featuredImage['url'] !== '' ? $featuredImage : null;
-            $normalized[] = $entry;
-        }
-
-        return $normalized;
-    }
-
-    /**
-     * @param array<string, mixed>|null $image
-     * @return array{url: string, alt: string}|null
-     */
-    private function normalizeListingImage(?array $image): ?array
-    {
-        $url = is_string($image['url'] ?? null) ? trim($image['url']) : '';
-        if ($url === '') {
-            return null;
-        }
-
-        return [
-            'url' => $url,
-            'alt' => is_string($image['alt'] ?? null) ? trim($image['alt']) : '',
-        ];
-    }
-
-    /**
-     * @param array<string, mixed>|null $action
-     * @return array{label: string, url: string}|null
-     */
-    private function normalizeListingAction(?array $action): ?array
-    {
-        $label = is_string($action['label'] ?? null) ? trim($action['label']) : '';
-        $url = is_string($action['url'] ?? null) ? trim($action['url']) : '';
-        if ($label === '' || $url === '') {
-            return null;
-        }
-
-        return [
-            'label' => $label,
-            'url' => str_starts_with($url, '/') ? lang_url($url, $this->lang) : $url,
-        ];
     }
 
     /**

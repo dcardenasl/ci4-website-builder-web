@@ -80,7 +80,7 @@ class CacheInvalidator
      * The status uses a non-expiring cache entry and is intentionally small so
      * it survives ordinary response-cache expiry without exposing cache keys.
      *
-     * @return array{configured: bool, handler: string, last_invalidation_at: string|null, last_invalidation_source: string|null, last_invalidation_scopes: list<string>, last_deleted: int}
+     * @return array{configured: bool, handler: string, last_invalidation_at: string|null, last_invalidation_source: string|null, last_invalidation_scopes: list<string>, last_deleted: int, last_automatic_invalidation_at: string|null, last_manual_invalidation_at: string|null}
      */
     public function status(): array
     {
@@ -94,6 +94,8 @@ class CacheInvalidator
             'last_invalidation_source' => $this->nullableString($stored['last_invalidation_source'] ?? null),
             'last_invalidation_scopes' => $this->stringList($stored['last_invalidation_scopes'] ?? []),
             'last_deleted' => max(0, (int) ($stored['last_deleted'] ?? 0)),
+            'last_automatic_invalidation_at' => $this->nullableString($stored['last_automatic_invalidation_at'] ?? null),
+            'last_manual_invalidation_at' => $this->nullableString($stored['last_manual_invalidation_at'] ?? null),
         ];
     }
 
@@ -102,12 +104,19 @@ class CacheInvalidator
     {
         $source = trim($source);
         $source = in_array($source, self::VALID_SOURCES, true) ? $source : 'remote';
-        \Config\Services::cache()->save(self::STATUS_CACHE_KEY, [
-            'last_invalidation_at' => gmdate('c'),
-            'last_invalidation_source' => $source,
-            'last_invalidation_scopes' => array_values($scopes),
-            'last_deleted' => max(0, $deleted),
-        ], 0);
+        $now = gmdate('c');
+        $status = $this->status();
+        $status['last_invalidation_at'] = $now;
+        $status['last_invalidation_source'] = $source;
+        $status['last_invalidation_scopes'] = array_values($scopes);
+        $status['last_deleted'] = max(0, $deleted);
+        if ($source === 'admin_manual') {
+            $status['last_manual_invalidation_at'] = $now;
+        } else {
+            $status['last_automatic_invalidation_at'] = $now;
+        }
+
+        \Config\Services::cache()->save(self::STATUS_CACHE_KEY, $status, 0);
     }
 
     private function nullableString(mixed $value): ?string

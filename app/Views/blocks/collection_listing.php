@@ -204,9 +204,19 @@ $sectionClass = trim($cssClass . ' section');
                 <!-- Grid -->
                 <div class="<?= esc($gridClass) ?> <?= $layoutVariant !== 'list' ? 'gap-y-8' : '' ?>" data-listing-grid>
                 <?php foreach ($entries as $index => $entry):
-                    $entryTitle = (string) ($entry['title'] ?? '');
-                    $entryExcerpt = (string) ($entry['excerpt'] ?? '');
-                    $entryDate = (string) ($entry['published_at'] ?? $entry['created_at'] ?? '');
+                    $projection = is_array($entry['listing_projection'] ?? null) ? $entry['listing_projection'] : [];
+                    $projectedSlots = is_array($projection['slots'] ?? null) ? $projection['slots'] : [];
+                    $projectedDisplay = is_array($projection['slot_display'] ?? null) ? $projection['slot_display'] : [];
+                    $entryTitle = ($projectedDisplay['title'] ?? '') !== ''
+                        ? (string) $projectedDisplay['title']
+                        : (string) ($entry['title'] ?? '');
+                    $entrySubtitle = (string) ($projectedDisplay['subtitle'] ?? '');
+                    $entryExcerpt = ($projectedDisplay['summary'] ?? '') !== ''
+                        ? (string) $projectedDisplay['summary']
+                        : (string) ($entry['excerpt'] ?? $entry['summary'] ?? '');
+                    $entryDate = ($projectedDisplay['date'] ?? '') !== ''
+                        ? (string) $projectedDisplay['date']
+                        : (string) ($entry['published_at'] ?? $entry['created_at'] ?? '');
                     $entrySlug = (string) ($entry['slug'] ?? '');
                     if ($entrySlug === '' && is_array($entry['localized_slugs'] ?? null)) {
                         $entrySlug = (string) ($entry['localized_slugs'][$lang] ?? '');
@@ -220,7 +230,11 @@ $sectionClass = trim($cssClass . ' section');
                             }
                         }
                     }
-                    $entryImage = is_array($entry['featured_image'] ?? null) ? (string) ($entry['featured_image']['url'] ?? '') : '';
+                    $projectedImage = is_array($projectedSlots['image'] ?? null) ? $projectedSlots['image'] : null;
+                    $entryImage = $projectedImage !== null
+                        ? (string) ($projectedImage['url'] ?? '')
+                        : (is_array($entry['featured_image'] ?? null) ? (string) ($entry['featured_image']['url'] ?? '') : '');
+                    $projectionExtras = is_array($projection['extras'] ?? null) ? $projection['extras'] : [];
                     $listingContent = is_array($entry['listing_content'] ?? null) ? $entry['listing_content'] : [];
                     $extraImage = is_array($listingContent['image'] ?? null) ? $listingContent['image'] : null;
                     $extraAction = is_array($listingContent['secondary_action'] ?? null) ? $listingContent['secondary_action'] : null;
@@ -272,6 +286,12 @@ $sectionClass = trim($cssClass . ' section');
                                 </time>
                             <?php endif; ?>
 
+                            <?php if ($entrySubtitle !== ''): ?>
+                                <p class="mb-2 text-sm font-medium text-slate-600 line-clamp-2">
+                                    <?= esc($entrySubtitle) ?>
+                                </p>
+                            <?php endif; ?>
+
                             <!-- Entry Title -->
                             <h3 class="text-lg font-bold leading-tight text-slate-900 group-hover:text-primary transition-colors duration-200">
                                 <a href="<?= esc($entryUrl) ?>" class="!text-slate-900 group-hover:!text-primary !no-underline hover:!no-underline">
@@ -284,6 +304,16 @@ $sectionClass = trim($cssClass . ' section');
                                 <p class="mt-3 text-sm text-slate-500 leading-relaxed line-clamp-3">
                                     <?= esc($entryExcerpt) ?>
                                 </p>
+                            <?php endif; ?>
+
+                            <?php if ($projectionExtras !== []): ?>
+                                <dl class="mt-4 grid gap-2 text-xs text-slate-500">
+                                    <?php foreach ($projectionExtras as $extra):
+                                        if (!is_array($extra) || trim((string) ($extra['value'] ?? '')) === '') continue;
+                                    ?>
+                                        <div class="flex gap-2"><dt class="font-semibold text-slate-700"><?= esc((string) ($extra['label'] ?? '')) ?></dt><dd><?= esc((string) $extra['value']) ?></dd></div>
+                                    <?php endforeach; ?>
+                                </dl>
                             <?php endif; ?>
 
                             <?php if ($showExtraRichtext && $extraRichtext !== ''): ?>

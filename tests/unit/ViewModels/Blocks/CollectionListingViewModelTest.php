@@ -257,6 +257,48 @@ final class CollectionListingViewModelTest extends CIUnitTestCase
         $this->assertSame('desc', $vars['orderDirection']);
     }
 
+    public function testListingProjectionUsesOnlyStablePublicFieldsAndDropsUnknownReferences(): void
+    {
+        $vm = new CollectionListingViewModel(
+            ['block_config' => [
+                'collection_id' => 1,
+                'listing_projection' => [
+                    'slots' => [
+                        'title' => 'entry.slug',
+                        'summary' => 'entry.excerpt',
+                        'image' => 'entry.featured_image',
+                    ],
+                    'extras' => [
+                        ['source' => 'entry.created_at', 'label' => 'Created', 'operator' => 'equals'],
+                        ['source' => 'entry.private_secret', 'label' => 'Secret', 'operator' => 'equals'],
+                    ],
+                    'order' => ['field' => 'entry.created_at', 'direction' => 'asc', 'public' => false],
+                ],
+            ]],
+            'es',
+            $this->context([self::COLLECTION], [
+                'data' => [[
+                    'id' => 8,
+                    'slug' => 'visible-slug',
+                    'title' => 'Original title',
+                    'excerpt' => 'Original excerpt',
+                    'created_at' => '2026-08-01 10:00:00',
+                    'featured_image' => ['source_kind' => 'external_url', 'url' => '/uploads/card.jpg'],
+                    'categories' => [['name' => 'Visible category']],
+                ]],
+                'meta' => [],
+            ])
+        );
+
+        $entry = $vm->vars()['entries'][0];
+
+        $this->assertSame('visible-slug', $entry['listing_projection']['slots']['title']);
+        $this->assertSame('Original excerpt', $entry['listing_projection']['slots']['summary']);
+        $this->assertSame('/uploads/card.jpg', $entry['listing_projection']['slots']['image']['url']);
+        $this->assertCount(1, $entry['listing_projection']['extras']);
+        $this->assertSame('Created', $entry['listing_projection']['extras'][0]['label']);
+    }
+
     public function testGetParamsDriveCurrentPageCategoryTagAndQuery(): void
     {
         $vm = new CollectionListingViewModel(

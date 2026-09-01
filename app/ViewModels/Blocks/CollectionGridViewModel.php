@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\ViewModels\Blocks;
 
+use App\DTO\ListingProjection;
 use App\Services\SiteCollectionService;
 use App\Services\SiteEntryService;
 
 class CollectionGridViewModel extends AbstractBlockViewModel
 {
+    use ListingProjectionSupport;
+
     private const ORDER_COLUMNS   = ['published_at', 'sort_order', 'created_at', 'title'];
     private const LAYOUT_VARIANTS = ['cards', 'compact', 'portfolio'];
 
@@ -23,6 +26,12 @@ class CollectionGridViewModel extends AbstractBlockViewModel
         }
 
         $orderDirection = strtolower($this->configString('order_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $projection = ListingProjection::fromArray(
+            $this->config()['listing_projection'] ?? [],
+            ListingProjection::allowedFields(),
+            $this->config(),
+        );
+        [$orderBy, $orderDirection] = $this->resolveListingProjectionOrder($projection, $orderBy, $orderDirection, self::ORDER_COLUMNS);
 
         $layoutVariant = $this->configString('layout_variant');
         if (! in_array($layoutVariant, self::LAYOUT_VARIANTS, true)) {
@@ -42,7 +51,10 @@ class CollectionGridViewModel extends AbstractBlockViewModel
             'layoutVariant'       => $layoutVariant,
             'cssClass'            => $this->configString('css_class'),
             'canonicalViewAllUrl' => $canonicalViewAllUrl,
-            'entries'             => $this->resolvePreviewEntries($collectionKey, $itemsLimit, $orderBy, $orderDirection),
+            'entries'             => $this->prepareListingProjectionEntries(
+                $this->resolvePreviewEntries($collectionKey, $itemsLimit, $orderBy, $orderDirection),
+                $projection,
+            ),
             'sectionClass'        => $layoutVariant === 'portfolio' ? 'section-lg bg-slate-50/50' : 'section',
             'containerClass'      => $layoutVariant === 'portfolio' ? 'max-w-6xl mx-auto px-4' : 'container-base',
             'gridClass'           => match ($layoutVariant) {
