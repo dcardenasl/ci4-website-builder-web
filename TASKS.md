@@ -12,6 +12,22 @@
 > Tracker cross-repo: [`../TASKS.md`](../TASKS.md).
 
 ## 🟡 Próximo
+
+### CNV-007 — Editor visual (canvas): port del sitio público
+
+> Verificación de arranque en
+> [`../ci4-website-suite/docs/plan/2026-09-09-editor-visual-canvas-port-f7.md`](../ci4-website-suite/docs/plan/2026-09-09-editor-visual-canvas-port-f7.md).
+> `BlockRenderer` difiere del de la suite en 155 líneas: se reaplica el cambio, no se sobrescribe.
+
+- [ ] **CNV-007-W1 — Anotador de bloques.** Punto de extensión en el recursivo de `BlockRenderer`
+      que envuelve cada bloque solo en modo editor; el HTML público no cambia.
+- [ ] **CNV-007-W2 — Endpoint de preview firmado.** `POST /{locale}/_editor/preview`, con verificación
+      `PreviewToken`, throttle, `no-store` y `noindex`, y los scopes documento/bloque.
+- [ ] **CNV-007-W3 — Embebido.** Acotar `frame-ancestors` a esa ruta **y retirar
+      `X-Frame-Options: DENY`** en ella: este repo es más estricto que la suite y `DENY` bloquea
+      incluso lo que la CSP permita. `'none'` junto a otra fuente anula la directiva entera.
+- [ ] **CNV-007-W4 — CORS y bridge.** Orígenes exactos para el fetch de scope bloque, sin comodín,
+      y `editor-bridge.js` bundleado (sin CDN).
 ## ⚪ Backlog
 
 *(vacío)*
