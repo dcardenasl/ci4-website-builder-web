@@ -22,8 +22,18 @@ RUN npm ci --ignore-scripts --no-audit --no-fund
 
 COPY src ./src
 COPY public ./public
+# Tailwind scans the server-rendered view classes declared in
+# public/assets/css/app.css. Keep those sources inside the asset build stage;
+# otherwise the production image silently emits CSS for only app.css and
+# loses the responsive/layout utilities used by the public templates.
+COPY app/Views ./app/Views
 COPY postcss.config.js ./
-RUN npm run build:all
+# Fail the image build if the view-driven responsive utilities disappear from
+# the production asset, instead of shipping a visually broken public site.
+RUN npm run build:all \
+    && grep -Fq '.sticky{' public/assets/css/compiled.css \
+    && grep -Fq '.md\:hidden' public/assets/css/compiled.css \
+    && grep -Fq '.md\:flex' public/assets/css/compiled.css
 
 FROM php:8.2-apache
 

@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **Restored production Tailwind coverage for server-rendered views** by including
+  `app/Views` in the Docker asset build and failing the image build when the
+  public responsive utilities are missing.
 - **Updated the CSS build toolchain**, including PostCSS and its vulnerable transitive dependencies,
   so the locked frontend dependencies pass the current npm security audit.
 
