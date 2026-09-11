@@ -54,6 +54,8 @@ WEB_API_KEY=web_api_test_key
 WEB_API_TIMEOUT=15
 WEB_API_CONNECT_TIMEOUT=15
 WEB_API_STALE_TTL=86400
+CMS_PREVIEW_SECRET=<same-secret-as-admin-and-domain>
+EDITOR_PANEL_ORIGIN=http://localhost:8182
 WEB_TRACKING_ENABLED=true
 WEB_TRACKING_QUEUE_DIR=writable/analytics-queue
 WEB_TRACKING_QUEUE_BATCH_SIZE=100
@@ -68,6 +70,12 @@ cache.handler=file
 
 `CACHE_INVALIDATE_KEY` debe estar configurado en producción. El webhook de
 invalidación rechaza claves vacías o incorrectas.
+
+El preview del editor es firmado, cross-origin y de solo render. `CMS_PREVIEW_SECRET` debe coincidir
+con Admin y Domain; `EDITOR_PANEL_ORIGIN` debe ser el origin exacto del panel. El launcher raíz valida
+ambos valores antes de iniciar el stack. Consulta el
+[runbook de smoke integrado](../docs/runbooks/2026-09-11-modular-stack-smoke.md) para comprobar
+CSP, CORS, locale, selección y renovación de token.
 
 ### Tracking asíncrono
 
