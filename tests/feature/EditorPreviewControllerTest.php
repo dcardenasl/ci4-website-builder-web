@@ -20,6 +20,7 @@ final class EditorPreviewControllerTest extends HermeticFeatureTestCase
     {
         parent::setUp();
         $this->configureLocales(['es', 'en']);
+        config('App')->editorPanelOrigin = 'http://localhost:8192';
         putenv('CMS_PREVIEW_SECRET=' . self::SECRET);
         $_ENV['CMS_PREVIEW_SECRET'] = self::SECRET;
         $_SERVER['CMS_PREVIEW_SECRET'] = self::SECRET;
@@ -48,6 +49,8 @@ final class EditorPreviewControllerTest extends HermeticFeatureTestCase
         $response->assertStatus(200);
         self::assertStringContainsString('no-store', $response->response()->getHeader('Cache-Control')->getValueLine());
         self::assertSame('noindex, nofollow', $response->response()->getHeaderLine('X-Robots-Tag'));
+        self::assertSame('', $response->response()->getHeaderLine('X-Frame-Options'));
+        self::assertStringContainsString('frame-ancestors http://localhost:8192', $response->response()->getHeaderLine('Content-Security-Policy'));
         self::assertStringContainsString('data-block-instance="id_7"', (string) $response->response()->getBody());
     }
 
@@ -99,6 +102,22 @@ final class EditorPreviewControllerTest extends HermeticFeatureTestCase
 
         $response->assertStatus(502);
         self::assertStringNotContainsString('Upstream failure', (string) $response->response()->getBody());
+    }
+
+    public function testPreviewRemainsUnframeableWhenPanelOriginIsNotConfigured(): void
+    {
+        config('App')->editorPanelOrigin = '';
+        $this->domainAdapter->fakePost($this->projectionPath(), $this->document());
+
+        $response = $this->post('/es/_editor/preview', $this->signedFields([
+            'lang' => 'es',
+            'scope' => ['type' => 'document'],
+            'blocks' => [],
+        ]));
+
+        $response->assertStatus(200);
+        self::assertSame('DENY', $response->response()->getHeaderLine('X-Frame-Options'));
+        self::assertStringContainsString("frame-ancestors 'none'", $response->response()->getHeaderLine('Content-Security-Policy'));
     }
 
     public function testOversizedDraftIsRejected(): void

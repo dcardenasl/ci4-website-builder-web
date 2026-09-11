@@ -170,6 +170,9 @@ class App extends BaseConfig
     /** Maximum encoded draft size accepted by the editor preview endpoint. */
     public int $editorPreviewMaxPayloadBytes = 1048576;
 
+    /** Exact origin allowed to embed the signed editor preview. */
+    public string $editorPanelOrigin = '';
+
     /**
      * Timeout (seconds) for requests against the Domain API.
      * Override with WEB_API_TIMEOUT in .env.
@@ -341,6 +344,8 @@ class App extends BaseConfig
             $this->editorPreviewMaxPayloadBytes = min(5242880, (int) $previewPayloadLimit);
         }
 
+        $this->editorPanelOrigin = $this->normalizeOrigin(env('EDITOR_PANEL_ORIGIN', ''));
+
         // Optional tuning knobs — silently keep defaults when absent.
         $webApiTimeout = env('WEB_API_TIMEOUT');
         if (is_numeric($webApiTimeout) && (int) $webApiTimeout > 0) {
@@ -440,5 +445,28 @@ class App extends BaseConfig
         }
 
         return $default;
+    }
+
+    private function normalizeOrigin(mixed $value): string
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return '';
+        }
+
+        $origin = rtrim(trim($value), '/');
+        $parsed = parse_url($origin);
+        if (! is_array($parsed)
+            || ! in_array(strtolower((string) ($parsed['scheme'] ?? '')), ['http', 'https'], true)
+            || trim((string) ($parsed['host'] ?? '')) === ''
+            || isset($parsed['user'], $parsed['pass'], $parsed['query'], $parsed['fragment'])
+            || isset($parsed['path']) && $parsed['path'] !== '') {
+            throw new \LogicException('EDITOR_PANEL_ORIGIN must be an exact http(s) origin without a path.');
+        }
+
+        $scheme = strtolower((string) $parsed['scheme']);
+        $host = strtolower((string) $parsed['host']);
+        $port = isset($parsed['port']) ? ':' . (int) $parsed['port'] : '';
+
+        return $scheme . '://' . $host . $port;
     }
 }

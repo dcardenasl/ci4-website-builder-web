@@ -60,4 +60,15 @@ final class SecurityHeadersTest extends HermeticFeatureTestCase
 
         $this->assertMatchesRegularExpression('/<style\s+nonce="[^"]+"/', $html);
     }
+
+    public function testConfiguredPanelOriginDoesNotRelaxPublicPages(): void
+    {
+        config('App')->editorPanelOrigin = 'http://localhost:8192';
+
+        $result = $this->get('/es/home');
+
+        $result->assertStatus(200);
+        $this->assertSame('DENY', $result->response()->getHeaderLine('X-Frame-Options'));
+        $this->assertStringContainsString("frame-ancestors 'none'", $result->response()->getHeaderLine('Content-Security-Policy'));
+    }
 }
