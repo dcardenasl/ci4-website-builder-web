@@ -94,7 +94,9 @@
 
             <!-- Social Links -->
             <?php
-            $socialLinks = \Config\Services::socialLinksService()->getActiveLinks();
+            $socialLinks = is_array($socialLinks ?? null)
+                ? $socialLinks
+                : \Config\Services::socialLinksService()->getActiveLinks();
             ?>
             <?php if (!empty($socialLinks)): ?>
                 <div class="space-y-4">
@@ -157,5 +159,5 @@ $siteJsVersion = is_file($siteJsPath)
     ? (string) (md5_file($siteJsPath) ?: filemtime($siteJsPath))
     : (string) time();
 ?>
-<script src="<?= base_url('assets/js/alpine.min.js') ?>" defer></script>
-<script src="<?= base_url('assets/js/site.js?v=' . $siteJsVersion) ?>" defer></script>
+<script <?= csp_script_nonce() ?> src="<?= base_url('assets/js/alpine.min.js') ?>" defer></script>
+<script <?= csp_script_nonce() ?> src="<?= base_url('assets/js/site.js?v=' . $siteJsVersion) ?>" defer></script>

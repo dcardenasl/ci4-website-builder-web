@@ -36,6 +36,17 @@ class BlockRenderer
     /** @var array<string, array<string, mixed>|null> form definitions pre-loaded per render pass */
     private array $formDefinitions = [];
 
+    /**
+     * Editor annotations are installed only by the signed preview surface.
+     * Public rendering leaves this null and emits its normal markup.
+     */
+    private ?EditorBlockAnnotator $editorAnnotator = null;
+
+    public function setEditorAnnotator(?EditorBlockAnnotator $annotator): void
+    {
+        $this->editorAnnotator = $annotator;
+    }
+
     /** @var int Counter of images rendered on the current page pass */
     private int $imageCount = 0;
 
@@ -163,7 +174,11 @@ class BlockRenderer
         // call's variables into the shared view store for the rest of the
         // request — a block field like "title" would otherwise leak into the
         // page template rendered afterwards. Disable it for isolation.
-        return view($blockViewName, $viewData, ['saveData' => false]);
+        $html = view($blockViewName, $viewData, ['saveData' => false]);
+
+        return $this->editorAnnotator === null
+            ? $html
+            : $this->editorAnnotator->wrap($block, $html);
     }
 
     /**

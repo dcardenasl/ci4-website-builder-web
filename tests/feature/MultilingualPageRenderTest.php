@@ -35,6 +35,7 @@ final class MultilingualPageRenderTest extends HermeticFeatureTestCase
         // Assert: Not 404 (route exists, API may not be available so could be 404 content)
         $statusCode = $result->response()->getStatusCode();
         $this->assertNotEquals(404, $statusCode, 'Spanish home route should exist');
+        $this->assertNotContains('cms/public/languages', $this->domainAdapter->getPaths());
     }
 
     /**

@@ -22,9 +22,11 @@
  */
 
 // Flash data keyed by form_key so multiple forms on the same page don't collide.
-// Session state is render-time only, so it stays in the view, not the view model.
-$sent   = session()->getFlashdata("form_sent_{$formKey}");
-$errors = (array) (session()->getFlashdata("form_errors_{$formKey}") ?? []);
+// Do not start a session for anonymous GETs: only a redirect from a form POST
+// can create the cookie that makes these values available.
+$session = \App\Support\PublicSession::current();
+$sent   = $session?->getFlashdata("form_sent_{$formKey}");
+$errors = (array) ($session?->getFlashdata("form_errors_{$formKey}") ?? []);
 
 $hasLeftContent = ($heading !== '' || $description !== '' || ($showInfoBoxes && ($infoEmailLabel !== '' || $infoPhoneLabel !== '')));
 ?>
@@ -108,7 +110,11 @@ $hasLeftContent = ($heading !== '' || $description !== '' || ($showInfoBoxes && 
                           action="<?= site_url("forms/{$formKey}/submit") ?>"
                           class="space-y-5"
                           id="form-<?= esc($formKey) ?>">
-                        <?= csrf_field() ?>
+                        <input type="hidden"
+                               name="<?= esc(config('Security')->tokenName) ?>"
+                               value=""
+                               data-csrf-token
+                               data-csrf-cookie="<?= esc(config('Security')->readableCookieName, 'attr') ?>" />
 
                         <?php // Honeypot — hidden from real users, tempting to bots. Handled server-side in FormController. ?>
                         <div class="hidden" aria-hidden="true">
@@ -216,7 +222,7 @@ $hasLeftContent = ($heading !== '' || $description !== '' || ($showInfoBoxes && 
                 </div>
 
                 <?php if ($hasCaptcha && $recaptchaSiteKey !== ''): ?>
-                    <script>
+                    <script <?= csp_script_nonce() ?>>
                     document.addEventListener('DOMContentLoaded', function () {
                         var form = document.getElementById('form-<?= esc($formKey) ?>');
                         if (!form) return;
@@ -240,7 +246,7 @@ $hasLeftContent = ($heading !== '' || $description !== '' || ($showInfoBoxes && 
                     </script>
                     <?php if (! defined('RECAPTCHA_SCRIPT_LOADED')): ?>
                         <?php define('RECAPTCHA_SCRIPT_LOADED', true); ?>
-                        <script src="https://www.google.com/recaptcha/api.js?render=<?= esc($recaptchaSiteKey) ?>" async defer></script>
+                        <script <?= csp_script_nonce() ?> src="https://www.google.com/recaptcha/api.js?render=<?= esc($recaptchaSiteKey) ?>" async defer></script>
                     <?php endif; ?>
                 <?php endif; ?>
             <?php endif; ?>

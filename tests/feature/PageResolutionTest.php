@@ -34,6 +34,93 @@ final class PageResolutionTest extends HermeticFeatureTestCase
 
         $result->assertStatus(200);
         $result->assertSee($title);
+        $this->assertGreaterThanOrEqual(5, count($this->domainAdapter->getPaths()));
+    }
+
+    public function testUsesComposedBootstrapForCmsPage(): void
+    {
+        $locale = $this->locale();
+        $slug = $this->slug('composed-page');
+        $title = $this->text('composed-title');
+        $this->domainAdapter->fakeGet('public/page-bootstrap/' . $slug, [
+            'layout' => [
+                'lang' => $locale,
+                'settings' => ['site_name' => 'Composed fixture site'],
+                'menus' => [
+                    'main' => ['items' => []],
+                    'footer' => ['items' => []],
+                    'legal' => ['items' => []],
+                ],
+            ],
+            'route' => [
+                'type' => 'page',
+                'data' => $this->page($slug, $title),
+            ],
+        ]);
+
+        $result = $this->get($locale . '/' . $slug);
+
+        $result->assertStatus(200);
+        $result->assertSee($title);
+        $paths = $this->domainAdapter->getPaths();
+        $this->assertSame(1, count(array_filter(
+            $paths,
+            static fn (string $path): bool => $path === 'public/page-bootstrap/' . $slug,
+        )));
+        $this->assertLessThanOrEqual(3, count($paths));
+    }
+
+    public function testUsesComposedBootstrapForLocalizedCollectionEntry(): void
+    {
+        $collection = $this->collection('localized-entry');
+        $localeEs = $this->locale();
+        $localeEn = $this->locale(1);
+        $collectionSlugEs = $collection['index_page']['localized_slugs'][$localeEs];
+        $collectionSlugEn = $collection['index_page']['localized_slugs'][$localeEn];
+        $entrySlugEs = $this->slug('entry-es');
+        $entrySlugEn = $this->slug('entry-en', 1);
+        $entryTitleEs = $this->text('entry-title-es');
+        $entryTitleEn = $this->text('entry-title-en', 1);
+        $layout = static fn (string $locale): array => [
+            'lang'     => $locale,
+            'settings' => ['site_name' => 'Composed fixture site'],
+            'menus'    => [
+                'main'   => ['items' => []],
+                'footer' => ['items' => []],
+                'legal'  => ['items' => []],
+            ],
+        ];
+
+        $this->domainAdapter->fakeGet(
+            'public/page-bootstrap/' . $collectionSlugEs . '/' . $entrySlugEs,
+            [
+                'layout' => $layout($localeEs),
+                'route'  => [
+                    'type'       => 'entry',
+                    'collection' => $collection,
+                    'data'       => $this->entry($entrySlugEs, $entryTitleEs),
+                ],
+            ],
+        );
+        $this->domainAdapter->fakeGet(
+            'public/page-bootstrap/' . $collectionSlugEn . '/' . $entrySlugEn,
+            [
+                'layout' => $layout($localeEn),
+                'route'  => [
+                    'type'       => 'entry',
+                    'collection' => $collection,
+                    'data'       => $this->entry($entrySlugEn, $entryTitleEn),
+                ],
+            ],
+        );
+
+        $resultEs = $this->get($localeEs . '/' . $collectionSlugEs . '/' . $entrySlugEs);
+        $resultEn = $this->get($localeEn . '/' . $collectionSlugEn . '/' . $entrySlugEn);
+
+        $resultEs->assertStatus(200);
+        $resultEs->assertSee($entryTitleEs);
+        $resultEn->assertStatus(200);
+        $resultEn->assertSee($entryTitleEn);
     }
 
     public function testResolvesLocalizedPageInEachConfiguredLanguage(): void

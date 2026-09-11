@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Libraries;
 
 use App\Libraries\BlockRenderer;
+use App\Libraries\EditorBlockAnnotator;
 use CodeIgniter\Test\CIUnitTestCase;
 
 /**
@@ -113,5 +114,46 @@ final class BlockRendererTest extends CIUnitTestCase
     public function testEmptyBlockListReturnsEmptyString(): void
     {
         $this->assertSame('', $this->renderer->render([]));
+    }
+
+    public function testPublicRenderingDoesNotAddEditorMetadata(): void
+    {
+        $html = $this->renderer->render([
+            [
+                'block_key'    => 'container',
+                'editor_ref'   => 'id_public',
+                'block_config' => [],
+                'block_data'   => [],
+                'children'     => [],
+            ],
+        ]);
+
+        $this->assertStringNotContainsString('data-block-instance', $html);
+    }
+
+    public function testEditorRenderingAnnotatesContainersAndChildren(): void
+    {
+        $this->renderer->setEditorAnnotator(new EditorBlockAnnotator());
+
+        $html = $this->renderer->render([
+            [
+                'block_key'    => 'container',
+                'editor_ref'   => 'id_parent',
+                'block_config' => [],
+                'block_data'   => [],
+                'children'     => [
+                    [
+                        'block_key'    => 'container',
+                        'editor_ref'   => 'id_child',
+                        'block_config' => [],
+                        'block_data'   => [],
+                        'children'     => [],
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->assertStringContainsString('data-block-instance="id_parent"', $html);
+        $this->assertStringContainsString('data-block-instance="id_child"', $html);
     }
 }

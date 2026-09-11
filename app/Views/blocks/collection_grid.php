@@ -46,10 +46,18 @@ if ($collectionKey === '' || ($entries === [] && $sectionTitle === '')) {
             <div class="<?= esc($gridClass) ?>">
                 <?php foreach ($entries as $entry):
                     $entryTitle   = $entry['title'] ?? '';
-                    $entryExcerpt = $entry['excerpt'] ?? '';
-                    $entryDate    = $entry['published_at'] ?? $entry['created_at'] ?? '';
+                    $projection = is_array($entry['listing_projection'] ?? null) ? $entry['listing_projection'] : [];
+                    $projectedSlots = is_array($projection['slots'] ?? null) ? $projection['slots'] : [];
+                    $projectedDisplay = is_array($projection['slot_display'] ?? null) ? $projection['slot_display'] : [];
+                    $entryTitle = (string) ($projectedDisplay['title'] ?? ($entry['title'] ?? ''));
+                    $entrySubtitle = (string) ($projectedDisplay['subtitle'] ?? '');
+                    $entryExcerpt = (string) ($projectedDisplay['summary'] ?? ($entry['excerpt'] ?? $entry['summary'] ?? ''));
+                    $entryDate = (string) ($projectedDisplay['date'] ?? ($entry['published_at'] ?? $entry['created_at'] ?? ''));
                     $entrySlug    = $entry['slug'] ?? '';
-                    $entryImage   = is_array($entry['featured_image'] ?? null) ? ($entry['featured_image']['url'] ?? '') : '';
+                    $projectedImage = is_array($projectedSlots['image'] ?? null) ? $projectedSlots['image'] : null;
+                    $entryImage = $projectedImage !== null
+                        ? (string) ($projectedImage['url'] ?? '')
+                        : (is_array($entry['featured_image'] ?? null) ? (string) ($entry['featured_image']['url'] ?? '') : '');
                     $entryUrl     = $canonicalViewAllUrl !== '' && $entrySlug !== ''
                         ? lang_url(rtrim($canonicalViewAllUrl, '/') . '/' . $entrySlug)
                         : '#';
@@ -75,6 +83,9 @@ if ($collectionKey === '' || ($entries === [] && $sectionTitle === '')) {
                                 <p class="text-xs uppercase tracking-[0.2em] text-slate-500">
                                     <?= esc(date('d M Y', strtotime($entryDate))) ?>
                                 </p>
+                            <?php endif; ?>
+                            <?php if ($entrySubtitle !== ''): ?>
+                                <p class="mt-2 text-sm font-medium text-slate-600 line-clamp-2"><?= esc($entrySubtitle) ?></p>
                             <?php endif; ?>
                             <h3 class="mt-2 text-lg font-semibold leading-tight text-slate-900">
                                 <a href="<?= esc($entryUrl) ?>" class="transition-colors hover:text-primary">

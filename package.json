@@ -10,8 +10,9 @@
     "build:css": "tailwindcss -i ./public/assets/css/app.css -o ./public/assets/css/compiled.css --minify",
     "dev:css": "tailwindcss -i ./public/assets/css/app.css -o ./public/assets/css/compiled.css --watch",
     "build:js": "esbuild src/js/site.js --bundle --outfile=public/assets/js/site.js --format=iife --banner:js=\"/* Generated from src/js — do not edit directly. Run: npm run build:js */\" --minify",
+    "build:editor:js": "esbuild src/js/editor-bridge.js --bundle --outfile=public/assets/js/editor-bridge.js --format=iife --minify",
     "dev:js": "esbuild src/js/site.js --bundle --outfile=public/assets/js/site.js --format=iife --banner:js=\"/* Generated from src/js — do not edit directly. Run: npm run build:js */\" --watch",
-    "build:all": "npm run build:css && npm run build:js",
+    "build:all": "npm run build:css && npm run build:js && npm run build:editor:js",
     "lint:js": "eslint 'src/js/**/*.js'",
     "prepare": "husky"
   },
@@ -29,7 +30,7 @@
     "eslint": "^9.39.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.28",
     "tailwindcss": "^4.3.1"
   }
 }

@@ -165,7 +165,7 @@ $openImageCaptionLabel = lang('Site.gallery_open_image_caption');
     <?php endif; ?>
 </div>
 
-<script>
+<script <?= csp_script_nonce() ?>>
 (function () {
     const root = document.querySelector('[data-gallery-id="<?= esc($galleryId) ?>"]');
     if (!root || root.dataset.galleryInitialized === '1') {

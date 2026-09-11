@@ -49,6 +49,8 @@ Key environment variables:
 - `WEB_API_TIMEOUT=15`
 - `WEB_API_STALE_TTL=86400`
 - `CACHE_INVALIDATE_KEY=<strong-secret>`
+- `PAGE_DELIVERY_MODE=live` in development, `snapshot` in production by default
+- `CACHE_WARMUP_URLS=/es,/en` (optional comma-separated paths)
 - `cache.handler=file`
 
 `CACHE_INVALIDATE_KEY` is mandatory in production. The cache invalidation
@@ -58,15 +60,24 @@ scope lists.
 `app.defaultLocale` must match an active CMS language and a localized `home`
 page. It is static CI4 routing configuration, not discovered from Domain.
 
+`PAGE_DELIVERY_MODE=snapshot` enables the composed bootstrap-first delivery path
+in production. `CACHE_WARMUP_URLS` is consumed by `php spark cache:warmup`; use
+`--strict` in CI/deployments when every configured URL must warm successfully.
+
 ## Architecture
 
 - Controllers stay thin and call `Config\Services`.
 - `PageController::resolve()` resolves dynamic paths in this order:
   collection prefix/index, collection entry, CMS page, redirect, 404.
+- `PageController` first tries Domain's generic composed page bootstrap and falls
+  back to the legacy resolver when the upstream does not expose it.
 - `FormController` validates required/email fields, honeypot, and required
   CAPTCHA tokens before submitting to Domain.
 - Public POST routes (`forms/*/submit`, `cache/invalidate`) use
   `throttle:10,60`. GET pages are not throttled, so crawlers are not penalized.
+- Page-cache responses receive a readable CSRF mirror cookie for form hydration;
+  the native HttpOnly CSRF cookie remains authoritative. Inline block styles use
+  CSP nonces rather than a global `unsafe-inline` relaxation.
 
 ## API Client And Services
 
@@ -96,6 +107,10 @@ Services::injectMock('webApiClient', $fake);
 
 `CacheInvalidator` accepts known scopes only and deletes keys matching
 `web_api_*_{scope}_*`, which purges fresh and stale entries together.
+
+Settings/menus invalidate composed layout caches; page, collection, and entry
+changes invalidate composed bootstrap caches. Keep the scope names generic when
+adding new CMS resources.
 
 Webhook:
 

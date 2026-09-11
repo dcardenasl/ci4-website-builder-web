@@ -75,6 +75,19 @@ class PageController extends BasePublicWebController
         $lang = service('request')->getLocale();
         [$preview, $previewExpires, $previewSig] = $this->previewParams();
 
+        $bootstrap = Services::siteBootstrapService()->getPageBootstrap(
+            'home',
+            $preview,
+            $previewExpires,
+            $previewSig,
+        );
+        if ($bootstrap !== null) {
+            $route = $bootstrap['route'];
+            if (($route['type'] ?? '') === 'page' && is_array($route['data'] ?? null)) {
+                return $this->renderPage($route['data'], $lang, $bootstrap['layout']);
+            }
+        }
+
         // For now, try to fetch a page by slug 'home'
         $pageService = Services::sitePageService();
         $page = $pageService->getBySlug($lang, 'home', $preview, $previewExpires, $previewSig);
@@ -101,6 +114,25 @@ class PageController extends BasePublicWebController
 
         if (empty($path)) {
             return $this->home();
+        }
+
+        $bootstrap = Services::siteBootstrapService()->getPageBootstrap(
+            $path,
+            $preview,
+            $previewExpires,
+            $previewSig,
+        );
+        if ($bootstrap !== null) {
+            $route = $bootstrap['route'];
+            if (($route['type'] ?? '') === 'page' && is_array($route['data'] ?? null)) {
+                return $this->renderPage($route['data'], $lang, $bootstrap['layout']);
+            }
+            if (($route['type'] ?? '') === 'entry'
+                && is_array($route['data'] ?? null)
+                && is_array($route['collection'] ?? null)
+            ) {
+                return $this->renderEntry($route['data'], $route['collection'], $lang, $bootstrap['layout']);
+            }
         }
 
         // Step 1: Try collection prefix match first.
@@ -206,8 +238,9 @@ class PageController extends BasePublicWebController
      * Render a CMS page.
      *
      * @param array<string, mixed> $page
+     * @param array<string, mixed>|null $layout
      */
-    private function renderPage(array $page, string $lang): ResponseInterface
+    private function renderPage(array $page, string $lang, ?array $layout = null): ResponseInterface
     {
         $blockRenderer = Services::blockRenderer();
 
@@ -251,7 +284,12 @@ class PageController extends BasePublicWebController
             'schemaData'         => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'     => $blockRenderer->render($blocks, $lang),
             'localized_urls'     => $localizedUrls,
+            'cacheScopes'        => $this->cacheScopesForBlocks($blocks),
         ];
+
+        if ($layout !== null) {
+            $data['_layout'] = $layout;
+        }
 
         return $this->render('page', $data);
     }
@@ -261,8 +299,9 @@ class PageController extends BasePublicWebController
      *
      * @param array<string, mixed> $entry
      * @param array<string, mixed> $collection
+     * @param array<string, mixed>|null $layout
      */
-    private function renderEntry(array $entry, array $collection, string $lang): ResponseInterface
+    private function renderEntry(array $entry, array $collection, string $lang, ?array $layout = null): ResponseInterface
     {
         $blockRenderer = Services::blockRenderer();
 
@@ -383,9 +422,43 @@ class PageController extends BasePublicWebController
             'schemaData'          => !empty($translation['schema_data']) ? json_decode($translation['schema_data'], true) : null,
             'renderedBlocks'      => $blockRenderer->render($entry['blocks'] ?? [], $lang),
             'localized_urls'      => $this->resolveEntryLocalizedUrls($collection, $entry, $lang, $resolvedSlug),
+            'cacheScopes'         => ['collections', 'entries', 'settings', 'menus'],
         ];
 
+        if ($layout !== null) {
+            $data['_layout'] = $layout;
+        }
+
         return $this->render('collection/show', $data);
+    }
+
+    /** @param mixed $blocks
+     *  @return list<string>
+     */
+    private function cacheScopesForBlocks(mixed $blocks): array
+    {
+        $scopes = ['pages', 'settings', 'menus'];
+        $blocks = is_array($blocks) ? $blocks : [];
+
+        foreach ($blocks as $block) {
+            if (! is_array($block)) {
+                continue;
+            }
+
+            $blockKey = (string) ($block['block_key'] ?? '');
+            if (in_array($blockKey, ['collection_grid', 'collection_listing'], true)) {
+                $scopes[] = 'collections';
+                $scopes[] = 'entries';
+                $scopes[] = 'taxonomies';
+            }
+            if ($blockKey === 'form_embed') {
+                $scopes[] = 'forms';
+            }
+
+            $scopes = array_merge($scopes, $this->cacheScopesForBlocks($block['children'] ?? []));
+        }
+
+        return array_values(array_unique($scopes));
     }
 
     /**

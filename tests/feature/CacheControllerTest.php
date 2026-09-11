@@ -88,6 +88,7 @@ final class CacheControllerTest extends CIUnitTestCase
         $cache = service('cache');
         $cache->save('web_api_v4_pages_abc', ['ok' => true], 300);
         $cache->save('web_api_stale_v4_pages_abc', ['ok' => true], 86400);
+        $cache->save('web_api_v4_bootstrap_abc', ['ok' => true], 300);
         $cache->save('web_api_v4_menus_xyz', ['ok' => true], 300);
 
         $result = $this->withHeaders(['X-Invalidate-Key' => self::VALID_KEY])
@@ -98,6 +99,7 @@ final class CacheControllerTest extends CIUnitTestCase
         $result->assertJSONFragment(['ok' => true, 'invalidated' => ['pages']]);
         $this->assertNull($cache->get('web_api_v4_pages_abc'));
         $this->assertNull($cache->get('web_api_stale_v4_pages_abc'));
+        $this->assertNull($cache->get('web_api_v4_bootstrap_abc'));
         $this->assertNotNull($cache->get('web_api_v4_menus_xyz'));
     }
 }

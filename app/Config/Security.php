@@ -55,6 +55,9 @@ class Security extends BaseConfig
      */
     public string $cookieName = 'csrf_cookie_name';
 
+    /** Readable mirror emitted after PageCache; native cookie remains HttpOnly. */
+    public string $readableCookieName = 'csrf_cookie_readable';
+
     /**
      * --------------------------------------------------------------------------
      * CSRF Expires

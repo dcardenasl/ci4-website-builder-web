@@ -26,8 +26,21 @@ class SecurityHeadersFilter implements FilterInterface
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
+        $isEditorPreview = str_ends_with($request->getUri()->getPath(), '/_editor/preview');
+        $panelOrigin = (string) config('App')->editorPanelOrigin;
+        if ($isEditorPreview) {
+            $response->noCache();
+            $response->setHeader('X-Robots-Tag', 'noindex, nofollow');
+        }
+
         $response->setHeader('X-Content-Type-Options', 'nosniff');
-        $response->setHeader('X-Frame-Options', 'DENY');
+        if ($isEditorPreview && $panelOrigin !== '') {
+            // X-Frame-Options cannot express an allowlist. CSP below is the
+            // authoritative, exact-origin policy for this one response.
+            $response->removeHeader('X-Frame-Options');
+        } else {
+            $response->setHeader('X-Frame-Options', 'DENY');
+        }
         $response->setHeader('X-XSS-Protection', '1; mode=block');
         $response->setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->setHeader(
@@ -40,10 +53,13 @@ class SecurityHeadersFilter implements FilterInterface
         // The allowlist can be tightened later via .env (Config\App::$csp*)
         // without touching code.
         $appConfig = config('App');
+        $frameAncestors = $isEditorPreview && $panelOrigin !== ''
+            ? $panelOrigin
+            : "'none'";
         $csp = implode('; ', [
             'object-src ' . $this->cspSources($appConfig->cspObjectSrc),
             "base-uri 'self'",
-            "frame-ancestors 'none'",
+            'frame-ancestors ' . $frameAncestors,
             'img-src ' . $this->cspSources($appConfig->cspImageSrc),
             'frame-src ' . $this->cspSources($appConfig->cspFrameSrc),
             'media-src ' . $this->cspSources($appConfig->cspMediaSrc),

@@ -13,19 +13,24 @@ $routes->get('sitemap.xml', 'SitemapController::index', ['as' => 'sitemap']);
 // Internal cache invalidation — no locale prefix, secured by X-Invalidate-Key header.
 // Throttled: POST endpoints only, so crawlers on GET pages are never rate-limited.
 $routes->post('cache/invalidate', 'CacheController::invalidate', ['as' => 'cache_invalidate', 'filter' => 'throttle:10,60']);
+$routes->get('cache/status', 'CacheController::status', ['as' => 'cache_status', 'filter' => 'throttle:30,60']);
 
 // Dynamic form submissions
-$routes->post('forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit', 'filter' => 'throttle:10,60']);
+$routes->post('forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit', 'filter' => ['csrf', 'throttle:10,60']]);
 
 // Block Preview (called from admin panel) — unauthenticated, so throttled like
 // the other public POST routes above.
 $routes->post('blocks/preview', 'BlockPreviewController::preview', ['as' => 'blocks_preview', 'filter' => 'throttle:10,60']);
 
-// Locale validity is resolved from the CMS/API during controller bootstrap.
-// Config\App::$supportedLocales remains a fallback for API outages.
+// Signed editor document preview. Domain validates and sanitizes the draft;
+// this app only authorizes the owner and renders the resulting projection.
+$routes->post('(:segment)/_editor/preview', 'EditorPreviewController::preview/$1', ['as' => 'editor_preview', 'filter' => 'throttle:120,60']);
+$routes->options('(:segment)/_editor/preview', 'EditorPreviewController::preflight/$1', ['as' => 'editor_preview_preflight']);
+
+// Locale validity comes from Config\App::$supportedLocales at bootstrap.
 
 // Dynamic form submissions (localized)
-$routes->post('{locale}/forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit_localized', 'filter' => 'throttle:10,60']);
+$routes->post('{locale}/forms/(:segment)/submit', 'FormController::submit/$1', ['as' => 'form_submit_localized', 'filter' => ['csrf', 'throttle:10,60']]);
 
 // Localized routes
 $routes->get('{locale}', 'PageController::home', ['as' => 'home_localized']);

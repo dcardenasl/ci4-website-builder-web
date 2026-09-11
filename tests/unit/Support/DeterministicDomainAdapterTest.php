@@ -19,4 +19,14 @@ final class DeterministicDomainAdapterTest extends TestCase
         $this->assertTrue($response['ok']);
         $this->assertSame(['aa' => 'home', 'bb' => 'home', 'cc' => 'home', 'dd' => 'home'], $response['data']['localized_slugs']);
     }
+
+    public function testGetPathsRecordsCallsForRoundtripAssertions(): void
+    {
+        $adapter = new DeterministicDomainAdapter(['aa']);
+
+        $adapter->get('cms/public/languages');
+        $adapter->get('public/page-bootstrap/about');
+
+        $this->assertSame(['cms/public/languages', 'public/page-bootstrap/about'], $adapter->getPaths());
+    }
 }

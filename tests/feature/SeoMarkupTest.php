@@ -128,6 +128,34 @@ final class SeoMarkupTest extends HermeticFeatureTestCase
         }
     }
 
+    public function testSitemapTraversesEveryEntryPage(): void
+    {
+        $locale = $this->locale();
+        $cache = service('cache');
+        $cache->delete('sitemap_' . $locale);
+        $this->domainAdapter->fakeGet('public/' . $locale . '/pages', []);
+        $this->domainAdapter->fakeGet('public/' . $locale . '/collections', [[
+            'collection_key' => 'news',
+            'slug' => 'news',
+        ]]);
+        $entryPath = 'public/' . $locale . '/entries/news';
+        $this->domainAdapter->fakeGetForQuery($entryPath, ['page' => 1, 'per_page' => 100], [[
+            'slug' => 'entry-one',
+            'is_published' => true,
+        ]], ['total' => 101, 'page' => 1, 'per_page' => 100]);
+        $this->domainAdapter->fakeGetForQuery($entryPath, ['page' => 2, 'per_page' => 100], [[
+            'slug' => 'entry-101',
+            'is_published' => true,
+        ]], ['total' => 101, 'page' => 2, 'per_page' => 100]);
+
+        $result = $this->get('/' . $locale . '/sitemap.xml');
+
+        $result->assertStatus(200);
+        $body = $result->getBody();
+        $this->assertStringContainsString(base_url('/' . $locale . '/news/entry-one'), $body);
+        $this->assertStringContainsString(base_url('/' . $locale . '/news/entry-101'), $body);
+    }
+
     /**
      * Test 4: Canonical URL format is correct.
      *

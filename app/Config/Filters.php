@@ -38,6 +38,8 @@ class Filters extends BaseFilters
         'cors'           => Cors::class,
         'forcehttps'     => ForceHTTPS::class,
         'pagecache'      => PageCache::class,
+        'csrfcookie'     => \App\Filters\CsrfCookieFilter::class,
+        'correlationid'  => \App\Filters\CorrelationIdFilter::class,
         'performance'    => PerformanceMetrics::class,
     ];
 
@@ -57,10 +59,15 @@ class Filters extends BaseFilters
     public array $required = [
         'before' => [
             'forcehttps', // Force Global Secure Requests
+            'correlationid',
             'pagecache',  // Web Page Caching
         ],
         'after' => [
-            'pagecache',   // Web Page Caching
+            'securityheaders',
+            'pagecache',   // Web Page Caching — must precede csrfcookie
+            'csrfcookie',  // Per-browser token cookie after cached HTML
+            'tracking',    // Queue page views after the response is complete
+            'correlationid',
             'performance', // Performance Metrics
             // 'toolbar',     // Debug Toolbar
         ],
@@ -81,8 +88,6 @@ class Filters extends BaseFilters
         ],
         'after' => [
             'secureheaders',   // CI4 native: emits headers from Config\Security::$secureHeaders
-            'securityheaders', // App-defined: X-Frame-Options, X-CTO, Referrer-Policy, Permissions-Policy, HSTS in prod
-            'tracking',        // First-party page-view tracking (fire-and-forget to Domain CMS)
         ],
     ];
 

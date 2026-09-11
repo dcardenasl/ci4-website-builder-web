@@ -20,6 +20,7 @@ abstract class HermeticFeatureTestCase extends CIUnitTestCase
         $config = config('App');
         $config->supportedLocales = ['es', 'en'];
         $config->defaultLocale = 'es';
+        $config->trackingEnabled = false;
         $this->domainAdapter = new DeterministicDomainAdapter();
         Services::injectMock('webApiClient', $this->domainAdapter);
     }

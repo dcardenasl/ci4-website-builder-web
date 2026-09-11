@@ -48,7 +48,7 @@ $captionTextColorBelow   = 'rgb(15, 23, 42)';
         data-slides='<?= esc($jsonSlides, 'attr') ?>'
         data-overlay-pct="<?= esc((string) $overlayPct) ?>"
     >
-        <style>
+        <style <?= csp_style_nonce() ?>>
             [data-hero-carousel] .hero-shell {
                 min-height: clamp(16rem, 46vw, 24rem);
             }

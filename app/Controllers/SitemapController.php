@@ -72,7 +72,9 @@ class SitemapController extends BasePublicWebController
         }
 
         // Add collections and their entries
-        $collections = $collectionService->getAll($lang);
+        $collections = $collectionService->getAll($lang, [
+            'fields' => 'id,collection_key,slug,localized_slugs,index_page',
+        ]);
         foreach ($collections as $collection) {
             $collectionKey = $collection['collection_key'] ?? '';
             $urlPath       = collection_url_path($collection);
@@ -80,20 +82,40 @@ class SitemapController extends BasePublicWebController
                 continue;
             }
 
-            // Add entries
-            $result = $entryService->list($lang, $collectionKey, ['limit' => 500]);
-            foreach ($result['data'] ?? [] as $entry) {
-                if (!isset($entry['slug']) || !($entry['is_published'] ?? true)) {
-                    continue;
+            // Add entries using bounded API pages so large collections are not
+            // silently truncated at the old single 500-item request.
+            $page = 1;
+            $perPage = 100;
+            do {
+                $result = $entryService->list($lang, $collectionKey, [
+                    'page' => $page,
+                    'per_page' => $perPage,
+                ]);
+                $entries = is_array($result['data'] ?? null) ? $result['data'] : [];
+                foreach ($entries as $entry) {
+                    if (!isset($entry['slug']) || !($entry['is_published'] ?? true)) {
+                        continue;
+                    }
+
+                    $urls[] = [
+                        'loc'        => base_url('/' . $lang . $urlPath . '/' . $entry['slug']),
+                        'lastmod'    => $entry['updated_at'] ?? date('c'),
+                        'changefreq' => 'weekly',
+                        'priority'   => '0.7',
+                    ];
                 }
 
-                $urls[] = [
-                    'loc'        => base_url('/' . $lang . $urlPath . '/' . $entry['slug']),
-                    'lastmod'    => $entry['updated_at'] ?? date('c'),
-                    'changefreq' => 'weekly',
-                    'priority'   => '0.7',
-                ];
-            }
+                $pagination = is_array($result['meta']['pagination'] ?? null)
+                    ? $result['meta']['pagination']
+                    : [];
+                $currentPage = max(1, (int) ($pagination['page'] ?? $page));
+                $pageSize = max(1, (int) ($pagination['per_page'] ?? $perPage));
+                $total = (int) ($pagination['total'] ?? 0);
+                $hasNext = $total > 0
+                    ? $currentPage * $pageSize < $total
+                    : count($entries) >= $perPage;
+                $page++;
+            } while ($hasNext && $entries !== []);
         }
 
         return $this->buildSitemapXml($urls);

@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Config;
 
+use App\Analytics\CurlAnalyticsTransport;
+use App\Libraries\AnalyticsQueue;
 use App\Libraries\BlockRenderer;
 use App\Libraries\CacheInvalidator;
+use App\Libraries\HtmlResponseCacheRegistry;
 use App\Libraries\WebApiClient;
 use App\Libraries\WebApiClientInterface;
+use App\Services\EditorPreviewService;
+use App\Services\SiteBootstrapService;
 use App\Services\SiteCategoryService;
 use App\Services\SiteCollectionService;
 use App\Services\SiteEntryService;
@@ -23,6 +28,47 @@ use CodeIgniter\Config\BaseService;
 
 class Services extends BaseService
 {
+    public static function editorPreviewService(bool $getShared = true): EditorPreviewService
+    {
+        if ($getShared) {
+            /** @var EditorPreviewService */
+            return static::getSharedInstance('editorPreviewService');
+        }
+
+        return new EditorPreviewService(static::webApiClient());
+    }
+
+    public static function analyticsQueue(bool $getShared = true): AnalyticsQueue
+    {
+        if ($getShared) {
+            /** @var AnalyticsQueue */
+            return static::getSharedInstance('analyticsQueue');
+        }
+
+        $config = config('App');
+
+        return new AnalyticsQueue(
+            directory: $config->analyticsQueueDirectory,
+            maxAttempts: $config->trackingQueueMaxAttempts,
+            transport: new CurlAnalyticsTransport(
+                trackUrl: rtrim($config->webApiBaseUrl, '/') . '/api/v1/public/track',
+                apiKey: $config->webApiKey,
+                timeoutMs: $config->trackingQueueTimeoutMs,
+                connectTimeoutMs: $config->trackingQueueConnectTimeoutMs,
+            ),
+        );
+    }
+
+    public static function siteBootstrapService(bool $getShared = true): SiteBootstrapService
+    {
+        if ($getShared) {
+            /** @var SiteBootstrapService */
+            return static::getSharedInstance('siteBootstrapService');
+        }
+
+        return new SiteBootstrapService(static::webApiClient());
+    }
+
     public static function webApiClient(bool $getShared = true): WebApiClientInterface
     {
         if ($getShared) {
@@ -36,7 +82,8 @@ class Services extends BaseService
             $config->webApiBaseUrl,
             $config->webApiKey,
             $config->webApiTimeout,
-            $config->webApiStaleTtl
+            $config->webApiStaleTtl,
+            $config->webApiConnectTimeout,
         );
     }
 
@@ -148,6 +195,16 @@ class Services extends BaseService
         }
 
         return new CacheInvalidator();
+    }
+
+    public static function htmlResponseCacheRegistry(bool $getShared = true): HtmlResponseCacheRegistry
+    {
+        if ($getShared) {
+            /** @var HtmlResponseCacheRegistry */
+            return static::getSharedInstance('htmlResponseCacheRegistry');
+        }
+
+        return new HtmlResponseCacheRegistry(static::cache());
     }
 
     public static function siteFormService(bool $getShared = true): SiteFormService

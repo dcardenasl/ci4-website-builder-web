@@ -109,8 +109,8 @@ class App extends BaseConfig
      */
     // The public URL is the locale contract (/es, /en, /fr, ...). Browser
     // Accept-Language must never override an explicit locale in the URL.
-    // The active locale list is discovered from the CMS during bootstrap and
-    // applied by BaseController before any public content is rendered.
+    // The active locale list is configured at deploy/bootstrap time. Public
+    // request handling must not perform language discovery over HTTP.
     public bool $negotiateLocale = false;
 
     /**
@@ -164,6 +164,15 @@ class App extends BaseConfig
     public string $webApiBaseUrl = '';
     public string $webApiKey = '';
 
+    /** Shared HMAC secret for editor preview links; empty disables preview. */
+    public string $cmsPreviewSecret = '';
+
+    /** Maximum encoded draft size accepted by the editor preview endpoint. */
+    public int $editorPreviewMaxPayloadBytes = 1048576;
+
+    /** Exact origin allowed to embed the signed editor preview. */
+    public string $editorPanelOrigin = '';
+
     /**
      * Timeout (seconds) for requests against the Domain API.
      * Override with WEB_API_TIMEOUT in .env.
@@ -171,10 +180,39 @@ class App extends BaseConfig
     public int $webApiTimeout = 15;
 
     /**
+     * Connection-establishment timeout in seconds. Defaults to the total
+     * request timeout; override with WEB_API_CONNECT_TIMEOUT when the hosting
+     * environment needs a shorter connect budget.
+     */
+    public int $webApiConnectTimeout = 15;
+
+    /**
      * TTL (seconds) for the long-lived stale cache copy served when the
      * Domain API is down. Set WEB_API_STALE_TTL=0 in .env to disable.
      */
     public int $webApiStaleTtl = 86400;
+
+    /** Page-view tracking remains best-effort and can be disabled explicitly. */
+    public bool $trackingEnabled = true;
+
+    /** Directory where page-view events wait for the analytics flush worker. */
+    public string $analyticsQueueDirectory = WRITEPATH . 'analytics-queue';
+
+    /** Maximum queued events processed by one flush invocation. */
+    public int $trackingQueueBatchSize = 100;
+
+    /** Number of delivery attempts before an event is quarantined. */
+    public int $trackingQueueMaxAttempts = 5;
+
+    /** CLI transport timeouts; these never run during a visitor request. */
+    public int $trackingQueueTimeoutMs = 5000;
+    public int $trackingQueueConnectTimeoutMs = 1000;
+
+    /** `snapshot` serves warmed/stale public data first; `live` is the development default. */
+    public string $pageDeliveryMode = 'live';
+
+    /** Comma-separated local paths consumed by `cache:warmup --strict`. */
+    public string $cacheWarmupUrls = '';
 
     /**
      * --------------------------------------------------------------------------
@@ -300,16 +338,73 @@ class App extends BaseConfig
         }
         $this->webApiKey = $webApiKey;
 
+        $this->cmsPreviewSecret = (string) env('CMS_PREVIEW_SECRET', '');
+        $previewPayloadLimit = env('EDITOR_PREVIEW_MAX_PAYLOAD_BYTES');
+        if (is_numeric($previewPayloadLimit) && (int) $previewPayloadLimit > 0) {
+            $this->editorPreviewMaxPayloadBytes = min(5242880, (int) $previewPayloadLimit);
+        }
+
+        $this->editorPanelOrigin = $this->normalizeOrigin(env('EDITOR_PANEL_ORIGIN', ''));
+
         // Optional tuning knobs — silently keep defaults when absent.
         $webApiTimeout = env('WEB_API_TIMEOUT');
         if (is_numeric($webApiTimeout) && (int) $webApiTimeout > 0) {
             $this->webApiTimeout = (int) $webApiTimeout;
         }
 
+        $this->webApiConnectTimeout = $this->webApiTimeout;
+        $webApiConnectTimeout = env('WEB_API_CONNECT_TIMEOUT');
+        if (is_numeric($webApiConnectTimeout) && (int) $webApiConnectTimeout > 0) {
+            $this->webApiConnectTimeout = min($this->webApiTimeout, (int) $webApiConnectTimeout);
+        }
+
         $webApiStaleTtl = env('WEB_API_STALE_TTL');
         if (is_numeric($webApiStaleTtl) && (int) $webApiStaleTtl >= 0) {
             $this->webApiStaleTtl = (int) $webApiStaleTtl;
         }
+
+        $this->trackingEnabled = $this->parseBoolean(
+            env('WEB_TRACKING_ENABLED'),
+            $this->trackingEnabled,
+        );
+
+        $trackingQueueDirectory = env('WEB_TRACKING_QUEUE_DIR');
+        if (is_string($trackingQueueDirectory) && trim($trackingQueueDirectory) !== '') {
+            $trackingQueueDirectory = trim($trackingQueueDirectory);
+            $this->analyticsQueueDirectory = str_starts_with($trackingQueueDirectory, DIRECTORY_SEPARATOR)
+                ? rtrim($trackingQueueDirectory, DIRECTORY_SEPARATOR)
+                : ROOTPATH . trim($trackingQueueDirectory, " /\\");
+        }
+
+        $trackingQueueBatchSize = env('WEB_TRACKING_QUEUE_BATCH_SIZE');
+        if (is_numeric($trackingQueueBatchSize) && (int) $trackingQueueBatchSize > 0) {
+            $this->trackingQueueBatchSize = min(500, (int) $trackingQueueBatchSize);
+        }
+
+        $trackingQueueMaxAttempts = env('WEB_TRACKING_QUEUE_MAX_ATTEMPTS');
+        if (is_numeric($trackingQueueMaxAttempts) && (int) $trackingQueueMaxAttempts > 0) {
+            $this->trackingQueueMaxAttempts = min(20, (int) $trackingQueueMaxAttempts);
+        }
+
+        $trackingQueueTimeout = env('WEB_TRACKING_QUEUE_TIMEOUT_MS');
+        if (is_numeric($trackingQueueTimeout) && (int) $trackingQueueTimeout > 0) {
+            $this->trackingQueueTimeoutMs = min(30000, (int) $trackingQueueTimeout);
+        }
+
+        $trackingQueueConnectTimeout = env('WEB_TRACKING_QUEUE_CONNECT_TIMEOUT_MS');
+        if (is_numeric($trackingQueueConnectTimeout) && (int) $trackingQueueConnectTimeout > 0) {
+            $this->trackingQueueConnectTimeoutMs = min(
+                $this->trackingQueueTimeoutMs,
+                (int) $trackingQueueConnectTimeout,
+            );
+        }
+
+        $pageDeliveryMode = strtolower(trim((string) env('PAGE_DELIVERY_MODE', ENVIRONMENT === 'production' ? 'snapshot' : 'live')));
+        if (! in_array($pageDeliveryMode, ['live', 'snapshot'], true)) {
+            throw new \LogicException('PAGE_DELIVERY_MODE must be live or snapshot.');
+        }
+        $this->pageDeliveryMode = $pageDeliveryMode;
+        $this->cacheWarmupUrls = trim((string) env('CACHE_WARMUP_URLS', ''));
 
         $this->cspObjectSrc = $this->parseCspSources(env('CSP_OBJECT_SRC'), $this->cspObjectSrc);
         $this->cspImageSrc  = $this->parseCspSources(env('CSP_IMAGE_SRC'), $this->cspImageSrc);
@@ -333,5 +428,45 @@ class App extends BaseConfig
         $sources = preg_split('/[\s,]+/', trim($raw)) ?: [];
 
         return $sources !== [] ? $sources : $default;
+    }
+
+    private function parseBoolean(mixed $value, bool $default): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            return match (strtolower(trim($value))) {
+                '1', 'true', 'yes', 'on' => true,
+                '0', 'false', 'no', 'off' => false,
+                default => $default,
+            };
+        }
+
+        return $default;
+    }
+
+    private function normalizeOrigin(mixed $value): string
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return '';
+        }
+
+        $origin = rtrim(trim($value), '/');
+        $parsed = parse_url($origin);
+        if (! is_array($parsed)
+            || ! in_array(strtolower((string) ($parsed['scheme'] ?? '')), ['http', 'https'], true)
+            || trim((string) ($parsed['host'] ?? '')) === ''
+            || isset($parsed['user'], $parsed['pass'], $parsed['query'], $parsed['fragment'])
+            || isset($parsed['path']) && $parsed['path'] !== '') {
+            throw new \LogicException('EDITOR_PANEL_ORIGIN must be an exact http(s) origin without a path.');
+        }
+
+        $scheme = strtolower((string) $parsed['scheme']);
+        $host = strtolower((string) $parsed['host']);
+        $port = isset($parsed['port']) ? ':' . (int) $parsed['port'] : '';
+
+        return $scheme . '://' . $host . $port;
     }
 }

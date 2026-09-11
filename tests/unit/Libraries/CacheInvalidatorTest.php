@@ -96,4 +96,21 @@ final class CacheInvalidatorTest extends CIUnitTestCase
         $this->assertContains('forms', $scopes);
         $this->assertCount(8, $scopes);
     }
+
+    public function testStatusSeparatesAutomaticAndManualInvalidations(): void
+    {
+        $this->invalidator->invalidate(['pages'], 'admin_content_write');
+
+        $statusAfterAutomatic = $this->invalidator->status();
+        $this->assertNotNull($statusAfterAutomatic['last_automatic_invalidation_at']);
+        $this->assertNull($statusAfterAutomatic['last_manual_invalidation_at']);
+        $this->assertSame('admin_content_write', $statusAfterAutomatic['last_invalidation_source']);
+
+        $this->invalidator->invalidate(['menus'], 'admin_manual');
+
+        $statusAfterManual = $this->invalidator->status();
+        $this->assertNotNull($statusAfterManual['last_automatic_invalidation_at']);
+        $this->assertNotNull($statusAfterManual['last_manual_invalidation_at']);
+        $this->assertSame('admin_manual', $statusAfterManual['last_invalidation_source']);
+    }
 }

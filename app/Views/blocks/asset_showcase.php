@@ -15,7 +15,7 @@ if ($logos === []) {
 
 <section class="section-sm overflow-hidden <?= esc($cssClass) ?>">
     <?php if ($isMarquee): ?>
-        <style>
+        <style <?= csp_style_nonce() ?>>
             @keyframes marquee {
                 0% { transform: translateX(0%); }
                 100% { transform: translateX(-50%); }

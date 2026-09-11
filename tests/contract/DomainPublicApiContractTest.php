@@ -34,7 +34,14 @@ final class DomainPublicApiContractTest extends TestCase
         $baseUrl = rtrim((string) (getenv('DOMAIN_CONTRACT_BASE_URL') ?: ''), '/');
         $this->assertNotSame('', $baseUrl, 'DOMAIN_CONTRACT_BASE_URL is required.');
 
-        $context = stream_context_create(['http' => ['ignore_errors' => true, 'timeout' => 5]]);
+        $apiKey = trim((string) (getenv('DOMAIN_CONTRACT_API_KEY') ?: ''));
+        $this->assertNotSame('', $apiKey, 'DOMAIN_CONTRACT_API_KEY is required.');
+
+        $context = stream_context_create(['http' => [
+            'header' => "X-App-Key: {$apiKey}\r\nAccept: application/json\r\n",
+            'ignore_errors' => true,
+            'timeout' => 5,
+        ]]);
         $body = @file_get_contents($baseUrl . $path, false, $context);
         $this->assertNotFalse($body, 'Domain contract endpoint is unreachable.');
 

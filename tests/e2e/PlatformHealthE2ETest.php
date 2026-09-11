@@ -12,10 +12,12 @@ final class PlatformHealthE2ETest extends TestCase
     /** @return iterable<string, array{string}> */
     public static function endpointProvider(): iterable
     {
-        yield 'api' => ['http://127.0.0.1:8180/ready'];
-        yield 'admin' => ['http://127.0.0.1:8182/health'];
-        yield 'web' => ['http://127.0.0.1:8186/health'];
-        yield 'domain' => ['http://127.0.0.1:8190/ready'];
+        $host = getenv('PLATFORM_E2E_HOST') ?: '127.0.0.1';
+
+        yield 'api' => ["http://{$host}:8180/ready"];
+        yield 'admin' => ["http://{$host}:8182/health"];
+        yield 'web' => ["http://{$host}:8186/health"];
+        yield 'domain' => ["http://{$host}:8190/ready"];
     }
 
     #[DataProvider('endpointProvider')]
