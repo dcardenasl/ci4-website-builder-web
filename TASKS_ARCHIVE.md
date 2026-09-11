@@ -44,3 +44,10 @@
 - **BACKPORT-01-web** — confirmado contra el plan y el código real que no hay acción específica
   para Web en esta fase. `createFetchQueue()` solo figura en el changelog de Teatro Museo, no en
   su fuente disponible ni en este repo. Verificado con `composer quality`, ESLint y `npm run build:all`.
+
+## ✅ CNV-007-W1..W4 — 2026-09-11
+
+Commits `ce8bd20`, `8eb9c90`, `b106f7f` y `548d185` cierran la entrega segura del editor Web:
+anotación opt-in sin alterar HTML público, preview firmado, CSP/iframe por origin, CORS exacto,
+bridge bundleado y regresiones de seguridad. Composer quality, Vitest/lint/build y pruebas de
+preview quedaron verdes.

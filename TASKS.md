@@ -9,17 +9,14 @@
 
 ## 🟡 Próximo
 
-- [ ] **CNV-007-W1 — Anotador de bloques.** Extensión explícita del `BlockRenderer`, solo en modo
-      editor, preservando exactamente el HTML público.
-- [ ] **CNV-007-W2 — Preview firmado.** `POST /{locale}/_editor/preview` con scopes, owner/locale,
-      throttle, `no-store`, `noindex`, errores seguros y delegación al Domain.
-- [ ] **CNV-007-W3 — Embebido seguro.** `frame-ancestors` exacto por ruta y retiro de
-      `X-Frame-Options: DENY` solo para preview; página pública permanece no embebible.
-- [ ] **CNV-007-W4 — CORS y bridge.** Allowlist exacta, `event.source`/canal/secuencia validados y
-      bridge bundleado localmente, sin CDN.
 - [ ] **CNV-007-F6 — Smoke real.** Verificar Panel ↔ Web cross-origin, selección, scope, locale,
       renovación de token, CSP/CORS y no regresión pública.
 - [ ] **CNV-007-F9 — Autorización por recurso.** Solo en la fase final.
+
+## ✅ Cerrado con evidencia
+
+- **CNV-007-W1..W4.** Commits `ce8bd20`, `8eb9c90`, `b106f7f` y `548d185`; anotaciones,
+  preview firmado, CSP/iframe, CORS exacto y bridge local con contratos de seguridad.
 
 ## 🏗️ Contratos
 
