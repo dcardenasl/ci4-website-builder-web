@@ -9,7 +9,7 @@
 
 ## 🟡 Próximo
 
-- [ ] **CNV-007-F9 — Autorización por recurso.** Solo en la fase final.
+*(vacío; la autorización por recurso es Domain-owned y no se duplica en Web)*
 
 ## ✅ Cerrado con evidencia
 
@@ -19,6 +19,9 @@
   bridge servido, CSP exacta, POST CORS completo desde Admin y no regresión de `/es/home`.
 - **F6 configuración.** `.env.example` fija `EDITOR_PANEL_ORIGIN=http://localhost:8182`; el launcher
   valida el secreto HMAC compartido y el origen del panel antes de levantar el stack.
+- **CNV-007-F9 — Reconciliación de alcance.** No se añade ACL local: Domain aplica el alcance por
+  recurso y Web solo verifica el preview firmado y sus contratos de origen. Evidencia Domain:
+  `729aa89`; cualquier cambio futuro requiere un contrato de consumidor explícito.
 
 ## 🏗️ Contratos
 

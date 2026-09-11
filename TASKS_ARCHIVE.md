@@ -4,6 +4,12 @@
 
 Última actualización: 2026-08-25.
 
+## ✅ CNV-007-F9 — Reconciliación de alcance — 2026-09-11
+
+La autorización por recurso queda centralizada en Domain (`729aa89`). Web no duplica ACL ni
+ownership: conserva la verificación del preview firmado, origin/CSP/CORS y el contrato de entrega.
+No hay implementación local pendiente; una reapertura exige un consumidor y contrato explícitos.
+
 ## ✅ Remediación de huecos profundos — Fase 3 (2026-08-25)
 
 - **GAP-03-web** — cerrados los 9 ítems aplicables: claves de caché con query string, índice de
