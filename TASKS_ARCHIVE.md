@@ -51,3 +51,8 @@ Commits `ce8bd20`, `8eb9c90`, `b106f7f` y `548d185` cierran la entrega segura de
 anotación opt-in sin alterar HTML público, preview firmado, CSP/iframe por origin, CORS exacto,
 bridge bundleado y regresiones de seguridad. Composer quality, Vitest/lint/build y pruebas de
 preview quedaron verdes.
+
+## ✅ CNV-007-F6 — Smoke real — 2026-09-11
+
+Preview firmado ES/EN `200`, bridge cargado, CSP exacta, POST CORS desde Admin y no regresión de
+`/es/home` comprobados en navegador real.

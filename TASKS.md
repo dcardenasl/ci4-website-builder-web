@@ -9,14 +9,16 @@
 
 ## 🟡 Próximo
 
-- [ ] **CNV-007-F6 — Smoke real.** Verificar Panel ↔ Web cross-origin, selección, scope, locale,
-      renovación de token, CSP/CORS y no regresión pública.
 - [ ] **CNV-007-F9 — Autorización por recurso.** Solo en la fase final.
 
 ## ✅ Cerrado con evidencia
 
 - **CNV-007-W1..W4.** Commits `ce8bd20`, `8eb9c90`, `b106f7f` y `548d185`; anotaciones,
   preview firmado, CSP/iframe, CORS exacto y bridge local con contratos de seguridad.
+- **CNV-007-F6 — Smoke real.** Web `POST /es/_editor/preview` y `/en/_editor/preview` `200`,
+  bridge servido, CSP exacta, POST CORS completo desde Admin y no regresión de `/es/home`.
+- **F6 configuración.** `.env.example` fija `EDITOR_PANEL_ORIGIN=http://localhost:8182`; el launcher
+  valida el secreto HMAC compartido y el origen del panel antes de levantar el stack.
 
 ## 🏗️ Contratos
 
