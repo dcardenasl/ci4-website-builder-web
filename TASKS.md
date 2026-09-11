@@ -19,6 +19,8 @@
   bridge servido, CSP exacta, POST CORS completo desde Admin y no regresión de `/es/home`.
 - **F6 configuración.** `.env.example` fija `EDITOR_PANEL_ORIGIN=http://localhost:8182`; el launcher
   valida el secreto HMAC compartido y el origen del panel antes de levantar el stack.
+- **CNV-007-P2-E2E — Health gate portable.** `PlatformHealthE2ETest` acepta `PLATFORM_E2E_HOST`
+  para ejecutar el gate con `localhost` o `127.0.0.1` según el runtime, sin duplicar casos.
 - **CNV-007-F9 — Reconciliación de alcance.** No se añade ACL local: Domain aplica el alcance por
   recurso y Web solo verifica el preview firmado y sus contratos de origen. Evidencia Domain:
   `729aa89`; cualquier cambio futuro requiere un contrato de consumidor explícito.
