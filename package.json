@@ -30,7 +30,7 @@
     "eslint": "^9.39.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.28",
     "tailwindcss": "^4.3.1"
   }
 }

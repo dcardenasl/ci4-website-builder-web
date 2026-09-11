@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Updated the CSS build toolchain**, including PostCSS and its vulnerable transitive dependencies,
+  so the locked frontend dependencies pass the current npm security audit.
+
 ### Added
 - Signed editor document preview now delegates draft projection to Domain and
   renders the sanitized result with the production block renderer, including
