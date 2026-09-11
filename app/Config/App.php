@@ -164,6 +164,12 @@ class App extends BaseConfig
     public string $webApiBaseUrl = '';
     public string $webApiKey = '';
 
+    /** Shared HMAC secret for editor preview links; empty disables preview. */
+    public string $cmsPreviewSecret = '';
+
+    /** Maximum encoded draft size accepted by the editor preview endpoint. */
+    public int $editorPreviewMaxPayloadBytes = 1048576;
+
     /**
      * Timeout (seconds) for requests against the Domain API.
      * Override with WEB_API_TIMEOUT in .env.
@@ -328,6 +334,12 @@ class App extends BaseConfig
             );
         }
         $this->webApiKey = $webApiKey;
+
+        $this->cmsPreviewSecret = (string) env('CMS_PREVIEW_SECRET', '');
+        $previewPayloadLimit = env('EDITOR_PREVIEW_MAX_PAYLOAD_BYTES');
+        if (is_numeric($previewPayloadLimit) && (int) $previewPayloadLimit > 0) {
+            $this->editorPreviewMaxPayloadBytes = min(5242880, (int) $previewPayloadLimit);
+        }
 
         // Optional tuning knobs — silently keep defaults when absent.
         $webApiTimeout = env('WEB_API_TIMEOUT');

@@ -22,6 +22,10 @@ $routes->post('forms/(:segment)/submit', 'FormController::submit/$1', ['as' => '
 // the other public POST routes above.
 $routes->post('blocks/preview', 'BlockPreviewController::preview', ['as' => 'blocks_preview', 'filter' => 'throttle:10,60']);
 
+// Signed editor document preview. Domain validates and sanitizes the draft;
+// this app only authorizes the owner and renders the resulting projection.
+$routes->post('(:segment)/_editor/preview', 'EditorPreviewController::preview/$1', ['as' => 'editor_preview', 'filter' => 'throttle:120,60']);
+
 // Locale validity comes from Config\App::$supportedLocales at bootstrap.
 
 // Dynamic form submissions (localized)

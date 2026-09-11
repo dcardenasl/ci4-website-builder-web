@@ -26,6 +26,11 @@ class SecurityHeadersFilter implements FilterInterface
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
+        if (str_ends_with($request->getUri()->getPath(), '/_editor/preview')) {
+            $response->noCache();
+            $response->setHeader('X-Robots-Tag', 'noindex, nofollow');
+        }
+
         $response->setHeader('X-Content-Type-Options', 'nosniff');
         $response->setHeader('X-Frame-Options', 'DENY');
         $response->setHeader('X-XSS-Protection', '1; mode=block');

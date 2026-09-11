@@ -20,6 +20,9 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
     /** @var array<string, array{ok: bool, status: int, data: mixed, meta: array<string, mixed>, messages: list<string>}> */
     private array $queryResponses = [];
 
+    /** @var array<string, array{ok: bool, status: int, data: mixed, meta: array<string, mixed>, messages: list<string>}> */
+    private array $postResponses = [];
+
     /** @var list<string> */
     private array $getPaths = [];
 
@@ -60,6 +63,23 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
             'data' => null,
             'meta' => [],
             'messages' => ['Not found'],
+        ];
+    }
+
+    /** @param array<string, mixed> $meta */
+    public function fakePost(string $path, mixed $data, array $meta = []): void
+    {
+        $this->postResponses[$path] = $this->response($data, $meta);
+    }
+
+    public function fakePostFailure(string $path, int $status = 500): void
+    {
+        $this->postResponses[$path] = [
+            'ok' => false,
+            'status' => $status,
+            'data' => null,
+            'meta' => [],
+            'messages' => ['Upstream failure'],
         ];
     }
 
@@ -130,9 +150,19 @@ final class DeterministicDomainAdapter implements WebApiClientInterface
 
     public function post(string $path, array $data = []): array
     {
-        unset($path, $data);
+        unset($data);
 
-        return $this->response([]);
+        if (isset($this->postResponses[$path])) {
+            return $this->postResponses[$path];
+        }
+
+        return [
+            'ok' => false,
+            'status' => 404,
+            'data' => null,
+            'meta' => [],
+            'messages' => ['Not found'],
+        ];
     }
 
     /** @param array<string, mixed> $meta */

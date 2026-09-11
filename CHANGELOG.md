@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Signed editor document preview now delegates draft projection to Domain and
+  renders the sanitized result with the production block renderer, including
+  owner-bound HMAC verification, payload limits, no-store/noindex headers, and
+  regression coverage for failed authorization and upstream errors.
 - Correlation ID filter that safely propagates `X-Request-ID` from request to
   response, including responses served by the page cache.
 - Asynchronous page-view analytics queue with an explicit `analytics:flush`

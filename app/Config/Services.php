@@ -11,6 +11,7 @@ use App\Libraries\CacheInvalidator;
 use App\Libraries\HtmlResponseCacheRegistry;
 use App\Libraries\WebApiClient;
 use App\Libraries\WebApiClientInterface;
+use App\Services\EditorPreviewService;
 use App\Services\SiteBootstrapService;
 use App\Services\SiteCategoryService;
 use App\Services\SiteCollectionService;
@@ -27,6 +28,16 @@ use CodeIgniter\Config\BaseService;
 
 class Services extends BaseService
 {
+    public static function editorPreviewService(bool $getShared = true): EditorPreviewService
+    {
+        if ($getShared) {
+            /** @var EditorPreviewService */
+            return static::getSharedInstance('editorPreviewService');
+        }
+
+        return new EditorPreviewService(static::webApiClient());
+    }
+
     public static function analyticsQueue(bool $getShared = true): AnalyticsQueue
     {
         if ($getShared) {
