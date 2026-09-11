@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   renders the sanitized result with the production block renderer, including
   owner-bound HMAC verification, payload limits, no-store/noindex headers, and
   regression coverage for failed authorization and upstream errors.
+- Editor preview embedding now uses an exact-origin CORS/preflight contract and
+  a locally bundled bridge that validates iframe source, protocol, channel and
+  monotonic replacement sequences while blocking navigation, submits and analytics.
 - Correlation ID filter that safely propagates `X-Request-ID` from request to
   response, including responses served by the page cache.
 - Asynchronous page-view analytics queue with an explicit `analytics:flush`

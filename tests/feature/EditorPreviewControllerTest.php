@@ -51,7 +51,46 @@ final class EditorPreviewControllerTest extends HermeticFeatureTestCase
         self::assertSame('noindex, nofollow', $response->response()->getHeaderLine('X-Robots-Tag'));
         self::assertSame('', $response->response()->getHeaderLine('X-Frame-Options'));
         self::assertStringContainsString('frame-ancestors http://localhost:8192', $response->response()->getHeaderLine('Content-Security-Policy'));
+        self::assertStringContainsString('editor-bridge.js', (string) $response->response()->getBody());
         self::assertStringContainsString('data-block-instance="id_7"', (string) $response->response()->getBody());
+    }
+
+    public function testPanelOriginReceivesCORSAndPreflightOnlyForTheExactOrigin(): void
+    {
+        $this->domainAdapter->fakePost($this->projectionPath(), $this->document());
+        $allowed = $this->withHeaders(['Origin' => 'http://localhost:8192'])
+            ->post('/es/_editor/preview', $this->signedFields([
+                'lang' => 'es',
+                'scope' => ['type' => 'document'],
+                'blocks' => [],
+            ]));
+
+        $allowed->assertStatus(200);
+        self::assertSame('http://localhost:8192', $allowed->response()->getHeaderLine('Access-Control-Allow-Origin'));
+
+        $preflight = $this->withHeaders([
+            'Origin' => 'http://localhost:8192',
+            'Access-Control-Request-Method' => 'POST',
+        ])->call('OPTIONS', '/es/_editor/preview');
+        $preflight->assertStatus(204);
+        self::assertSame('POST', $preflight->response()->getHeaderLine('Access-Control-Allow-Methods'));
+
+        $refused = $this->withHeaders(['Origin' => 'http://localhost:8193'])
+            ->post('/es/_editor/preview', $this->signedFields([
+                'lang' => 'es',
+                'scope' => ['type' => 'document'],
+                'blocks' => [],
+            ]));
+        $refused->assertStatus(200);
+        self::assertSame('', $refused->response()->getHeaderLine('Access-Control-Allow-Origin'));
+    }
+
+    public function testInvalidBridgeChannelIsRejected(): void
+    {
+        $fields = $this->signedFields(['lang' => 'es', 'scope' => ['type' => 'document'], 'blocks' => []]);
+        $fields['channel'] = 'short';
+
+        $this->post('/es/_editor/preview', $fields)->assertStatus(422);
     }
 
     public function testMissingOrTamperedSignatureFailsBeforeDomainProjection(): void
@@ -76,6 +115,7 @@ final class EditorPreviewControllerTest extends HermeticFeatureTestCase
         $fields = [
             'owner_type' => 'page',
             'owner_id' => (string) self::OWNER_ID,
+            'channel' => 'channel_0123456789ab',
             'expires' => (string) $expired,
             'sig' => hash_hmac('sha256', 'editor:page:' . self::OWNER_ID . ':' . $expired, self::SECRET),
             'payload' => json_encode(['lang' => 'es', 'scope' => ['type' => 'document'], 'blocks' => []], JSON_THROW_ON_ERROR),
@@ -144,6 +184,7 @@ final class EditorPreviewControllerTest extends HermeticFeatureTestCase
         return [
             'owner_type' => 'page',
             'owner_id' => (string) self::OWNER_ID,
+            'channel' => 'channel_0123456789ab',
             'expires' => $token['expires'],
             'sig' => $token['sig'],
             'payload' => json_encode($draft, JSON_THROW_ON_ERROR),

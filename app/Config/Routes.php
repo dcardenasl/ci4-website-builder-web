@@ -25,6 +25,7 @@ $routes->post('blocks/preview', 'BlockPreviewController::preview', ['as' => 'blo
 // Signed editor document preview. Domain validates and sanitizes the draft;
 // this app only authorizes the owner and renders the resulting projection.
 $routes->post('(:segment)/_editor/preview', 'EditorPreviewController::preview/$1', ['as' => 'editor_preview', 'filter' => 'throttle:120,60']);
+$routes->options('(:segment)/_editor/preview', 'EditorPreviewController::preflight/$1', ['as' => 'editor_preview_preflight']);
 
 // Locale validity comes from Config\App::$supportedLocales at bootstrap.
 

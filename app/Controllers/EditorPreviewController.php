@@ -33,6 +33,11 @@ final class EditorPreviewController extends BasePublicWebController
             return $this->problem(422, lang('Editor.invalidPayload'));
         }
 
+        $channel = is_string($input['channel'] ?? null) ? $input['channel'] : '';
+        if (preg_match('/^[A-Za-z0-9_-]{16,64}$/D', $channel) !== 1) {
+            return $this->problem(422, lang('Editor.invalidPayload'));
+        }
+
         $result = Services::editorPreviewService()->project($owner['type'], $owner['id'], $draft);
         if (! $result['ok']) {
             return $this->upstreamProblem($result['status']);
@@ -67,6 +72,7 @@ final class EditorPreviewController extends BasePublicWebController
             'pageTitle' => lang('Editor.previewTitle'),
             'metaDescription' => '',
             'metaRobots' => 'noindex, nofollow',
+            'disableAnalytics' => true,
             'schemaData' => null,
             'renderedBlocks' => $rendered,
             'localized_urls' => [],
@@ -74,7 +80,19 @@ final class EditorPreviewController extends BasePublicWebController
             'cacheScopes' => [],
         ]);
 
-        return $this->noStore($response->setContentType('text/html', 'UTF-8'));
+        $body = (string) $response->getBody();
+        $bridge = $this->bridge($channel);
+        if ($bridge !== '') {
+            $body = str_replace('</body>', $bridge . '</body>', $body);
+        }
+        $response->setBody($body);
+
+        return $this->cors($this->noStore($response->setContentType('text/html', 'UTF-8')));
+    }
+
+    public function preflight(): ResponseInterface
+    {
+        return $this->cors($this->noStore($this->response->setStatusCode(204)));
     }
 
     /** @return array<string, mixed> */
@@ -149,12 +167,12 @@ final class EditorPreviewController extends BasePublicWebController
 
     private function html(string $body): ResponseInterface
     {
-        return $this->noStore($this->response->setContentType('text/html', 'UTF-8')->setBody($body));
+        return $this->cors($this->noStore($this->response->setContentType('text/html', 'UTF-8')->setBody($body)));
     }
 
     private function problem(int $status, string $message): ResponseInterface
     {
-        return $this->noStore($this->response->setStatusCode($status)->setJSON(['error' => $message]));
+        return $this->cors($this->noStore($this->response->setStatusCode($status)->setJSON(['error' => $message])));
     }
 
     private function upstreamProblem(int $status): ResponseInterface
@@ -174,5 +192,46 @@ final class EditorPreviewController extends BasePublicWebController
         return $response
             ->noCache()
             ->setHeader('X-Robots-Tag', 'noindex, nofollow');
+    }
+
+    private function bridge(string $channel): string
+    {
+        $origin = (string) config('App')->editorPanelOrigin;
+        if ($origin === '') {
+            return '';
+        }
+
+        $bundle = FCPATH . 'assets/js/editor-bridge.js';
+        $version = is_file($bundle) ? (string) (md5_file($bundle) ?: filemtime($bundle)) : '0';
+
+        return '<script ' . csp_script_nonce() . ' src="' . esc(base_url('assets/js/editor-bridge.js?v=' . $version), 'attr') . '"'
+            . ' data-channel="' . esc($channel, 'attr') . '"'
+            . ' data-panel-origin="' . esc($origin, 'attr') . '"></script>';
+    }
+
+    private function cors(ResponseInterface $response): ResponseInterface
+    {
+        $vary = array_filter(array_map('trim', explode(',', $response->getHeaderLine('Vary'))));
+        if (! in_array('Origin', $vary, true)) {
+            $response->setHeader('Vary', implode(', ', [...$vary, 'Origin']));
+        }
+
+        $configured = (string) config('App')->editorPanelOrigin;
+        $requested = $this->request->getHeaderLine('Origin');
+        if ($configured === '' || $requested === '' || ! hash_equals($configured, $requested)) {
+            return $response
+                ->removeHeader('Access-Control-Allow-Origin')
+                ->removeHeader('Access-Control-Allow-Methods')
+                ->removeHeader('Access-Control-Allow-Headers')
+                ->removeHeader('Access-Control-Max-Age')
+                ->removeHeader('Access-Control-Expose-Headers');
+        }
+
+        return $response
+            ->setHeader('Access-Control-Allow-Origin', $configured)
+            ->setHeader('Access-Control-Allow-Methods', 'POST')
+            ->setHeader('Access-Control-Allow-Headers', 'Content-Type')
+            ->setHeader('Access-Control-Max-Age', '600')
+            ->setHeader('Access-Control-Expose-Headers', 'Retry-After');
     }
 }

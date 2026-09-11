@@ -60,7 +60,7 @@ if (! is_array($resolvedSchemaData) || $resolvedSchemaData === []) {
     }
 }
 
-$analyticsProvider = $settings['analytics_provider'] ?? 'none';
+$analyticsProvider = ($disableAnalytics ?? false) ? 'none' : ($settings['analytics_provider'] ?? 'none');
 $analyticsId       = $settings['analytics_id'] ?? '';
 ?>
 <meta charset="UTF-8">
