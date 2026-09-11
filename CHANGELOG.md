@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-09-11
+
 ### Fixed
 - **Restored production Tailwind coverage for server-rendered views** by including
   `app/Views` in the Docker asset build and failing the image build when the
